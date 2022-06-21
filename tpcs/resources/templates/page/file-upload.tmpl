@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>文件上传</title>
+    <link rel="stylesheet" href="/static/lib/layui-v2.6.3/css/layui.css" media="all">
+    <link rel="stylesheet" href="/static/css/public.css" media="all">
+    <script src="/static/lib/jquery-3.4.1/jquery-3.4.1.min.js" charset="utf-8"></script>
+    <script src="/static/lib/layui-v2.6.3/layui.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/static/lib/file-upload/fileUpload.js"></script>
+    <link rel="stylesheet" href="/static/lib/file-upload/fileUpload.css" media="all">
+    <link rel="stylesheet" href="/static/lib/file-upload/iconfont.css" media="all">
+</head>
+<body>
+<div id="fileUploadContent" class="fileUploadContent"></div>
+<script type="text/javascript">
+    let wfu = new WpFileUpload("fileUploadContent");
+    wfu.initUpload({
+        "uploadUrl": "/api/files/",//上传文件信息地址
+        "progressUrl": "/api/files/status",//获取进度信息地址，可选，注意需要返回的data格式如下（{bytesRead: 102516060, contentLength: 102516060, items: 1, percent: 100, startTime: 1489223136317, useTime: 2767}）
+        "scheduleStandard": false, // 模拟进度上传
+        "isAutoClean": false,// 是否上传完成后自动清除
+        "selfUploadBtId": "", // 自定义文件上传按钮id
+        "rememberUpload": false,// 记住上传文件
+        "autoCommit": false,// 是否自动上传
+        "isHiddenUploadBt": false,// 是否隐藏上传按钮
+        "isHiddenCleanBt": false,// 是否隐藏清除按钮
+        "canDrag": true, // 是否可以拖动
+        "fileType": "*", // 文件类型
+        "size": "-1", // 文件大小限制,单位KB
+        "totalSize": "10240", // 1024 * 20   // 文件总大小限制，单位KB
+        "maxFileNumber": "-1", // 文件数量限制
+        "ismultiple": true,   // 是否选择多文件
+        "showSummerProgress": true, // 显示总进度条
+        "showFileItemProgress": true,  // 是否显示文件单个总进度
+        "showProgressNum": true,  // 是否显示进度值
+        "uploadFileParam": "files",  // 要上传的文件参数
+        // 要上传的文件参数是否迭代，如果true：files0，files1，files2......
+        // 如果是false：所有的文件通过一个参数files来上传文件
+        "uploadFileParamIteration": false,
+        "resultData": null,// 上传成功后返回的数据存储在此
+    });
+</script>
+</body>
+</html>
+
+

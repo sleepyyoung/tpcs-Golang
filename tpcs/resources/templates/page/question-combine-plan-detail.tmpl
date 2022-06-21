@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="utf-8">
+    <title>组卷方案详情</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="/static/lib/layui-v2.6.3/css/layui.css" media="all">
+    <link rel="stylesheet" href="/static/css/public.css" media="all">
+    <link rel="stylesheet" href="/static/lib/font-awesome-4.7.0/css/font-awesome.min.css" media="all">
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css" media="all">
+    <script src="/static/lib/jquery-3.4.1/jquery-3.4.1.min.js" charset="utf-8"></script>
+    <script src="/static/js/html2canvas.js" charset="utf-8"></script>
+    <script src="/static/js/jspdf.debug.js" charset="utf-8"></script>
+    <script src="/static/js/FileSaver.js" charset="utf-8"></script>
+    <script src="/static/js/jquery.wordexport.js" charset="utf-8"></script>
+    <script src="/static/lib/layui-v2.6.3/layui.js" charset="utf-8"></script>
+</head>
+<body>
+<div class="layuimini-container">
+    <div class="layuimini-main">
+        <fieldset class="table-search-fieldset">
+            <div style="margin: 10px 10px 10px 10px">
+                <form class="layui-form layui-form-pane" action="">
+                    <div class="layui-form-item">
+                        <div class="layui-inline">
+                            <label class="layui-form-label">课程</label>
+                            <div class="layui-input-inline" style="margin-right: 0;">
+                                <input type="text" id="course" value="{{.plan.Course.Name}}" readonly="readonly"
+                                       style="text-align: center;font-weight: bold;" class="layui-input">
+                            </div>
+                        </div>
+                        <div class="layui-inline">
+                            <label class="layui-form-label">试卷总分</label>
+                            <div class="layui-input-inline">
+                                <input type="text" id="paperScore" value="{{.plan.Score}}" readonly="readonly"
+                                       style="text-align: center;font-weight: bold;" class="layui-input">
+                            </div>
+                        </div>
+                        <div class="layui-inline">
+                            <label class="layui-form-label">所属教师</label>
+                            <div class="layui-input-inline">
+                                <input type="button" id="user-info" value="{{.plan.User.Username}}" readonly="readonly"
+                                       style="text-align: center;font-weight: bold;" class="layui-input">
+                            </div>
+                        </div>
+                        <hr/>
+                        <div class="layui-inline">
+                            <h5>试卷标题：</h5>
+                        </div>
+                        <div class="layui-form-item">
+                            <div class="layui-input-block" style="margin-left: 0">
+                                <input type="text" name="paper-title" id="paper-title" autocomplete="off"
+                                       readonly="readonly" value="{{.plan.PaperTitle}}" class="layui-input">
+                            </div>
+                        </div>
+                        <hr/>
+                        <div class="layui-inline">
+                            <div>
+                                <h4>方案详情：</h4>
+                            </div>
+                            <table class="layui-hide" id="table4Combine" lay-filter="table4CombineFilter"></table>
+                        </div>
+                    </div>
+                    <hr/>
+                    <div class="layui-inline">
+                        <h5>备注：</h5>
+                    </div>
+                    <div class="layui-form-item">
+                        <div class="layui-input-block" style="margin-left: 0">
+                            <input type="text" name="paper-title" id="note" autocomplete="off"
+                                   readonly="readonly" value="{{.plan.Note}}" class="layui-input">
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </fieldset>
+    </div>
+</div>
+<script>
+    function merge(res, columnName, columnIndex) {
+        const data = res.data;
+        let mergeIndex = 0;
+        let mark = 1;
+        for (let k = 0; k < columnName.length; k++) {
+            const trArr = $(".layui-table-body>.layui-table").find("tr");
+            for (let i = 1; i < res.data.length; i++) {
+                const tdCurArr = trArr.eq(i).find("td").eq(columnIndex[k]);
+                const tdPreArr = trArr.eq(mergeIndex).find("td").eq(columnIndex[k]);
+                if (data[i][columnName[k]] === data[i - 1][columnName[k]]) {
+                    mark += 1;
+                    tdPreArr.each(function () {
+                        $(this).attr("rowspan", mark);
+                    });
+                    tdCurArr.each(function () {
+                        $(this).css("display", "none");
+                    });
+                } else {
+                    mergeIndex = i;
+                    mark = 1;
+                }
+            }
+            mergeIndex = 0;
+            mark = 1;
+        }
+    }
+
+    const tableCols = [[
+        {field: 'type', minWidth: 100, title: '题型', align: "center"},
+        {field: 'difficulty', minWidth: 100, title: '难度', align: "center"},
+        {field: "num", minWidth: 100, align: "center", title: '数量'},
+        {field: "score", minWidth: 120, align: "center", title: '单个分值'},
+        {field: "dScore", minWidth: 120, title: '该难度总分值', align: "center"},
+        {field: "tScore", rowspan: 3, minWidth: 150, title: '该题型总分值', align: "center"},
+        {field: "checkbox", type: "checkbox", hide: true},
+    ]]
+
+    layui.use(['form', 'table', 'element'], function () {
+        let $ = layui.jquery, form = layui.form, table = layui.table, element = layui.element;
+
+        table.render({
+            elem: '#table4Combine',
+            data: JSON.parse({{.plan.Plan}}),
+            cols: tableCols,
+            skin: 'row line',
+            page: false,
+            limit: 999,
+            done: function (res, curr, count) {
+                merge(res, ['type'], [0]);
+                merge(res, ['type'], [5]);
+            }
+        });
+    });
+</script>
+<script>
+    layui.$("#user-info").on("click", function () {
+        layer.open({
+            title: '{{.plan.User.Username}}',
+            type: 2,
+            shade: 0.2,
+            maxmin: false,
+            area: ['920px', '330px'],
+            shadeClose: true,
+            content: '/user/{{.plan.User.Username}}',
+        });
+    })
+</script>
+</body>
+</html>

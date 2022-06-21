@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="utf-8">
+    <title>题目详情</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="/static/lib/layui-v2.6.3/css/layui.css" media="all">
+    <link rel="stylesheet" href="/static/css/public.css" media="all">
+    <script src="/static/lib/jquery-3.4.1/jquery-3.4.1.min.js" charset="utf-8"></script>
+    <style>
+        body {
+            background-color: #ffffff;
+        }
+
+        img {
+            width: 900px;
+        }
+    </style>
+    <script>
+        window.onload = function () {
+            const q = document.getElementById('question-html');
+            q.innerHTML = q.innerText
+            const a = document.getElementById('answer-html');
+            a.innerHTML = a.innerText
+        }
+    </script>
+</head>
+<body>
+<div class="layui-form layuimini-form">
+    <div class="layui-form-item" style="margin-top: 20px;">
+        <label class="layui-form-label"><strong>题目：</strong></label>
+        <div class="layui-input-block"
+             style="border-color: black;border-width: 1px;border-style:solid;margin: 50px 0 50px 0; padding:20px 10px 20px 10px;">
+            <span id="question-html">{{.question.QuestionHtml}}</span>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label"><strong>答案：</strong></label>
+        <div class="layui-input-block" id="answer-html"
+             style="border-color: black;border-width: 1px;border-style:solid;margin: 50px 0 50px 0; padding:20px 10px 20px 10px;">
+            {{.question.AnswerHtml}}
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label"><strong>分值：</strong></label>
+        <div class="layui-input-inline">
+            <input class="layui-input" disabled value="{{.question.Score}}">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label"><strong>题型：</strong></label>
+        <div class="layui-input-inline">
+            <input class="layui-input" disabled value="{{.question.QuestionType.Name}}">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label"><strong>难度：</strong></label>
+        <div class="layui-input-inline">
+            <input class="layui-input" disabled value="{{.question.QuestionDifficulty.Name}}">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label"><strong>所属课程：</strong></label>
+        <div class="layui-input-inline">
+            <input class="layui-input" disabled value="{{.question.Course.Name}}">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label"><strong>所属教师：</strong></label>
+        <div class="layui-input-inline">
+            <button class="layui-btn layui-btn-primary" type="button" id="user-info">{{.question.User.Username}}
+                <i class="fa fa-eye"></i></button>
+        </div>
+    </div>
+</div>
+<script src="/static/lib/layui-v2.6.3/layui.js" charset="utf-8"></script>
+<script src="/static/js/lay-config.js" charset="utf-8"></script>
+<script>
+    layui.$("#user-info").on("click", function () {
+        layer.open({
+            title: '{{.question.User.Username}}',
+            type: 2,
+            shade: 0.2,
+            maxmin: false,
+            area: ['920px', '330px'],
+            shadeClose: true,
+            content: '/user/{{.question.User.Username}}',
+        });
+    })
+</script>
+</body>
+</html>

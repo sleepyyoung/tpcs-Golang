@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="utf-8">
+    <title>文件列表</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <script src="/static/lib/layui-master/src/layui.js" charset="utf-8"></script>
+    <link rel="stylesheet" href="/static/lib/layui-master/src/css/layui.css" media="all">
+    <link rel="stylesheet" href="/static/css/public.css" media="all">
+    <link rel="stylesheet" href="/static/lib/font-awesome-4.7.0/css/font-awesome.min.css" media="all">
+</head>
+<body>
+<div class="layuimini-container">
+    <div class="layuimini-main">
+        <script type="text/html" id="toolbarDemo">
+            <div class="layui-btn-container">
+                <button class="layui-btn layui-btn-normal layui-btn-sm" lay-event="show-all"> 显示全部</button>
+                <button class="layui-btn layui-btn-sm data-add-btn" lay-event="upload"> 上传</button>
+                <button id="batch-remove" class="layui-btn layui-btn-sm layui-btn-danger data-delete-btn"
+                        style="display: none" lay-event="remove"> 删除
+                </button>
+            </div>
+        </script>
+        <table class="layui-hide" id="currentTableId" lay-filter="currentTableFilter"></table>
+        <script type="text/html" id="currentTableBar">
+            <a class="layui-btn layui-btn-xs " lay-event="download">下载</a>
+            <a class="layui-btn layui-btn-xs layui-btn-danger data-count-delete" lay-event="delete">删除</a>
+        </script>
+    </div>
+</div>
+<script>
+    let cols = [[
+        {type: "checkbox"},
+        {field: 'id', hide: true},
+        {field: 'name', title: '文件名称', align: "center", sort: true},
+        {field: 'path', hide: true},
+        {field: 'gmtCreate', title: '上传时间', align: "center", sort: true},
+        {{if .isAdmin}}
+        {field: 'teacher', title: '所属教师', align: "center", sort: true},
+        {{end}}
+        {title: '操作', minWidth: 150, toolbar: '#currentTableBar', align: "center"}
+    ]]
+
+    function initTable(table, url) {
+        table.render({
+            elem: '#currentTableId',
+            url: url,
+            toolbar: '#toolbarDemo',
+            defaultToolbar: ['filter', 'exports', 'print'],
+            cols: cols,
+            limits: [5, 10, 15, 20, 25, 30, 50, 100],
+            limit: 15,
+            page: true,
+            skin: 'row line'
+        });
+    }
+
+    layui.use(['form', 'table'], function () {
+        const $ = layui.jquery, form = layui.form, table = layui.table;
+        initTable(table, '/api/files');
+
+        table.on('checkbox(currentTableFilter)', function (obj) {
+            const checkStatus = table.checkStatus('currentTableId'), data = checkStatus.data;
+            const ids = [];
+            for (let i = 0; i < data.length; i++) {
+                ids.push(data[i]['id'])
+            }
+            if (ids.length > 0) {
+                $("#batch-remove").show();
+            } else {
+                $("#batch-remove").hide();
+            }
+        });
+
+        // toolbar监听事件
+        table.on('toolbar(currentTableFilter)', function (obj) {
+            if (obj.event === 'show-all') {  // 监听“显示全部”操作
+                initTable(table, '/api/files');
+            } else if (obj.event === 'upload') {
+                const index = layer.open({
+                    title: '文件上传',
+                    type: 2,
+                    shade: 0.2,
+                    maxmin: true,
+                    shadeClose: true,
+                    area: ['100%', '100%'],
+                    content: '/file-upload',
+                    end: function () {
+                        initTable(table, '/api/files');
+                    }
+                });
+            } else if (obj.event === 'remove') {
+                layer.confirm('真的要将这些文件全部删除吗？', function (index) {
+                    const checkStatus = table.checkStatus('currentTableId'), data = checkStatus.data;
+                    const ids = [];
+                    for (let i = 0; i < data.length; i++) {
+                        ids.push(data[i]['id'])
+                    }
+                    $.ajax({
+                        type: 'DELETE',
+                        url: "/api/files/batch/",
+                        data: JSON.stringify(ids),
+                        contentType: "application/json",
+                        success: function (data) {
+                            if (data['success'] === true) {
+                                const successIndex = layer.msg('文件已成功删除！', {icon: 6}, function () {
+                                    layer.close(successIndex);
+                                    const iframeIndex = parent.layer.getFrameIndex(window.name);
+                                    parent.layer.close(iframeIndex);
+                                })
+                            } else {
+                                const failIndex = layer.alert(data['msg'], {
+                                    title: '文件删除失败！', icon: 5
+                                }, function () {
+                                    layer.close(failIndex);
+                                });
+                            }
+                            initTable(table, '/api/files');
+                        },
+                        dataType: "json"
+                    })
+                });
+            }
+        });
+
+        table.on('tool(currentTableFilter)', function (obj) {
+            const data = obj.data;
+            if (obj.event === 'download') {
+                window.location.assign("/api/files/download/" + data.id);
+            } else if (obj.event === 'delete') {
+                layer.confirm('真的要删除这个文件吗？', function (index) {
+                    $.ajax({
+                        type: 'DELETE',
+                        url: "/api/files/" + data.id,
+                        success: function (data) {
+                            if (data['success'] === true) {
+                                const successIndex = layer.msg('文件已成功删除！', {icon: 6}, function () {
+                                    layer.close(successIndex);
+                                    const iframeIndex = parent.layer.getFrameIndex(window.name);
+                                    parent.layer.close(iframeIndex);
+                                    obj.del();
+                                })
+                            } else {
+                                const failIndex = layer.alert(data['msg'], {
+                                    title: '文件删除失败！', icon: 5
+                                }, function () {
+                                    layer.close(failIndex);
+                                });
+                            }
+                            initTable(table, '/api/files');
+                        }
+                    });
+                });
+            }
+        });
+    });
+</script>
+</body>
+</html>

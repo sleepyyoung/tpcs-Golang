@@ -1,0 +1,26 @@
+2022/06/20 09:41:03 [notice] 18316#388: signal process started
+2022/06/20 09:41:33 [notice] 9816#17636: signal process started
+2022/06/20 09:44:05 [notice] 11288#23404: signal process started
+2022/06/20 09:45:03 [notice] 23192#23220: signal process started
+2022/06/20 09:45:45 [emerg] 17636#22888: invalid number of arguments in "proxy_set_header" directive in D:\Environments\nginx-1.21.4/conf/nginx.conf:27
+2022/06/20 09:45:59 [notice] 9364#22640: signal process started
+2022/06/20 09:46:25 [notice] 23408#14952: signal process started
+2022/06/20 09:56:11 [notice] 9280#23460: signal process started
+2022/06/20 09:59:28 [notice] 9824#420: signal process started
+2022/06/20 10:10:45 [notice] 8900#23316: signal process started
+2022/06/20 10:12:19 [notice] 16424#5800: signal process started
+2022/06/20 10:12:30 [notice] 22556#12644: signal process started
+2022/06/20 10:14:58 [notice] 5824#18724: signal process started
+2022/06/20 10:44:44 [notice] 19752#13788: signal process started
+2022/06/20 10:45:39 [notice] 15304#23500: signal process started
+2022/06/20 10:45:47 [error] 17164#7780: *764 CreateFile() "D:/毕设/Code/uploads/1655687114493800100.conf" failed (2: The system cannot find the file specified), client: 127.0.0.1, server: tpcs.com, request: "GET /api/files/download/1863 HTTP/1.1", upstream: "http://127.0.0.1:8080/api/files/download/1863", host: "127.0.0.1", referrer: "http://127.0.0.1/file-list"
+2022/06/20 10:46:28 [error] 17164#7780: *762 CreateFile() "D:/毕设/Code/uploads/1655687114493800100.conf" failed (2: The system cannot find the file specified), client: 127.0.0.1, server: tpcs.com, request: "GET /api/files/download/1863 HTTP/1.1", upstream: "http://[::1]:8080/api/files/download/1863", host: "127.0.0.1", referrer: "http://127.0.0.1/file-list"
+2022/06/20 10:48:05 [error] 17164#7780: *778 CreateFile() "D:/毕设/Code/uploads/1655687114493800100.conf" failed (2: The system cannot find the file specified), client: 127.0.0.1, server: tpcs.com, request: "GET /api/files/download/1863 HTTP/1.1", upstream: "http://127.0.0.1:8080/api/files/download/1863", host: "127.0.0.1", referrer: "http://127.0.0.1/file-list"
+2022/06/20 10:48:28 [error] 17164#7780: *779 CreateFile() "D:/毕设/Code/uploads/1655687114493800100.conf" failed (2: The system cannot find the file specified), client: 127.0.0.1, server: tpcs.com, request: "GET /api/files/download/1863 HTTP/1.1", upstream: "http://[::1]:8080/api/files/download/1863", host: "127.0.0.1", referrer: "http://127.0.0.1/file-list"
+2022/06/20 10:49:50 [error] 17164#7780: *790 CreateFile() "D:/毕设/Code/uploads/1655687114493800100.conf" failed (2: The system cannot find the file specified), client: 127.0.0.1, server: tpcs.com, request: "GET /api/files/download/1863 HTTP/1.1", upstream: "http://127.0.0.1:8080/api/files/download/1863", host: "127.0.0.1", referrer: "http://127.0.0.1/file-list"
+2022/06/20 10:50:24 [error] 17164#7780: *790 CreateFile() "D:/毕设/Code/uploads/1655687114493800100.conf" failed (2: The system cannot find the file specified), client: 127.0.0.1, server: tpcs.com, request: "GET /api/files/download/1863 HTTP/1.1", upstream: "http://[::1]:8080/api/files/download/1863", host: "127.0.0.1", referrer: "http://127.0.0.1/file-list"
+2022/06/20 10:54:53 [error] 17164#7780: *810 CreateFile() "D:/毕设/Code/uploads/1655687114493800100.conf" failed (2: The system cannot find the file specified), client: 127.0.0.1, server: tpcs.com, request: "GET /api/files/download/1863 HTTP/1.1", upstream: "http://[::1]:8080/api/files/download/1863", host: "127.0.0.1", referrer: "http://127.0.0.1/file-list"
+2022/06/20 10:55:01 [error] 17164#7780: *810 CreateFile() "D:/毕设/Code/uploads/1655687114493800100.conf" failed (2: The system cannot find the file specified), client: 127.0.0.1, server: tpcs.com, request: "GET /api/files/download/1863. HTTP/1.1", upstream: "http://127.0.0.1:8080/api/files/download/1863", host: "127.0.0.1"
+2022/06/20 10:55:03 [error] 17164#7780: *810 CreateFile() "D:/毕设/Code/uploads/1655687114493800100.conf" failed (2: The system cannot find the file specified), client: 127.0.0.1, server: tpcs.com, request: "GET /api/files/download/1863. HTTP/1.1", upstream: "http://[::1]:8080/api/files/download/1863", host: "127.0.0.1"
+2022/06/21 16:13:11 [error] 3348#9800: *782 connect() failed (10061: No connection could be made because the target machine actively refused it) while connecting to upstream, client: 127.0.0.1, server: tpcs.com, request: "GET / HTTP/1.1", upstream: "http://127.0.0.1:8080/", host: "127.0.0.1", referrer: "http://127.0.0.1/question-combine-auto"
+2022/06/21 16:13:13 [error] 3348#9800: *782 connect() failed (10061: No connection could be made because the target machine actively refused it) while connecting to upstream, client: 127.0.0.1, server: tpcs.com, request: "GET / HTTP/1.1", upstream: "http://[::1]:8080/", host: "127.0.0.1", referrer: "http://127.0.0.1/question-combine-auto"

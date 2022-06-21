@@ -1,0 +1,57 @@
+{
+  "homeInfo": {
+    "title": "首页",
+    "href": "index"
+  },
+  "logoInfo": {
+    "title": "NUC - TPCS",
+    "image": "/static/images/nuc-logo.png",
+    "href": ""
+  },
+  "menuInfo": [
+    {
+      "title": "常规管理",
+      "icon": "fa fa-address-book",
+      "href": "",
+      "target": "_self",
+      "child": [
+        {
+          "title": "题库",
+          "href": "question-list",
+          "icon": "fa fa-folder-open",
+          "target": "_self"
+        },
+        {
+          "title": "回收站",
+          "href": "question-garbage",
+          "icon": "fa fa-trash",
+          "target": "_self"
+        },
+        {
+          "title": "教师管理",
+          "href": "teacher-list",
+          "icon": "fa fa-users",
+          "target": "_self"
+        },
+        {
+          "title": "课程管理",
+          "href": "course-list",
+          "icon": "fa fa-book",
+          "target": "_self"
+        },
+        {
+          "title": "题型管理",
+          "href": "question-type-list",
+          "icon": "fa fa-file-code-o",
+          "target": "_self"
+        },
+        {
+          "title": "文件管理",
+          "href": "file-list",
+          "icon": "fa fa-file-word-o",
+          "target": "_self"
+        }
+      ]
+    }
+  ]
+}

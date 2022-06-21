@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>图表</title>
+    <!--    <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>-->
+    <!--    <script src="https://cdn.jsdelivr.net/npm/echarts-gl/dist/echarts-gl.min.js"></script>-->
+    <script src="/static/lib/echarts-master/echarts.min.js"></script>
+    <script src="/static/lib/echarts-master/echarts-gl.min.js"></script>
+    <script src="/static/lib/jquery-3.4.1/jquery-3.4.1.min.js" charset="utf-8"></script>
+    <script src="/static/lib/layui-v2.6.3/layui.js" charset="utf-8"></script>
+    <link rel="stylesheet" href="/static/lib/layui-master/src/css/layui.css" media="all">
+</head>
+<body>
+<div class="layui-form layuimini-form" style="margin-top: 1%">
+    <div class="layui-form-item">
+        <label class="layui-form-label">所属课程:</label>
+        <div class="layui-input-inline">
+            <label for="course"></label>
+            <select  id="course" name="course" lay-filter="select" lay-verify="required">
+                <option value="0" selected>请选择</option>
+                {{range $i, $v := .courseList}}
+                    <option value="{{$v.Id}}">{{$v.Name}}</option>
+                {{end}}
+            </select>
+        </div>
+    </div>
+</div>
+<div id="main" style="width: 600px;height:400px;"></div>
+<script type="text/javascript">
+    const myChart = echarts.init(document.getElementById('main'));
+    draw('0');
+    layui.use(['jquery', 'form'], function () {
+        layui.form.on('select(select)', function (data) {
+            draw(data.value);
+        });
+    });
+
+    function draw(courseId) {
+        $.get('/api/questions/distribution/' + courseId).done(function (data) {
+            const data2 = JSON.parse(data.data);
+            myChart.setOption({
+                legend: {},
+                tooltip: {
+                    axisPointer: {
+                        type: 'item'
+                    },
+                },
+                xAxis3D: {
+                    name: '分值',
+                    type: 'category',
+                    min: 'dataMin',
+                    max: 'dataMax',
+                    axisLine: {
+                        interval: 0,
+                    },
+                    axisLabel: {
+                        formatter: '{value} 分',
+                        align: 'center'
+                    },
+                    axisTick: {
+                        interval: 0,
+                    },
+                    axisPointer: {
+                        show: false,
+                    },
+                    splitLine: {
+                        interval: 0,
+                    },
+                    splitArea: {
+                        show: false,
+                    },
+                },
+                yAxis3D: {
+                    boundaryGap: true,
+                    name: '题型',
+                    type: 'category',
+                    axisLine: {
+                        interval: 0,
+                    },
+                    axisLabel: {
+                        interval: 0,
+                    },
+                    axisTick: {
+                        interval: 0,
+                    },
+                    axisPointer: {
+                        show: false,
+                    },
+                    splitLine: {
+                        interval: 0,
+                    },
+                    splitArea: {
+                        show: false,
+                    },
+                },
+                zAxis3D: {
+                    name: '数量',
+                    axisLine: {
+                        interval: 0,
+                    },
+                    axisLabel: {
+                        interval: 0,
+                    },
+                    axisTick: {
+                        interval: 0,
+                    },
+                    axisPointer: {
+                        show: false,
+                    },
+                    splitLine: {
+                        interval: 0,
+                    },
+                    splitArea: {
+                        show: false,
+                    },
+                },
+                grid3D: {
+                    splitArea: {
+                        show: false,
+                    },
+                    viewControl: {
+                        autoRotate: false
+                    },
+                },
+                series: [
+                    {
+                        name: "难度：简单",
+                        type: 'bar3D',
+                        data: data2.de,
+                        stack: 'stack',
+                        dimensions: ['分值', '题型', '数量'],
+                        label: {
+                            show: false,
+                            fontSize: 16,
+                            borderWidth: 1
+                        },
+                        itemStyle: {
+                            opacity: 0.4
+                        },
+                        emphasis: {
+                            label: {
+                                fontSize: 20,
+                                color: '#000'
+                            },
+                            itemStyle: {
+                                color: '#000'
+                            }
+                        }
+                    }, {
+                        name: "难度：中等",
+                        type: 'bar3D',
+                        data: data2.dm,
+                        stack: 'stack',
+                        dimensions: ['分值', '题型', '数量'],
+                        label: {
+                            show: false,
+                            fontSize: 16,
+                            borderWidth: 1
+                        },
+                        itemStyle: {
+                            opacity: 0.4
+                        },
+                        emphasis: {
+                            label: {
+                                fontSize: 20,
+                                color: '#000'
+                            },
+                            itemStyle: {
+                                color: '#000'
+                            }
+                        }
+                    }, {
+                        name: "难度：困难",
+                        type: 'bar3D',
+                        data: data2.dh,
+                        stack: 'stack',
+                        dimensions: ['分值', '题型', '数量'],
+                        label: {
+                            show: false,
+                            fontSize: 16,
+                            borderWidth: 1
+                        },
+                        itemStyle: {
+                            opacity: 0.4
+                        },
+                        emphasis: {
+                            label: {
+                                fontSize: 20,
+                                color: '#000'
+                            },
+                            itemStyle: {
+                                color: '#000'
+                            }
+                        }
+                    }
+                ]
+            });
+        });
+    }
+</script>
+</body>
+</html>

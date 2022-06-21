@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="utf-8">
+    <title>组卷方案管理</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <script src="/static/lib/jquery-3.4.1/jquery-3.4.1.min.js" charset="utf-8"></script>
+    <script src="/static/js/popper.min.js" charset="utf-8"></script>
+    <script src="/static/js/bootstrap.min.js" charset="utf-8"></script>
+    <script src="/static/lib/layui-master/src/layui.js" charset="utf-8"></script>
+    <link rel="stylesheet" href="/static/lib/layui-master/src/css/layui.css" media="all">
+    <link rel="stylesheet" href="/static/css/public.css" media="all">
+    <link rel="stylesheet" href="/static/lib/font-awesome-4.7.0/css/font-awesome.min.css" media="all">
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css" media="all">
+    <script>
+        $(function () {
+            $('[data-toggle="popover"]').popover({
+                trigger: 'hover',
+                html: true
+            })
+        })
+    </script>
+    <style>
+        .popover {
+            max-width: 100%;
+        }
+    </style>
+</head>
+<body>
+<div class="layuimini-container">
+    <div class="layuimini-main">
+        <script type="text/html" id="toolbarDemo">
+            <div class="layui-btn-container">
+                <button class="layui-btn layui-btn-normal layui-btn-sm" lay-event="show-all"> 显示全部</button>
+                <button class="layui-btn layui-btn-sm data-add-btn" lay-event="add"> 添加</button>
+                <button id="batch-remove" class="layui-btn layui-btn-sm layui-btn-danger data-delete-btn"
+                        style="display: none" lay-event="remove"> 删除
+                </button>
+            </div>
+        </script>
+        <table class="layui-hide" id="currentTableId" lay-filter="currentTableFilter"></table>
+        <script type="text/html" id="currentTableBar"></script>
+        <script>
+            $('#currentTableBar').append(
+                '<button class="layui-btn layui-btn-normal layui-btn-xs data-count-edit" lay-event="detail">详情</button>' +
+                '{' + '{' + '# if(d.LAY_DISABLED){ }}' +
+                '<button class="layui-btn layui-btn-xs layui-btn-disabled" disabled="disabled">编辑</button>' +
+                '<button class="layui-btn layui-btn-xs layui-btn-disabled" disabled="disabled">删除</button>' +
+                '{' + '{' + '# }else{ }}' +
+                '<button class="layui-btn layui-btn-xs data-count-edit" lay-event="edit">编辑</button>' +
+                '<button class="layui-btn layui-btn-xs layui-btn-danger data-count-delete" lay-event="delete">删除</button>' +
+                '{' + '{# } }}');
+        </script>
+    </div>
+</div>
+<script>
+    const cols = [[
+        {type: "checkbox"},
+        {field: 'id', title: 'ID', sort: true, align: "center", hide: true},
+        {field: 'course', title: '课程', align: "center"},
+        {field: 'title', title: '试卷标题', align: "center"},
+        // {field: 'plan', title: '组卷方案', align: "center"},
+        {field: 'score', title: '试卷总分', align: "center"},
+        {field: 'note', title: '备注', align: "center"},
+        {title: '操作', minWidth: 150, toolbar: '#currentTableBar', align: "center"}
+    ]];
+
+    function initTable(table, url) {
+        table.render({
+            elem: '#currentTableId',
+            url: url,
+            toolbar: '#toolbarDemo',
+            defaultToolbar: ['filter', 'exports', 'print'],
+            cols: cols,
+            limits: [5, 10, 15, 20, 25, 30, 50, 100],
+            limit: 15,
+            page: true,
+            skin: 'row line'
+        });
+    }
+
+    function initTableWithData(table, url, data) {
+        table.render({
+            elem: '#currentTableId',
+            url: url,
+            where: data,
+            toolbar: '#toolbarDemo',
+            defaultToolbar: ['filter', 'exports', 'print'],
+            cols: cols,
+            limits: [5, 10, 15, 20, 25, 30, 50, 100],
+            limit: 15,
+            page: true,
+            skin: 'line'
+        });
+    }
+
+    layui.use(['form', 'table'], function () {
+        const $ = layui.jquery, form = layui.form, table = layui.table;
+        initTable(table, '/api/combine/plans');
+
+        //监听表格复选框选择
+        table.on('checkbox(currentTableFilter)', function (obj) {
+            const checkStatus = table.checkStatus('currentTableId'), data = checkStatus.data;
+            const ids = [];
+            for (let i = 0; i < data.length; i++) {
+                ids.push(data[i]['id'])
+            }
+            if (ids.length > 0) {
+                $("#batch-remove").show();
+            } else {
+                $("#batch-remove").hide();
+            }
+        });
+
+        // toolbar监听事件
+        table.on('toolbar(currentTableFilter)', function (obj) {
+            if (obj.event === 'show-all') {  // 监听“显示全部”操作
+                initTable(table, '/api/combine/plans');
+            } else if (obj.event === 'add') {  // 监听新增操作
+                const index = layer.open({
+                    title: '新增组卷方案',
+                    type: 2,
+                    shade: 0.2,
+                    maxmin: true,
+                    shadeClose: true,
+                    area: ['100%', '100%'],
+                    content: '/question-combine-plan-add',
+                });
+                $(window).on("resize", function () {
+                    layer.full(index);
+                });
+            } else if (obj.event === 'remove') {
+                layer.confirm('真的要删除这些组卷方案吗？', function (index) {
+                    const checkStatus = table.checkStatus('currentTableId'), data = checkStatus.data;
+                    const ids = [];
+                    for (let i = 0; i < data.length; i++) {
+                        ids.push(data[i]['id'])
+                    }
+                    $.ajax({
+                        type: 'DELETE',
+                        url: "/api/combine/plans/batch/",
+                        data: JSON.stringify(ids),
+                        contentType: "application/json",
+                        success: function (data) {
+                            if (data['success'] === true) {
+                                const successIndex = layer.msg('删除成功！', {icon: 6}, function () {
+                                    layer.close(successIndex);
+                                    const iframeIndex = parent.layer.getFrameIndex(window.name);
+                                    parent.layer.close(iframeIndex);
+                                })
+                            } else {
+                                const failIndex = layer.alert(JSON.stringify(data['msg']), {
+                                    title: '删除失败！', icon: 5
+                                }, function () {
+                                    layer.close(failIndex);
+                                });
+                            }
+                            initTable(table, '/api/combine/plans');
+                        },
+                        dataType: "json"
+                    })
+                });
+            }
+        });
+
+        // 监听”操作“栏
+        table.on('tool(currentTableFilter)', function (obj) {
+            const data = obj.data;
+            if (obj.event === 'detail') {
+                const index = layer.open({
+                    title: '组卷方案详情',
+                    type: 2,
+                    shade: 0.2,
+                    maxmin: true,
+                    shadeClose: true,
+                    area: ['100%', '100%'],
+                    content: '/question-combine-plan-detail/' + data.id,
+                });
+                $(window).on("resize", function () {
+                    layer.full(index);
+                });
+            } else if (obj.event === 'edit') {
+                const index = layer.open({
+                    title: '编辑组卷方案',
+                    type: 2,
+                    shade: 0.2,
+                    maxmin: true,
+                    shadeClose: true,
+                    area: ['100%', '100%'],
+                    content:  '/question-combine-plan-edit/' + data.id,
+                });
+                $(window).on("resize", function () {
+                    layer.full(index);
+                });
+            } else if (obj.event === 'delete') {
+                layer.confirm('真的要删除这个组卷方案吗？', function (index) {
+                    $.ajax({
+                        type: 'DELETE',
+                        url: "/api/combine/plans/" + data.id,
+                        success: function (data) {
+                            if (data['success'] === true) {
+                                const successIndex = layer.msg('该组卷方案已成功删除！', {icon: 6}, function () {
+                                    layer.close(successIndex);
+                                    const iframeIndex = parent.layer.getFrameIndex(window.name);
+                                    parent.layer.close(iframeIndex);
+                                    obj.del();
+                                })
+                            } else {
+                                const failIndex = layer.alert(JSON.stringify(data['msg']), {
+                                    title: '该组卷方案删除失败！', icon: 5
+                                }, function () {
+                                    layer.close(failIndex);
+                                });
+                            }
+                        }
+                    })
+                });
+            }
+        });
+    });
+</script>
+</body>
+</html>

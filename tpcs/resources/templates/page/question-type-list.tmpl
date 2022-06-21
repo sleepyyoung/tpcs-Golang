@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="utf-8">
+    <title>题型管理</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="/static/lib/layui-v2.6.3/css/layui.css" media="all">
+    <link rel="stylesheet" href="/static/css/public.css" media="all">
+    <link rel="stylesheet" href="/static/lib/font-awesome-4.7.0/css/font-awesome.min.css" media="all">
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css" media="all">
+    <script src="/static/lib/jquery-3.4.1/jquery-3.4.1.min.js" charset="utf-8"></script>
+    <script src="/static/js/jquery.slim.min.js" charset="utf-8"></script>
+    <script src="/static/js/popper.min.js" charset="utf-8"></script>
+    <script src="/static/js/bootstrap.min.js" charset="utf-8"></script>
+    <script src="/static/lib/layui-v2.6.3/layui.js" charset="utf-8"></script>
+    <script>
+        $(function () {
+            $('[data-toggle="popover"]').popover({
+                trigger: 'hover',
+                html: true
+            })
+        })
+    </script>
+    <style>
+        .popover {
+            max-width: 100%;
+        }
+    </style>
+</head>
+<body>
+<div class="layuimini-container">
+    <div class="layuimini-main">
+        <script type="text/html" id="toolbarDemo">
+            <div class="layui-btn-container">
+                <button class="layui-btn layui-btn-sm data-add-btn" lay-event="add"> 添加</button>
+            </div>
+        </script>
+        <table class="layui-hide" id="currentTableId" lay-filter="currentTableFilter"></table>
+        <script type="text/html" id="currentTableBar">
+            <a class="layui-btn layui-btn-xs layui-btn-danger data-count-delete" lay-event="delete">删除</a>
+        </script>
+    </div>
+</div>
+<script>
+    function initTable(table, url) {
+        table.render({
+            elem: '#currentTableId',
+            url: url,
+            toolbar: '#toolbarDemo',
+            defaultToolbar: ['filter', 'exports', 'print'],
+            cols: [[
+                {type: "checkbox", hide: true},
+                {field: 'id', title: 'ID', sort: true, align: "center"},
+                {field: 'name', title: '题型', align: "center"},
+                {title: '操作', minWidth: 150, toolbar: '#currentTableBar', align: "center", hide: true}
+            ]],
+            limits: [5, 10, 15, 20, 25, 30, 50, 100],
+            limit: 15,
+            page: true,
+            skin: 'line'
+        });
+    }
+
+    layui.use(['form', 'table'], function () {
+        const $ = layui.jquery, form = layui.form, table = layui.table;
+        initTable(table, '/api/question-types');
+
+        //监听表格复选框选择
+        table.on('checkbox(currentTableFilter)', function (obj) {
+            const checkStatus = table.checkStatus('currentTableId'), data = checkStatus.data;
+            const ids = [];
+            for (let i = 0; i < data.length; i++) {
+                ids.push(data[i]['id'])
+            }
+            if (ids.length > 0) {
+                $("#batch-remove").show();
+            } else {
+                $("#batch-remove").hide();
+            }
+        });
+
+        // toolbar监听事件
+        table.on('toolbar(currentTableFilter)', function (obj) {
+            if (obj.event === 'add') {
+                layer.open({
+                    id: 1,
+                    type: 1,
+                    title: '请输入题型名称',
+                    content: "<input class='layui-input' id='area' type='text' style='width:100%;'/>",
+                    btn: ['确定', '取消'],
+                    yes: function (index) {
+                        const questionTypeName = $("#area").val();
+                        if (questionTypeName.replace(/^\s*((?:[\S\s]*\S)?)\s*$/, '$1') !== "") {
+                            $.ajax({
+                                type: 'POST',
+                                url: "/api/question-types/" + questionTypeName,
+                                success: function (data) {
+                                    if (data['success'] === true) {
+                                        const successIndex = layer.alert('添加题型成功！', {icon: 6}, function () {
+                                            layer.close(successIndex);
+                                            const iframeIndex = parent.layer.getFrameIndex(window.name);
+                                            parent.layer.close(iframeIndex);
+                                            initTable(table, '/api/question-types');
+                                        })
+                                    } else {
+                                        const failIndex = layer.alert(JSON.stringify(data['msg']), {
+                                            title: '添加题型失败！', icon: 5
+                                        }, function () {
+                                            layer.close(failIndex);
+                                            const iframeIndex = parent.layer.getFrameIndex(window.name);
+                                            parent.layer.close(iframeIndex);
+                                        });
+                                    }
+                                    initTable(table, '/api/question-types');
+                                },
+                            });
+                            layer.close(index);
+                        } else {
+                            layer.msg("题型名称不能为空！");
+                        }
+                    },
+                    no: function (index) {
+                        layer.close(index);
+                    }
+                });
+            }
+        });
+    });
+</script>
+</body>
+</html>

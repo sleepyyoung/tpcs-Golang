@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+    <title>添加题目</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <script src="/static/lib/jquery-3.4.1/jquery-3.4.1.min.js" charset="utf-8"></script>
+    <script src="/static/lib/editormd.min.js"></script>
+    <script src="/static/lib/layui-v2.6.3/layui.js" charset="utf-8"></script>
+    <script src="/static/js/lay-config.js" charset="utf-8"></script>
+    <link rel="stylesheet" href="/static/css/public.css" media="all">
+    <link rel="stylesheet" href="/static/css/examples/style.css" media="all">
+    <link rel="stylesheet" href="/static/css/editormd.css"/>
+    <link rel="stylesheet" href="/static/lib/layui-v2.6.3/css/layui.css" media="all">
+    <style>
+        body {
+            background-color: #ffffff;
+        }
+
+        .w-e-menu {
+            z-index: 2 !important;
+        }
+
+        .w-e-text-container {
+            z-index: 1 !important;
+        }
+
+        textarea {
+            width: 100%;
+            height: 190px;
+            -webkit-Box-sizing: border-Box; /* Safari/Chrome,other WebKit */
+            -moz-Box-sizing: border-Box; /* Firefox,other Gecko */
+            Box-sizing: border-Box; /* Opera/IE 8+ */
+        }
+
+        .layui-layer-title {
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+<div class="layui-form layuimini-form">
+    <div class="layui-form-item" style="margin-top: 20px;">
+        <label class="layui-form-label">题目：</label>
+        <div id="question-md" class="layui-input-block layuimini-container" style="margin: 50px 0 50px 0;">
+            <div id="editor-question-md" style="margin-bottom: 0">
+                <textarea style="display:none;"></textarea>
+            </div>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">答案：</label>
+        <div id="answer-md" class="layui-input-block layuimini-container" style="margin: 50px 0 50px 0;">
+            <div id="editor-answer-md" style="margin-bottom: 0">
+                <textarea style="display:none;"></textarea>
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">分值:</label>
+        <div class="layui-input-inline">
+            <input name="score" type="number" min="1" max="100" class="layui-input" lay-verify="number"
+                   required>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">题型:</label>
+        <div class="layui-input-inline">
+            <select name="type" lay-verify="required">
+                <option value="0" selected>请选择</option>
+                {{range $i, $v := .questionTypeList}}
+                <option value="{{$v.Id}}">{{$v.Name}}</option>
+                {{end}}
+            </select>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">难度:</label>
+        <div class="layui-input-inline">
+            <select name="difficulty" lay-verify="required">
+                <option value="0" selected>请选择</option>
+                {{range $i, $v := .questionDifficultyList}}
+                <option value="{{$v.Id}}">{{$v.Name}}</option>
+                {{end}}
+            </select>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">所属课程:</label>
+        <div class="layui-input-inline">
+            <select name="course" lay-verify="required">
+                <option value="0" selected>请选择</option>
+                {{range $i, $v := .courseList}}
+                <option value="{{$v.Id}}">{{$v.Name}}</option>
+                {{end}}
+            </select>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="saveBtn">确认保存</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let questionEditor;
+    let answerEditor;
+
+    $(function () {
+        questionEditor = editormd("editor-question-md", {
+            placeholder: "请输入题目：",
+            width: "100%",
+            height: 500,
+            autoHeight: false,
+            toolbarIcons: function () {
+                return [
+                    "bold", "del", "italic", "quote", "ucwords", "uppercase", "lowercase", "|",
+                    "list-ul", "list-ol", "hr", "|",
+                    "link", "reference-link", "image", "code", "preformatted-text", "code-block", "table", "datetime", "emoji", "html-entities", "pagebreak", "|",
+                    "goto-line", "watch", "preview", "fullscreen", "clear", "search"
+                ];
+            },
+            syncScrolling: "single",
+            path: "/static/lib/",
+            codeFold: true,
+            searchReplace: true,
+            htmlDecode: "style,script,iframe|on*",
+            emoji: true,
+            taskList: true,
+            tocm: true,
+            tex: true,
+            flowChart: true,
+            sequenceDiagram: true,
+            saveHTMLToTextarea: true,
+            imageUpload: true,
+            imageFormats: ["jpg", "jpeg", "gif", "png", "bmp", "webp"],
+            imageUploadURL: "/api/files/md-img",
+        });
+        questionEditor.setToolbarAutoFixed(false);
+
+        answerEditor = editormd("editor-answer-md", {
+            placeholder: "请输入答案：",
+            width: "100%",
+            height: 500,
+            autoHeight: false,
+            toolbarIcons: function () {
+                return [
+                    "bold", "del", "italic", "quote", "ucwords", "uppercase", "lowercase", "|",
+                    "list-ul", "list-ol", "hr", "|",
+                    "link", "reference-link", "image", "code", "preformatted-text", "code-block", "table", "datetime", "emoji", "html-entities", "pagebreak", "|",
+                    "goto-line", "watch", "preview", "fullscreen", "clear", "search"
+                ];
+            },
+            syncScrolling: "single",
+            path: "/static/lib/",
+            codeFold: true,
+            searchReplace: true,
+            htmlDecode: "style,script,iframe|on*",
+            emoji: true,
+            taskList: true,
+            tocm: true,
+            tex: true,
+            flowChart: true,
+            sequenceDiagram: true,
+            saveHTMLToTextarea: true,
+            imageUpload: true,
+            imageFormats: ["jpg", "jpeg", "gif", "png", "bmp", "webp"],
+            imageUploadURL: "/api/files/md-img",
+        });
+        answerEditor.setToolbarAutoFixed(false);
+    });
+
+    layui.use(['form', 'layer'], function () {
+        const $ = layui.jquery, layer = layui.layer, form = layui.form;
+
+        //监听提交
+        form.on('submit(saveBtn)', function (data) {
+            delete data.field['editor-question-md-markdown-doc'];
+            delete data.field['editor-question-md-html-code'];
+            delete data.field['editor-answer-md-markdown-doc'];
+            delete data.field['editor-answer-md-html-code'];
+            data.field['questionHtml'] = questionEditor.getHTML();
+            data.field['questionMd'] = questionEditor.getMarkdown();
+            data.field['questionTxt'] = questionEditor.getHTML().replace(/<.*?>/g, "");
+            data.field['answerHtml'] = answerEditor.getHTML();
+            data.field['answerMd'] = answerEditor.getMarkdown();
+            data.field['answerTxt'] = answerEditor.getHTML().replace(/<.*?>/g, "");
+
+            data.field['score']=parseFloat(data.field['score'])
+            data.field['type']=Number(data.field['type'])
+            data.field['course']=Number(data.field['course'])
+            data.field['difficulty']=Number(data.field['difficulty'])
+
+            $.ajax({
+                type: 'POST',
+                url: "/api/questions",
+                data: JSON.stringify(data.field),
+                contentType: "application/json",
+                success: function (data) {
+                    if (data['success'] === true) {
+                        const successIndex = layer.msg('添加题目成功！', {icon: 6}, function () {
+                            parent.location.reload();
+                            layer.close(successIndex);
+                            const iframeIndex = parent.layer.getFrameIndex(window.name);
+                            parent.layer.close(iframeIndex);
+                        })
+                    } else {
+                        const failIndex = layer.alert(JSON.stringify(data['msg']), {
+                            title: '添加题目失败！', icon: 5
+                        }, function () {
+                            layer.close(failIndex);
+                        });
+                    }
+                },
+                dataType: "json"
+            })
+        });
+    });
+</script>
+</body>
+</html>

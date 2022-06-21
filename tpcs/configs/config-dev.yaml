@@ -1,0 +1,39 @@
+App:
+  LogSavePath: D:/毕设/Code/logs
+  LogFileName: app
+  LogFileExt: .log
+  UploadDir: D:/毕设/Code
+  FileUploadPath: D:/毕设/Code/uploads
+  MdImgUploadPath: D:/毕设/Code/files
+  SessionNames:
+    - user
+    - upload_status
+Server:
+  RunMode: debug
+  HttpPort: 8080
+  ReadTimeout: 60
+  WriteTimeout: 60
+Database:
+  DBType: mysql
+  Username: root
+  Password: 19834044876
+  Host: 127.0.0.1:3306
+  DBName: tpcs_go
+  Charset: utf8
+  ParseTime: True
+  MaxIdleConns: 10
+  MaxOpenConns: 30
+Redis:
+  Addr: 127.0.0.1:6379
+  Password: 19834044876
+  DB: 0
+  Topic: register
+Email:
+  Host: smtp.qq.com
+  Port: 465
+  UserName: 1696589321@qq.com
+  Password: reivzpjdtrffcjdc
+  IsSSL: true
+  From: 1696589321@qq.com
+  To:
+    - lipeiyang1024@163.com

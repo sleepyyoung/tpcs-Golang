@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="utf-8">
+    <title>回收站</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <script src="/static/lib/jquery-3.4.1/jquery-3.4.1.min.js" charset="utf-8"></script>
+    <script src="/static/js/popper.min.js" charset="utf-8"></script>
+    <script src="/static/js/bootstrap.min.js" charset="utf-8"></script>
+    <script src="/static/lib/layui-master/src/layui.js" charset="utf-8"></script>
+    <link rel="stylesheet" href="/static/lib/layui-master/src/css/layui.css" media="all">
+    <link rel="stylesheet" href="/static/css/public.css" media="all">
+    <link rel="stylesheet" href="/static/lib/font-awesome-4.7.0/css/font-awesome.min.css" media="all">
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css" media="all">
+    <script>
+        $(function () {
+            $('[data-toggle="popover"]').popover({
+                trigger: 'hover',
+                html: true
+            })
+        })
+    </script>
+    <style>
+        .popover {
+            max-width: 100%;
+        }
+    </style>
+</head>
+<body>
+<div class="layuimini-container">
+    <div class="layuimini-main">
+        <fieldset class="table-search-fieldset">
+            <legend>搜索信息&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <button type="button" class="layui-btn layui-btn-primary" lay-submit
+                        lay-filter="questions-distribution">
+                    查看题目分布
+                    <i class="fa fa-area-chart"> </i> <i class="fa fa-line-chart"> </i>
+                    <i class="fa fa-bar-chart"> </i> <i class="fa fa-pie-chart"> </i>
+                </button>
+            </legend>
+            <div style="margin: 10px 10px 10px 10px">
+                <form class="layui-form layui-form-pane" action="">
+                    <div class="layui-form-item">
+                        <div class="layui-inline">
+                            <label class="layui-form-label">分值</label>
+                            <div class="layui-input-inline" style="margin-right: 0;">
+                                <input onpaste="return false" id="score" name="score"
+                                       type="text" class="layui-input">
+                            </div>
+                            <div class="layui-inline" style="margin-left: -1px;">
+                                <button lay-filter="data-search-btn-by-score" lay-submit type="button"
+                                        class="layui-btn layui-btn-primary"><i class="layui-icon"></i> 仅凭此项查询
+                                </button>
+                                <i data-toggle="popover" title="支持精确匹配和区间查询" class="fa fa-question-circle"
+                                   data-content="区间查询请使用<u>英文逗号</u>分隔，查询区间为闭区间。如：<br/><strong>1.0,2.0</strong> 表示查询 <i>1.0 <= 分值 <= 2.0</i> 的题目<br/> <strong>1,</strong> 表示查询 <i>分值 >= 1</i> 的题目<br/> <strong>,5.55</strong> 表示查询 <i>分值 <= 5.55</i> 的题目"></i>
+                            </div>
+                        </div>
+                        <div class="layui-inline">
+                            <label class="layui-form-label">题型</label>
+                            <div class="layui-input-inline" style="margin-right: 0;">
+                                <select name="type">
+                                    <option value="0" selected>请选择</option>
+                                    {{range $i, $v := .questionTypeList}}
+                                        <option value="{{$v.Id}}">{{$v.Name}}</option>
+                                    {{end}}
+                                </select>
+                            </div>
+                            <div class="layui-inline" style="margin-left: -1px;">
+                                <button type="button" class="layui-btn layui-btn-primary" lay-submit
+                                        lay-filter="data-search-btn-by-type"><i class="layui-icon"></i> 仅凭此项查询
+                                </button>
+                                <i data-container="body" data-toggle="popover" data-placement="right"
+                                   data-content="精确匹配，如果没有选择的话则默认查询所有题型" class="fa fa-question-circle"></i>
+                            </div>
+                        </div>
+                        <div class="layui-inline">
+                            <label class="layui-form-label">难度</label>
+                            <div class="layui-input-inline" style="margin-right: 0;">
+                                <select name="difficulty">
+                                    <option value="0" selected>请选择</option>
+                                    {{range $i, $v := .questionDifficultyList}}
+                                        <option value="{{$v.Id}}">{{$v.Name}}</option>
+                                    {{end}}
+                                </select>
+                            </div>
+                            <div class="layui-inline" style="margin-left: -1px;">
+                                <button type="button" class="layui-btn layui-btn-primary" lay-submit
+                                        lay-filter="data-search-btn-by-difficulty"><i class="layui-icon"></i> 仅凭此项查询
+                                </button>
+                                <i data-container="body" data-toggle="popover" data-placement="right"
+                                   data-content="精确匹配，如果没有选择的话则默认查询所有题型" class="fa fa-question-circle"></i>
+                            </div>
+                        </div>
+                        <div class="layui-inline">
+                            <label class="layui-form-label">所属课程</label>
+                            <div class="layui-input-inline" style="margin-right: 0;">
+                                <select name="course">
+                                    <option value="0" selected>请选择</option>
+                                    {{range $i, $v := .courseList}}
+                                        <option value="{{$v.Id}}">{{$v.Name}}</option>
+                                    {{end}}
+                                </select>
+                            </div>
+                            <div class="layui-inline" style="margin-left: -1px;">
+                                <button type="button" class="layui-btn layui-btn-primary" lay-submit
+                                        lay-filter="data-search-btn-by-course"><i class="layui-icon"></i> 仅凭此项查询
+                                </button>
+                                <i data-container="body" data-toggle="popover" data-placement="right"
+                                   data-content="精确匹配，如果没有选择的话则默认查询所有题型" class="fa fa-question-circle"></i>
+                            </div>
+                        </div>
+
+                        <div class="layui-inline">
+                            <label class="layui-form-label">题目</label>
+                            <div class="layui-input-inline" style="margin-right: 0;">
+                                <input name="questionContent" type="text" class="layui-input">
+                            </div>
+                            <div class="layui-inline" style="margin-left: -1px;">
+                                <button type="button" class="layui-btn layui-btn-primary" lay-submit
+                                        lay-filter="data-search-btn-by-question-content"><i class="layui-icon"></i>
+                                    仅凭此项查询
+                                </button>
+                                <i data-toggle="popover" title="模糊查询" class="fa fa-question-circle"
+                                   data-content="
+                                   查询方式：+想要查询的内容 -不想查询的内容。如：<br/>
+                                   <strong>+数据</strong> 可以匹配到“数据科学与大数据技术”<br/>
+                                   <strong>+数据 +术</strong> 可以匹配到“数据科学与大数据技术”<br/>
+                                   <strong>+学与 +据技</strong> 可以匹配到“数据科学与大数据技术”<br/>
+                                   <strong>+据 +科学 +学与 +术 +据技</strong> 可以匹配到“数据科学与大数据技术”<br/>
+                                   但是一旦加上了 <strong>“-”</strong> ，之前的所有 <strong>“+”</strong> 都白搭。如：<br/>
+                                   <strong>+数据 +科学 +学与 +术 +据技 -大</strong> 无法匹配到“数据科学与大数据技术”<br/>
+                                   <strong>+数据科学与大数据技术 -大</strong> 无法匹配到“数据科学与大数据技术”<br/>
+                                   <strong>+学与大 -数据</strong> 无法匹配到“数据科学与大数据技术”<br/>
+                                   <strong>+数据科学 -数据 -科学</strong> 无法匹配到“数据科学与大数据技术”<br/>
+                                   <strong>+数据科学与大数据技术 -数据 -科学 -据技</strong> 无法匹配到“数据科学与大数据技术”<br/>
+                                   "></i>
+                            </div>
+                        </div>
+
+                        <div class="layui-inline">
+                            <label class="layui-form-label">答案</label>
+                            <div class="layui-input-inline" style="margin-right: 0;">
+                                <input name="answerContent" type="text" class="layui-input">
+                            </div>
+                            <div class="layui-inline" style="margin-left: -1px;">
+                                <button type="button" class="layui-btn layui-btn-primary" lay-submit
+                                        lay-filter="data-search-btn-by-answer-content"><i class="layui-icon"></i>
+                                    仅凭此项查询
+                                </button>
+                                <i data-toggle="popover" title="模糊查询" class="fa fa-question-circle"
+                                   data-content="
+                                   查询方式：+想要查询的内容 -不想查询的内容。如：<br/>
+                                   <strong>+数据</strong> 可以匹配到“数据科学与大数据技术”<br/>
+                                   <strong>+数据 +术</strong> 可以匹配到“数据科学与大数据技术”<br/>
+                                   <strong>+学与 +据技</strong> 可以匹配到“数据科学与大数据技术”<br/>
+                                   <strong>+据 +科学 +学与 +术 +据技</strong> 可以匹配到“数据科学与大数据技术”<br/>
+                                   但是一旦加上了 <strong>“-”</strong> ，之前的所有 <strong>“+”</strong> 都白搭。如：<br/>
+                                   <strong>+数据 +科学 +学与 +术 +据技 -大</strong> 无法匹配到“数据科学与大数据技术”<br/>
+                                   <strong>+数据科学与大数据技术 -大</strong> 无法匹配到“数据科学与大数据技术”<br/>
+                                   <strong>+学与大 -数据</strong> 无法匹配到“数据科学与大数据技术”<br/>
+                                   <strong>+数据科学 -数据 -科学</strong> 无法匹配到“数据科学与大数据技术”<br/>
+                                   <strong>+数据科学与大数据技术 -数据 -科学 -据技</strong> 无法匹配到“数据科学与大数据技术”<br/>
+                                   "></i>
+                            </div>
+                        </div>
+
+                        <div class="layui-input-block" style="margin-left: 0;">
+                            <div class="layui-inline">
+                                <button type="button" class="layui-btn layui-btn-primary" lay-submit
+                                        lay-filter="data-search-btn-by-all"><i class="layui-icon"></i> 结合以上所有条件查询
+                                </button>
+                                <i data-container="body" data-toggle="popover" data-placement="right"
+                                   data-content="默认状态下为查询全部" class="fa fa-question-circle"></i>
+                            </div>
+                            <div class="layui-inline">
+                                <div class="layui-input-block" style="margin-left: 0;">
+                                    <button type="button" class="layui-btn layui-btn-primary" onclick="reset()">
+                                        <i class="fa fa-refresh"></i> 重置条件
+                                    </button>
+                                    <i data-container="body" data-toggle="popover" data-placement="right"
+                                       data-content="重置条件后再点击“结合以上所有条件查询”即为默认的查询全部" class="fa fa-question-circle"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </fieldset>
+        <script type="text/html" id="toolbarDemo">
+            <div class="layui-btn-container">
+                <button class="layui-btn  layui-btn-sm layui-btn-normal" lay-event="show-all"> 显示全部</button>
+                <button id="batch-recover" class="layui-btn layui-btn-sm"
+                        style="display: none" lay-event="recover"> 恢复
+                </button>
+                <button id="batch-delete" class="layui-btn layui-btn-sm layui-btn-danger data-delete-btn"
+                        style="display: none" lay-event="delete"> 删除
+                </button>
+            </div>
+        </script>
+        <table class="layui-hide" id="currentTableId" lay-filter="currentTableFilter"></table>
+        <script type="text/html" id="currentTableBar"></script>
+        <script>
+            $('#currentTableBar').append(
+                '<button class="layui-btn layui-btn-normal layui-btn-xs data-count-edit" lay-event="detail">详情</button>' +
+                '{' + '{' + '# if(d.LAY_DISABLED){ }}' +
+                '<button class="layui-btn layui-btn-xs layui-btn-disabled" disabled="disabled">恢复</button>' +
+                '<button class="layui-btn layui-btn-xs layui-btn-disabled" disabled="disabled">删除</button>' +
+                '{' + '{' + '# }else{ }}' +
+                '<button class="layui-btn layui-btn-xs data-count-edit" lay-event="recover">恢复</button>' +
+                '<button class="layui-btn layui-btn-xs layui-btn-danger data-count-delete" lay-event="delete">删除</button>' +
+                '{' + '{# } }}');
+        </script>
+    </div>
+</div>
+<script>
+    const cols = [[
+        {type: "checkbox"},
+        {field: 'id', width: 100, title: 'ID', sort: true, align: "center", hide: {{not .isAdminUser}}},
+        {field: 'course', title: '课程', align: "center"},
+        {field: 'type', width: 100, title: '类型', align: "center"},
+        {field: 'difficulty', width: 100, title: '难度', align: "center"},
+        {field: 'score', width: 100, title: '分值', sort: true, align: "center"},
+        {field: 'content', title: '题目内容'},
+        {title: '操作', minWidth: 150, toolbar: '#currentTableBar', align: "center"}
+    ]];
+
+    function initTable(table, url) {
+        table.render({
+            elem: '#currentTableId',
+            url: url,
+            toolbar: '#toolbarDemo',
+            defaultToolbar: ['filter', 'exports', 'print'],
+            cols: cols,
+            limits: [5, 10, 15, 20, 25, 30, 50, 100],
+            limit: 15,
+            page: true,
+            skin: 'row line'
+        });
+    }
+
+    function initTableWithData(table, url, data) {
+        table.render({
+            elem: '#currentTableId',
+            url: url,
+            where: data,
+            toolbar: '#toolbarDemo',
+            defaultToolbar: ['filter', 'exports', 'print'],
+            cols: cols,
+            limits: [5, 10, 15, 20, 25, 30, 50, 100],
+            limit: 15,
+            page: true,
+            skin: 'line'
+        });
+    }
+
+    layui.use(['form', 'table'], function () {
+        const $ = layui.jquery, form = layui.form, table = layui.table;
+        initTable(table, '/api/questions/garbages');
+
+        // 监听“查看题目分布”
+        form.on('submit(questions-distribution)', function (data) {
+            layer.open({
+                title: '题目分布',
+                type: 2,
+                shade: 0.2,
+                maxmin: true,
+                shadeClose: true,
+                area: ['45%', '80%'],
+                content: '/question-garbage-distribution',
+            });
+        });
+
+        // 监听“仅凭分值查询”
+        form.on('submit(data-search-btn-by-score)', function (data) {
+            const score = $("#score");
+            const str = score.val().replace(/^\s+|\s+$/gm, '');
+            if (str.replace(" ", "") === "") {
+                initTable(table, '/api/questions/garbages');
+                return;
+            }
+            const array = str.split(",")
+            switch (array.length) {
+                case 1:
+                    if (isNaN(array[0])) {
+                        alert("分值填写有误！");
+                        return;
+                    }
+                    initTable(layui.table, "/api/questions/garbages/query/score/precise/" + array[0]);
+                    break;
+                case 2:
+                    if (isNaN(array[0]) || isNaN(array[1])) {
+                        alert("分值填写有误！");
+                        return;
+                    }
+                    if (str.substring(0, 1) === ",") {
+                        initTable(layui.table, "/api/questions/garbages/query/score/interval/-1/" + array[1]);
+                        return;
+                    }
+                    if (str.charAt(str.length - 1) === ',') {
+                        initTable(layui.table, "/api/questions/garbages/query/score/interval/" + array[0] + "/-1");
+                        return;
+                    }
+                    initTable(layui.table, "/api/questions/garbages/query/score/interval/" + array[0] + "/" + array[1]);
+                    break;
+                default:
+                    alert("分值填写有误！")
+                    return;
+            }
+        });
+
+        // 监听“仅凭题型查询”
+        form.on('submit(data-search-btn-by-type)', function (data) {
+            initTable(table, '/api/questions/garbages/query/type/' + data.field['type']);
+        });
+
+        // 监听“仅凭难度查询”
+        form.on('submit(data-search-btn-by-difficulty)', function (data) {
+            initTable(table, '/api/questions/garbages/query/difficulty/' + data.field['difficulty']);
+        });
+
+        // 监听“仅凭所属课程查询”
+        form.on('submit(data-search-btn-by-course)', function (data) {
+            initTable(table, '/api/questions/garbages/query/course/' + data.field['course']);
+        });
+
+        // 监听“仅凭题目查询”
+        form.on('submit(data-search-btn-by-question-content)', function (data) {
+            initTable(table, '/api/questions/garbages/query/question-content/' + data.field['questionContent']);
+        });
+
+        // 监听“仅凭答案查询”
+        form.on('submit(data-search-btn-by-answer-content)', function (data) {
+            initTable(table, '/api/questions/garbages/query/answer-content/' + data.field['answerContent']);
+        });
+
+        // 监听“结合所有条件查询”
+        form.on('submit(data-search-btn-by-all)', function (data) {
+            const score = $("#score");
+            const str = score.val().replace(/^\s+|\s+$/gm, '');
+            const array = str.split(",")
+            switch (array.length) {
+                case 1:
+                    if (isNaN(array[0])) {
+                        alert("分值填写有误！");
+                        return;
+                    }
+                    break;
+                case 2:
+                    if (isNaN(array[0]) || isNaN(array[1])) {
+                        alert("分值填写有误！");
+                        return;
+                    }
+                    break;
+                default:
+                    alert("分值填写有误！")
+                    return;
+            }
+
+            initTableWithData(table, '/api/questions/garbages/query', data.field);
+        });
+
+        //监听表格复选框选择
+        table.on('checkbox(currentTableFilter)', function (obj) {
+            const checkStatus = table.checkStatus('currentTableId'), data = checkStatus.data;
+            const ids = [];
+            for (let i = 0; i < data.length; i++) {
+                ids.push(data[i]['id'])
+            }
+            console.log(JSON.stringify(ids))
+            if (ids.length > 0) {
+                $("#batch-delete").show();
+                $("#batch-recover").show();
+            } else {
+                $("#batch-delete").hide();
+                $("#batch-recover").hide();
+            }
+        });
+
+        // toolbar监听事件
+        table.on('toolbar(currentTableFilter)', function (obj) {
+            if (obj.event === 'show-all') {
+                initTable(table, '/api/questions/garbages/');
+            } else if (obj.event === 'recover') {
+                layer.confirm('真的要恢复这些题目吗？', function (index) {
+                    const checkStatus = table.checkStatus('currentTableId'), data = checkStatus.data;
+                    const ids = [];
+                    for (let i = 0; i < data.length; i++) {
+                        ids.push(data[i]['id'])
+                    }
+                    $.ajax({
+                        type: 'PUT',
+                        url: "/api/questions/garbages/batch/",
+                        data: JSON.stringify(ids),
+                        contentType: "application/json",
+                        success: function (data) {
+                            if (data['success'] === true) {
+                                const successIndex = layer.msg('题目已恢复！', {icon: 6}, function () {
+                                    layer.close(successIndex);
+                                    const iframeIndex = parent.layer.getFrameIndex(window.name);
+                                    parent.layer.close(iframeIndex);
+                                    initTable(table, '/api/questions/garbages/');
+                                })
+                            } else {
+                                const failIndex = layer.alert(JSON.stringify(data['msg']), {
+                                    title: '题目恢复失败！', icon: 5
+                                }, function () {
+                                    layer.close(failIndex);
+                                });
+                            }
+                        },
+                        dataType: "json"
+                    })
+                });
+            } else if (obj.event === 'delete') {
+                layer.confirm('真的要将这些题目彻底删除吗？', function (index) {
+                    const checkStatus = table.checkStatus('currentTableId'), data = checkStatus.data;
+                    const ids = [];
+                    for (let i = 0; i < data.length; i++) {
+                        ids.push(data[i]['id'])
+                    }
+                    $.ajax({
+                        type: 'DELETE',
+                        url: "/api/questions/garbages/batch/",
+                        data: JSON.stringify(ids),
+                        contentType: "application/json",
+                        success: function (data) {
+                            if (data['success'] === true) {
+                                const successIndex = layer.msg('题目已彻底删除！', {icon: 6}, function () {
+                                    layer.close(successIndex);
+                                    const iframeIndex = parent.layer.getFrameIndex(window.name);
+                                    parent.layer.close(iframeIndex);
+                                    initTable(table, '/api/questions/garbages/');
+                                })
+                            } else {
+                                const failIndex = layer.alert(JSON.stringify(data['msg']), {
+                                    title: '题目删除失败！', icon: 5
+                                }, function () {
+                                    layer.close(failIndex);
+                                });
+                            }
+                        },
+                        dataType: "json"
+                    })
+                });
+            }
+        });
+
+        // 监听”操作“栏
+        table.on('tool(currentTableFilter)', function (obj) {
+            const data = obj.data;
+            if (obj.event === 'detail') {
+                const index = layer.open({
+                    title: '题目详情',
+                    type: 2,
+                    shade: 0.2,
+                    maxmin: true,
+                    shadeClose: true,
+                    area: ['100%', '100%'],
+                    content: '/question-garbage-detail/' + data.id,
+                });
+                $(window).on("resize", function () {
+                    layer.full(index);
+                });
+            } else if (obj.event === 'recover') {
+                layer.confirm('真的要恢复这个题目吗？', function (index) {
+                    $.ajax({
+                        type: 'POST',
+                        url: "/api/questions/garbages/" + data.id,
+                        success: function (data) {
+                            if (data['success'] === true) {
+                                const successIndex = layer.msg('题目已恢复！', {icon: 6}, function () {
+                                    obj.del();
+                                    layer.close(successIndex);
+                                    const iframeIndex = parent.layer.getFrameIndex(window.name);
+                                    parent.layer.close(iframeIndex);
+                                })
+                            } else {
+                                const failIndex = layer.alert(JSON.stringify(data['msg']), {
+                                    title: '题目恢复失败！', icon: 5
+                                }, function () {
+                                    layer.close(failIndex);
+                                });
+                            }
+                        }
+                    })
+                });
+            } else if (obj.event === 'delete') {
+                layer.confirm('真的要将这个题目彻底删除吗？', function (index) {
+                    $.ajax({
+                        type: 'DELETE',
+                        url: "/api/questions/garbages/" + data.id,
+                        success: function (data) {
+                            if (data['success'] === true) {
+                                const successIndex = layer.msg('题目已彻底删除！', {icon: 6}, function () {
+                                    layer.close(successIndex);
+                                    const iframeIndex = parent.layer.getFrameIndex(window.name);
+                                    parent.layer.close(iframeIndex);
+                                    obj.del();
+                                })
+                            } else {
+                                const failIndex = layer.alert(JSON.stringify(data['msg']), {
+                                    title: '题目删除失败！', icon: 5
+                                }, function () {
+                                    layer.close(failIndex);
+                                });
+                            }
+                        }
+                    })
+                });
+            }
+        });
+    });
+</script>
+</body>
+</html>
