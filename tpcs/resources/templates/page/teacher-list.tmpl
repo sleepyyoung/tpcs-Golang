@@ -21,9 +21,10 @@
             </div>
         </script>
         <table class="layui-hide" id="currentTableId" lay-filter="currentTableFilter"></table>
-        <script type="text/html" id="currentTableBar"></script>
-        <script>
-            $('#currentTableBar').append(
+        {{/*<script type="text/html" id="currentTableBar"></script>*/}}
+        <div id="currentTableBar" hidden></div>
+        <script type="text/javascript">
+            $('#currentTableBar').html(
                 '{' + '{# if(d.status == \'0\'){ }}' +
                 '<button class="layui-btn layui-btn-xs layui-btn-danger" lay-event="freeze">冻结</button>' +
                 '{' + '{# }else if(d.status == \'1\'){ }}' +

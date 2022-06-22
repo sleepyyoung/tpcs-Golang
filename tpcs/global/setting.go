@@ -14,4 +14,5 @@ var (
 	Email           *email.Email
 	EmailSetting    *setting.EmailSettingS
 	RedisSetting    *setting.RedisSettingS
+	JWTSetting      *setting.JWTSettingS
 )

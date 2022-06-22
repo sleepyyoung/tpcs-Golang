@@ -37,3 +37,7 @@ Email:
   From: 1696589321@qq.com
   To:
     - lipeiyang1024@163.com
+JWT:
+  Secret: philpy
+  Issuer: tpcs
+  Expire: 7200

@@ -208,7 +208,7 @@
                             parent.layer.close(iframeIndex);
                         })
                     } else {
-                        const failIndex = layer.alert(JSON.stringify(data['msg']), {
+                        const failIndex = layer.alert(data['msg'], {
                             title: '添加题目失败！', icon: 5
                         }, function () {
                             layer.close(failIndex);

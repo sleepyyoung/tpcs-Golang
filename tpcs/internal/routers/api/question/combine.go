@@ -82,6 +82,15 @@ func (cb Combine) ExistsInfoByCourse(c *gin.Context) {
 		return
 	}
 
+	if courseId == 0 {
+		response.ToResponse(pojo.Result{
+			Code: 1,
+			Msg:  "请选择课程！",
+			Data: nil,
+		})
+		return
+	}
+
 	existsQuestionInfoList, err := svc.ExistsQuestionInfoList(courseId)
 	if err != nil {
 		global.Logger.Errorf("svc.ExistsQuestionInfoList err: %v", err)
@@ -99,11 +108,21 @@ func (cb Combine) ExistsInfoByCourse(c *gin.Context) {
 		})
 	}
 
+	if len(list) == 0 {
+		response.ToResponse(pojo.Result{
+			Code: 1,
+			Msg:  "题库中没有该课程相关题目，请重新选择课程或去题库中添加题目！",
+			Data: nil,
+		})
+		return
+	}
+
 	response.ToResponse(pojo.Result{
 		Code: 0,
 		Msg:  "",
 		Data: list,
 	})
+	return
 }
 
 // Update 更新组卷页面的表格数据
@@ -135,6 +154,7 @@ func (cb Combine) Update(c *gin.Context) {
 		var num int
 		if numS == "" {
 			num = 0
+			//m["score"]=""
 		} else {
 			num, _ = strconv.Atoi(numS)
 		}
@@ -142,6 +162,7 @@ func (cb Combine) Update(c *gin.Context) {
 		var score float64
 		if scoreS == "" {
 			score = 0
+			//m["num"]=""
 		} else {
 			score, _ = strconv.ParseFloat(scoreS, 64)
 		}
@@ -316,7 +337,7 @@ func doCombine(c *gin.Context) (bool, string, *pojo.CombineResult) {
 	}
 
 	var cr pojo.CombineResult
-	cr = combine.QuestionCombine(c.Query("paper-title"))
+	cr = combine.QuestionCombine(*request.PaperTitle)
 	return true, "", &cr
 }
 
@@ -368,6 +389,8 @@ func (cb Combine) CombinePlanList(c *gin.Context) {
 	for _, plan := range combinePlanList {
 		combinePlanMapList = append(combinePlanMapList, map[string]interface{}{
 			"id":           *plan.Id,
+			"name":         *plan.PlanName,
+			"user":         *plan.User.Username,
 			"course":       *plan.Course.Name,
 			"title":        *plan.PaperTitle,
 			"plan":         *plan.Plan,

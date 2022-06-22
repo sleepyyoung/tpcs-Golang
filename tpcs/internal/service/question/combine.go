@@ -27,6 +27,7 @@ func (svc *Service) AddCombinePlan(request AddCombinePlanRequest) pojo.Result {
 	err := svc.dao.AddCombinePlan(global.DBEngine, model.CombinePlan4Add{
 		UserId:     request.UserId,
 		CourseId:   request.CourseId,
+		PlanName:   request.PlanName,
 		PaperTitle: request.PaperTitle,
 		Plan:       request.Plan,
 		Score:      request.Score,
@@ -45,6 +46,7 @@ func (svc *Service) EditCombinePlan(id int, request AddCombinePlanRequest) pojo.
 		Id:         &id,
 		UserId:     request.UserId,
 		CourseId:   request.CourseId,
+		PlanName:   request.PlanName,
 		PaperTitle: request.PaperTitle,
 		Plan:       request.Plan,
 		Score:      request.Score,

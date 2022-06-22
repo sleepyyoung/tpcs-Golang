@@ -15,6 +15,7 @@ import (
 	"tpcs/internal/service/user"
 	userService "tpcs/internal/service/user"
 	"tpcs/pkg/app"
+	"tpcs/pkg/util/crypt"
 )
 
 type Auth struct{}
@@ -88,75 +89,81 @@ func (a Auth) SendVcode4Forgot(c *gin.Context) {
 
 // Register 注册
 func (a Auth) Register(c *gin.Context) {
+	userSvc := userService.New(c.Request.Context())
 	response := app.NewResponse(c)
-	var registerUserRequest *user.RegisterUserRequest
-	err := c.ShouldBindWith(&registerUserRequest, binding.Form)
+
+	var request *user.RegisterUserRequest
+	err := c.ShouldBindWith(&request, binding.Form)
 	if err != nil {
 		global.Logger.Errorf("c.ShouldBindWith err: %v", err)
 		response.ToFailResultResponse(pojo.ResultMsg_FormParseErr)
 		return
 	}
-	if registerUserRequest.Username == nil || strings.Trim(*registerUserRequest.Username, " ") == "" {
+	if request.Username == nil || strings.Trim(*request.Username, " ") == "" {
 		response.ToFailResultResponse(pojo.ResultMsg_UsernameNotNone)
 		return
 	}
-	if len(strings.Trim(*registerUserRequest.Username, " ")) > 15 {
+	if len(strings.Trim(*request.Username, " ")) > 15 {
 		response.ToFailResultResponse(pojo.ResultMsg_UsernameLengthLessThan15)
 		return
 	}
-	if registerUserRequest.Email == nil || strings.Trim(*registerUserRequest.Email, " ") == "" {
+	if request.Email == nil || strings.Trim(*request.Email, " ") == "" {
 		response.ToFailResultResponse(pojo.ResultMsg_EmailNotNone)
 		return
 	}
-	if registerUserRequest.Password == nil || strings.Trim(*registerUserRequest.Password, " ") == "" {
+	if request.Password == nil || strings.Trim(*request.Password, " ") == "" {
 		response.ToFailResultResponse(pojo.ResultMsg_PasswordNotNone)
 		return
 	}
-	if registerUserRequest.Password2 == nil || strings.Trim(*registerUserRequest.Password2, " ") == "" {
+	if request.Password2 == nil || strings.Trim(*request.Password2, " ") == "" {
 		response.ToFailResultResponse(pojo.ResultMsg_Password2NotNone)
 		return
 	}
-	if strings.Trim(*registerUserRequest.Password, " ") != strings.Trim(*registerUserRequest.Password2, " ") {
+	if strings.Trim(*request.Password, " ") != strings.Trim(*request.Password2, " ") {
 		response.ToFailResultResponse(pojo.ResultMsg_2PasswordNotSame)
 		return
 	}
 
-	userSvc := userService.New(c.Request.Context())
-	u, _ := userSvc.GetUserByUsernameAndPassword(*registerUserRequest.BaseUserRequest.Username, *registerUserRequest.BaseUserRequest.Password)
+	//u, _ := userSvc.GetUserByUsernameAndPassword(*request.BaseUserRequest.Username, *request.BaseUserRequest.Password)
+	u, _ := userSvc.GetUserByUsernameAndPassword(
+		*request.BaseUserRequest.Username,
+		crypt.EncryptBySHA512(*request.BaseUserRequest.Password),
+	)
 	if u != nil {
-		//response.ToFailResultResponse("用户 " + *registerUserRequest.Username + " 已存在！")
+		//response.ToFailResultResponse("用户 " + *request.Username + " 已存在！")
 		response.ToFailResultResponse(pojo.ResultMsg_UserExisted)
 		return
 	}
-	if registerUserRequest.Email == nil {
+	if request.Email == nil {
 		response.ToFailResultResponse(pojo.ResultMsg_EmailNotNone)
 		return
 	}
-	vcode, _ := global.RedisClient.Get(*registerUserRequest.Email).Result()
-	if registerUserRequest.Vcode == nil {
+	vcode, _ := global.RedisClient.Get(*request.Email).Result()
+	if request.Vcode == nil {
 		response.ToFailResultResponse(pojo.ResultMsg_EmailVcodeNotNone)
 		return
 	}
-	if vcode != *registerUserRequest.Vcode {
+	if vcode != *request.Vcode {
 		response.ToFailResultResponse(pojo.ResultMsg_EmailVcodeIllegal)
 		return
 	}
-	u, _ = userSvc.GetUserByEmail(*registerUserRequest.Email)
+	u, _ = userSvc.GetUserByEmail(*request.Email)
 	if u != nil {
-		//response.ToFailResultResponse("该邮箱 " + *registerUserRequest.Email + " 已被其他用户绑定！")
+		//response.ToFailResultResponse("该邮箱 " + *request.Email + " 已被其他用户绑定！")
 		response.ToFailResultResponse(pojo.ResultMsg_EmailExisted)
 		return
 	}
 
 	status := 1
 	isAdministrator := false
+	p := crypt.EncryptBySHA512(*request.Password)
 	newUser := &model.User{
-		Username:        registerUserRequest.Username,
-		Password:        registerUserRequest.Password,
-		Email:           registerUserRequest.Email,
-		Note:            registerUserRequest.Note,
-		Status:          &(status),
-		IsAdministrator: &(isAdministrator),
+		Username:        request.Username,
+		Password:        &p,
+		Email:           request.Email,
+		Note:            request.Note,
+		Status:          &status,
+		IsAdministrator: &isAdministrator,
 	}
 
 	err = userSvc.CreateUser(newUser)
@@ -175,8 +182,10 @@ func (a Auth) Register(c *gin.Context) {
 
 // Login 登录
 func (a Auth) Login(c *gin.Context) {
-	var userRequest *user.UserLoginRequest
-	err := c.ShouldBindWith(&userRequest, binding.Form)
+	userSvc := userService.New(c.Request.Context())
+
+	var request *user.UserLoginRequest
+	err := c.ShouldBindWith(&request, binding.Form)
 	if err != nil {
 		global.Logger.Errorf("c.ShouldBindWith err: %v", err)
 		c.HTML(http.StatusOK, "login.tmpl", gin.H{
@@ -184,18 +193,21 @@ func (a Auth) Login(c *gin.Context) {
 		})
 		return
 	}
-	userSvc := userService.New(c.Request.Context())
-	u, _ := userSvc.GetUserByUsernameAndPassword(*userRequest.BaseUserRequest.Username, *userRequest.BaseUserRequest.Password)
+	//u, _ := userSvc.GetUserByUsernameAndPassword(*request.BaseUserRequest.Username, *request.BaseUserRequest.Password)
+	u, _ := userSvc.GetUserByUsernameAndPassword(
+		*request.BaseUserRequest.Username,
+		crypt.EncryptBySHA512(*request.BaseUserRequest.Password),
+	)
 	if u == nil {
 		c.HTML(http.StatusOK, "login.tmpl", gin.H{
 			"title":    "用户名或密码输入错误",
-			"username": *userRequest.Username,
+			"username": *request.Username,
 		})
 	} else {
 		session := sessions.DefaultMany(c, "user")
 		session.Set("user", u)
 		var maxAge int
-		if *userRequest.StayLogin == "on" {
+		if *request.StayLogin == "on" {
 			maxAge = 30 * 24 * 60 * 60
 		} else {
 			maxAge = 0
@@ -242,7 +254,9 @@ func (a Auth) ForgotPassword(c *gin.Context) {
 		response.ToFailResultResponse(pojo.ResultMsg_UserNotExists)
 		return
 	} else {
-		u.Password = forgotPasswordRequest.Password
+		//u.Password = forgotPasswordRequest.Password
+		p := crypt.EncryptBySHA512(*forgotPasswordRequest.Password)
+		u.Password = &p
 		modify, _ := userSvc.ModifyUser(u)
 		if modify {
 			session := sessions.DefaultMany(c, "user")
@@ -271,22 +285,29 @@ func (a Auth) ForgotPassword(c *gin.Context) {
 
 // ModifyPassword 修改密码
 func (a Auth) ModifyPassword(c *gin.Context) {
+	userSvc := userService.New(c.Request.Context())
 	response := app.NewResponse(c)
-	var modifyPasswordRequest *user.ModifyPasswordRequest
-	err := c.ShouldBindJSON(&modifyPasswordRequest)
+
+	var request *user.ModifyPasswordRequest
+	err := c.ShouldBindJSON(&request)
 	if err != nil {
 		global.Logger.Errorf("c.ShouldBindWith err: %v", err)
 		response.ToFailResultResponse(pojo.ResultMsg_FormParseErr)
 		return
 	}
 
-	userSvc := userService.New(c.Request.Context())
-	u, _ := userSvc.GetUserByUsernameAndPassword(*modifyPasswordRequest.BaseUserRequest.Username, *modifyPasswordRequest.BaseUserRequest.Password)
+	//u, _ := userSvc.GetUserByUsernameAndPassword(*request.BaseUserRequest.Username, *request.BaseUserRequest.Password)
+	u, _ := userSvc.GetUserByUsernameAndPassword(
+		*request.BaseUserRequest.Username,
+		crypt.EncryptBySHA512(*request.BaseUserRequest.Password),
+	)
 	if u == nil {
 		response.ToFailResultResponse(pojo.ResultMsg_UsernameOrPasswordErr)
 		return
 	} else {
-		u.Password = modifyPasswordRequest.Password1
+		//u.Password = request.Password1
+		p := crypt.EncryptBySHA512(*request.Password1)
+		u.Password = &p
 		modify, _ := userSvc.ModifyUser(u)
 		if modify {
 			session := sessions.DefaultMany(c, "user")
@@ -315,6 +336,7 @@ func (a Auth) ModifyPassword(c *gin.Context) {
 
 func (a Auth) Logout(c *gin.Context) {
 	response := app.NewResponse(c)
+
 	session := sessions.DefaultMany(c, "user")
 	session.Delete("user")
 	options := sessions.Options{

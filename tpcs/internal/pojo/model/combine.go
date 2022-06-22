@@ -9,6 +9,7 @@ type CombinePlan struct {
 	UserId     *int    `gorm:"column:USER_ID"`
 	Course     *Course `gorm:"column:COURSE_ID;foreignKey:CourseId;references:COURSE_ID" json:"course"`
 	CourseId   *int    `gorm:"column:COURSE_ID"`
+	PlanName   *string `gorm:"column:NAME"`
 	PaperTitle *string `gorm:"column:PAPER_TITLE" json:"paperTitle"`
 	Plan       *string `gorm:"column:PLAN" json:"plan"`
 	Score      *int    `gorm:"column:SCORE" json:"score"`
@@ -19,6 +20,7 @@ type CombinePlan struct {
 type CombinePlan4Add struct {
 	UserId     *int    `gorm:"column:USER_ID"`
 	CourseId   *int    `gorm:"column:COURSE_ID"`
+	PlanName   *string `gorm:"column:NAME"`
 	PaperTitle *string `gorm:"column:PAPER_TITLE" json:"paperTitle"`
 	Plan       *string `gorm:"column:PLAN" json:"plan"`
 	Score      *int    `gorm:"column:SCORE" json:"score"`
@@ -30,6 +32,7 @@ type CombinePlan4Edit struct {
 	Id         *int    `gorm:"column:ID;primaryKey" json:"id"`
 	UserId     *int    `gorm:"column:USER_ID"`
 	CourseId   *int    `gorm:"column:COURSE_ID"`
+	PlanName   *string `gorm:"column:NAME"`
 	PaperTitle *string `gorm:"column:PAPER_TITLE" json:"paperTitle"`
 	Plan       *string `gorm:"column:PLAN" json:"plan"`
 	Score      *int    `gorm:"column:SCORE" json:"score"`

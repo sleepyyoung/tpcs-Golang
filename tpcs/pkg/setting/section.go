@@ -56,3 +56,9 @@ type RedisSettingS struct {
 	DB       int
 	Topic    string
 }
+
+type JWTSettingS struct {
+	Secret string
+	Issuer string
+	Expire time.Duration
+}

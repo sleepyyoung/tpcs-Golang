@@ -60,6 +60,16 @@
                         </div>
                         <hr/>
                         <div class="layui-inline">
+                            <h5>请输入方案名称：</h5>
+                        </div>
+                        <div class="layui-form-item">
+                            <div class="layui-input-block" style="margin-left: 0">
+                                <input type="text" name="plan-name" id="plan-name" autocomplete="off"
+                                       placeholder="请输入方案名称" class="layui-input">
+                            </div>
+                        </div>
+                        <hr/>
+                        <div class="layui-inline">
                             <h5>请输入试卷标题：</h5>
                         </div>
                         <div class="layui-form-item">
@@ -69,21 +79,19 @@
                             </div>
                         </div>
                         <hr/>
-                        <div class="layui-inline">
-                            <div>
+                        <div class="layui-row">
+                            <div class="layui-col-xs7">
                                 <h4>请输入题型及分值
                                     <i data-container="body" data-toggle="popover" data-placement="right"
-                                       data-content="请确保每个题型的分值都是一样的，否则生成的试卷会出现显示错误"
+                                       data-content="请确保每个题型的分值都是一样的，否则生成的试卷会出现显示错误<hr/>若某行的数量或单个分值为空，则该行无效"
                                        class="fa fa-question-circle"></i>
                                 </h4>
+                                <table class="layui-hide" id="table4Combine" lay-filter="table4CombineFilter"></table>
                             </div>
-                            <table class="layui-hide" id="table4Combine" lay-filter="table4CombineFilter"></table>
-                        </div>
-                        <div class="layui-inline">
-                            <div>
+                            <div class="layui-col-xs5">
                                 <h4>题库现有题型及分值</h4>
+                                <table class="layui-hide" id="questionBank"></table>
                             </div>
-                            <table class="layui-hide" id="questionBank" lay-filter="questionBankFilter"></table>
                         </div>
                     </div>
                     <hr/>
@@ -131,56 +139,62 @@
         }
     }
 
-    const tableCols = [[
-        {field: 'type', minWidth: 100, title: '题型', align: "center"},
-        {field: 'difficulty', minWidth: 100, title: '难度', align: "center"},
+    const table4CombineCols = [[
+        {field: 'type', minWidth: 109, title: '题型', align: "center"},
+        {field: 'difficulty', minWidth: 110, title: '难度', align: "center"},
         {
-            field: "num", edit: "text", minWidth: 100, align: "center",
+            field: "num", edit: "text", minWidth: 135, align: "center",
             title: '数量 <i data-container="body" data-toggle="popover" data-placement="right"' +
                 'data-content="值应为<strong>正整数</strong>" class="fa fa-question-circle"></i>'
         },
         {
-            field: "score", edit: "text", minWidth: 120, align: "center",
+            field: "score", edit: "text", minWidth: 135, align: "center",
             title: '单个分值 <i data-container="body" data-toggle="popover" data-placement="right"' +
                 'data-content="值应为<strong>正数</strong>" class="fa fa-question-circle"></i>'
         },
-        {field: "dScore", minWidth: 120, title: '该难度总分值', align: "center"},
-        {field: "tScore", rowspan: 3, minWidth: 150, title: '该题型总分值', align: "center"},
+        {field: "dScore", minWidth: 135, title: '该难度总分值', align: "center"},
+        {field: "tScore", rowspan: 3, minWidth: 135, title: '该题型总分值', align: "center"},
         {field: "checkbox", type: "checkbox", hide: true},
+    ]]
+
+    const questionBankCols = [[
+        {field: 'type', minWidth: 100, title: '题型', align: "center", sort: true},
+        {field: 'difficulty', minWidth: 100, title: '难度', align: "center", sort: false},
+        {field: "score", minWidth: 100, title: '单个分值', align: "center", sort: false},
+        {field: "num", minWidth: 100, title: '数量', align: "center", sort: false},
     ]]
 
     layui.use(['form', 'table', 'element'], function () {
         let $ = layui.jquery, form = layui.form, table = layui.table, element = layui.element;
 
-        form.on('select(courseFilter)', function (data) {
-            const courseId = data.value;
-            switch (courseId) {
-                case "0":
-                    break;
-                default:
-                    table.render({
-                        elem: '#questionBank',
-                        url: "/api/combine/exists/" + courseId,
-                        cols: [[
-                            {field: 'type', minWidth: 100, title: '题型', align: "center", sort: true},
-                            {field: 'difficulty', minWidth: 100, title: '难度', align: "center", sort: false},
-                            {field: "score", minWidth: 100, title: '单个分值', align: "center", sort: false},
-                            {field: "num", minWidth: 100, title: '数量', align: "center", sort: false},
-                        ]],
-                        skin: 'row line',
-                        page: false,
-                        limit: 999,
-                        done: function (res, curr, count) {
-                        }
-                    });
-                    break;
+        table.render({
+            elem: '#questionBank',
+            url: "/api/combine/exists/0",
+            cols: questionBankCols,
+            skin: 'row line',
+            page: false,
+            limit: 999,
+            done: function (res, curr, count) {
             }
+        });
+
+        form.on('select(courseFilter)', function (data) {
+            table.render({
+                elem: '#questionBank',
+                url: "/api/combine/exists/" + data.value,
+                cols: questionBankCols,
+                skin: 'row line',
+                page: false,
+                limit: 999,
+                done: function (res, curr, count) {
+                }
+            });
         });
 
         table.render({
             elem: '#table4Combine',
             url: "/api/combine/init",
-            cols: tableCols,
+            cols: table4CombineCols,
             skin: 'row line',
             page: false,
             limit: 999,
@@ -191,32 +205,28 @@
         });
 
         table.on("edit(table4CombineFilter)", function (obj) {
-            let numberRegx = /^[0-9]+$/;
-            let scoreRegx = /^\d+(?=\.?\d+$|$)/;
-            const selector = obj.tr.selector + ' td[data-field="' + obj.field + '"] div';
-            const oldText = $(selector).text();
             const toBeModify = $(obj.tr.selector + ' td[data-field="' + obj.field + '"] input');
-
             if (obj.field === "num") {
-                const intV = parseInt(obj.value);
-                const v = String(intV);
-                if (intV <= 0 || v === "NaN") {
-                    layer.msg('请输入正整数！');
-                    toBeModify.val("");
-                    return;
+                if (obj.value.trim() !== "") {
+                    const intV = parseInt(obj.value);
+                    const v = String(intV);
+                    if (intV <= 0 || v === "NaN") {
+                        layer.msg('请输入正整数！');
+                        toBeModify.val("");
+                    }
+                    toBeModify.val(v);
                 }
-                toBeModify.val(v);
             }
-
             if (obj.field === "score") {
-                const floatV = parseFloat(obj.value);
-                const v = String(floatV);
-                if (floatV < 0 || v === "NaN") {
-                    layer.msg('请输入正数！');
-                    toBeModify.val("");
-                    return;
+                if (obj.value.trim() !== "") {
+                    const floatV = parseFloat(obj.value);
+                    const v = String(floatV);
+                    if (floatV < 0 || v === "NaN") {
+                        layer.msg('请输入正数！');
+                        toBeModify.val("");
+                    }
+                    toBeModify.val(v);
                 }
-                toBeModify.val(v);
             }
 
             const checkStatus = table.checkStatus('table4Combine'), checkData = checkStatus.data;
@@ -234,7 +244,7 @@
                     table.render({
                         elem: '#table4Combine',
                         data: data['table'],
-                        cols: tableCols,
+                        cols: table4CombineCols,
                         skin: 'row line',
                         page: false,
                         limit: 999,
@@ -264,11 +274,17 @@
             return;
         }
 
-        const paperTitle = $("#paper-title").val();
-        if (paperTitle.trim() === "") {
-            alert("请输入试卷标题！");
+        const planName = $("#plan-name").val().trim();
+        if (planName === "") {
+            alert("请输入方案名称！");
             return;
         }
+
+        const paperTitle = $("#paper-title").val().trim();
+        // if (paperTitle === "") {
+        //     alert("请输入试卷标题！");
+        //     return;
+        // }
 
         layui.$.ajax({
             type: 'POST',
@@ -276,9 +292,10 @@
             data: {
                 "user":{{.userId}},
                 "course": courseId,
+                "name": planName,
                 "title": paperTitle,
                 "plan": JSON.stringify(result),
-                "score":$("#paperScore").val(),
+                "score": $("#paperScore").val(),
                 "note": $("#note").val(),
             },
             success: function (data) {

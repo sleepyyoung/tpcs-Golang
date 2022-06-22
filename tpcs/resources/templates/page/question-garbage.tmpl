@@ -200,8 +200,9 @@
             </div>
         </script>
         <table class="layui-hide" id="currentTableId" lay-filter="currentTableFilter"></table>
-        <script type="text/html" id="currentTableBar"></script>
-        <script>
+        {{/*<script type="text/html" id="currentTableBar"></script>*/}}
+        <div id="currentTableBar" hidden></div>
+        <script type="text/javascript">
             $('#currentTableBar').append(
                 '<button class="layui-btn layui-btn-normal layui-btn-xs data-count-edit" lay-event="detail">详情</button>' +
                 '{' + '{' + '# if(d.LAY_DISABLED){ }}' +

@@ -11,10 +11,10 @@ import (
 
 func UserPageInterceptor() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		session := sessions.DefaultMany(c, "user")
-		userI := session.Get("user")
 		userSvc := userService.New(c.Request.Context())
 
+		session := sessions.DefaultMany(c, "user")
+		userI := session.Get("user")
 		if userI == nil {
 			c.Redirect(http.StatusFound, "/login")
 			c.Abort()
@@ -37,10 +37,10 @@ func UserPageInterceptor() gin.HandlerFunc {
 
 func TeacherPageInterceptor() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		session := sessions.DefaultMany(c, "user")
-		userI := session.Get("user")
 		userSvc := userService.New(c.Request.Context())
 
+		session := sessions.DefaultMany(c, "user")
+		userI := session.Get("user")
 		if userI == nil {
 			c.Redirect(http.StatusFound, "/login")
 			c.Abort()
@@ -67,10 +67,10 @@ func TeacherPageInterceptor() gin.HandlerFunc {
 
 func AdminPageInterceptor() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		session := sessions.DefaultMany(c, "user")
-		userI := session.Get("user")
 		userSvc := userService.New(c.Request.Context())
 
+		session := sessions.DefaultMany(c, "user")
+		userI := session.Get("user")
 		if userI == nil {
 			c.Redirect(http.StatusFound, "/login")
 			c.Abort()
@@ -97,10 +97,10 @@ func AdminPageInterceptor() gin.HandlerFunc {
 
 func UserApiInterceptor() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		session := sessions.DefaultMany(c, "user")
-		userI := session.Get("user")
 		userSvc := userService.New(c.Request.Context())
 
+		session := sessions.DefaultMany(c, "user")
+		userI := session.Get("user")
 		if userI == nil {
 			c.JSON(http.StatusForbidden, pojo.Result{Success: pojo.ResultSuccess_False, Msg: pojo.ResultMsg_InsufficientPermissions})
 			c.Abort()
@@ -121,10 +121,10 @@ func UserApiInterceptor() gin.HandlerFunc {
 
 func TeacherApiInterceptor() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		session := sessions.DefaultMany(c, "user")
-		userI := session.Get("user")
 		userSvc := userService.New(c.Request.Context())
 
+		session := sessions.DefaultMany(c, "user")
+		userI := session.Get("user")
 		if userI == nil {
 			c.JSON(http.StatusForbidden, pojo.Result{Success: pojo.ResultSuccess_False, Msg: pojo.ResultMsg_InsufficientPermissions})
 			c.Abort()
@@ -149,10 +149,10 @@ func TeacherApiInterceptor() gin.HandlerFunc {
 
 func AdminApiInterceptor() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		session := sessions.DefaultMany(c, "user")
-		userI := session.Get("user")
 		userSvc := userService.New(c.Request.Context())
 
+		session := sessions.DefaultMany(c, "user")
+		userI := session.Get("user")
 		if userI == nil {
 			c.JSON(http.StatusForbidden, pojo.Result{Success: pojo.ResultSuccess_False, Msg: pojo.ResultMsg_InsufficientPermissions})
 			c.Abort()

@@ -37,72 +37,51 @@
 <div class="layuimini-container">
     <div class="layuimini-main">
         <fieldset class="table-search-fieldset">
-            <legend>自动组卷
-                <i data-toggle="popover" class="fa fa-question-circle" data-content="<strong>
-&nbsp;&nbsp;&nbsp;&nbsp;题型&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;数量&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;单个分值&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;总分值 <br/>
-&nbsp;&nbsp;&nbsp;&nbsp;单选&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;10&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;10<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;多选&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;10<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;填空&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;10<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;判断&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;10&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;10<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;简答&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;20<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;SQL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;10&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;20<br/>
-关系代数&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;20<br/>
-</strong>" title="目前仅支持<strong>“数据库原理及应用”</strong>课程"></i>
-            </legend>
+            <legend>自动组卷</legend>
             <div style="margin: 10px 10px 10px 10px">
                 <form class="layui-form layui-form-pane" action="">
-                    <div class=" layui-inline">
-                        <div class="layui-inline">
-                            <h5>请选择难度：
-                                <i data-toggle="popover" class="fa fa-question-circle" data-content="<strong>
-试卷整体难度&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;题目难度比例（简单 : 中等 : 困难） <br/>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;简单&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;8 : 2 : 0<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;中等&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;5 : 4 : 1<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;困难&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3 : 4 : 3<br/>
-</strong>"></i>
-                            </h5>
-                        </div>
-                        <div class="layui-inline">
-                            <label>
-                                {{range $i, $v := .questionDifficultyList}}
-                                    <input type="radio" name="question-difficulty"
-                                           value="{{$v.Id}}" title="{{$v.Name}}" checked="">
-                                {{end}}
-                            </label>
-                        </div>
-                        <div class="layui-inline">
-                            <button style="margin: 5px;" class="layui-form-label" type="button" onclick="doCombine()">
-                                组 卷
-                            </button>
-                        </div>
-                    </div>
-                    <hr/>
-                    <div class="layui-inline">
-                        <h5>请输入试卷标题：</h5>
-                    </div>
                     <div class="layui-form-item">
-                        <div class="layui-input-block" style="margin-left: 0">
-                            <input type="text" name="paper-title" id="paper-title" autocomplete="off"
-                                   placeholder="请输入试卷标题" class="layui-input">
+                        <div class="layui-inline">
+                            <label class="layui-form-label">课程</label>
+                            <div class="layui-input-inline" style="margin-right: 0;">
+                                <input type="text" id="course" value="{{.plan.Course.Name}}" readonly="readonly"
+                                       style="text-align: center;font-weight: bold;" class="layui-input">
+                            </div>
                         </div>
-                    </div>
-                    <hr/>
-                    <div class="layui-inline">
-                        <h5>请选择课程以查看题库试题信息：</h5>
-                    </div>
-                    <div class="layui-inline">
-                        <label class="layui-form-label">课程</label>
-                        <div class="layui-input-inline" style="margin-right: 0;">
-                            <select id="course" lay-filter="courseFilter">
-                                <option value="0" selected>请选择</option>
-                                {{range $i, $v := .courseList}}
-                                    <option value="{{$v.Id}}">{{$v.Name}}</option>
-                                {{end}}
-                            </select>
+                        <div class="layui-inline">
+                            <label class="layui-form-label">试卷总分</label>
+                            <div class="layui-input-inline">
+                                <input type="text" id="paperScore" value="{{.plan.Score}}" readonly="readonly"
+                                       style="text-align: center;font-weight: bold;" class="layui-input">
+                            </div>
                         </div>
-                    </div>
-                    <div>
-                        <table class="layui-hide" id="questionBank" lay-filter="questionBankFilter"></table>
+                        <div class="layui-inline">
+                            <label class="layui-form-label">所属教师</label>
+                            <div class="layui-input-inline">
+                                <input type="button" id="user-info" value="{{.plan.User.Username}}" readonly="readonly"
+                                       style="text-align: center;font-weight: bold;" class="layui-input">
+                            </div>
+                        </div>
+                        <hr/>
+                        <div class="layui-inline">
+                            <h5>方案名称：</h5>
+                        </div>
+                        <div class="layui-form-item">
+                            <div class="layui-input-block" style="margin-left: 0">
+                                <input type="text" name="plan-name" id="plan-name" autocomplete="off"
+                                       readonly="readonly" value="{{.plan.PlanName}}" class="layui-input">
+                            </div>
+                        </div>
+                        <hr/>
+                        <div class="layui-inline">
+                            <h5>试卷标题：</h5>
+                        </div>
+                        <div class="layui-form-item">
+                            <div class="layui-input-block" style="margin-left: 0">
+                                <input type="text" name="paper-title" id="paper-title" autocomplete="off"
+                                       readonly="readonly" value="{{.plan.PaperTitle}}" class="layui-input">
+                            </div>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -146,817 +125,45 @@
     </div>
 </div>
 <script>
-    layui.use(['form', 'table', 'element'], function () {
-        let $ = layui.jquery, form = layui.form, table = layui.table, element = layui.element;
-
-        $("#test-paper-preview-fieldset").hide();
-        $("#test-paper-answer-preview-fieldset").hide();
-
-        form.on('select(courseFilter)', function (data) {
-            table.render({
-                elem: '#questionBank',
-                url: "/api/combine/exists/" + data.value,
-                cols: [[
-                    {field: 'type', minWidth: 100, title: '题型', align: "center", sort: true},
-                    {field: 'difficulty', minWidth: 100, title: '难度', align: "center", sort: false},
-                    {field: "score", minWidth: 100, title: '单个分值', align: "center", sort: false},
-                    {field: "num", minWidth: 100, title: '数量', align: "center", sort: false},
-                ]],
-                skin: 'row line',
-                page: false,
-                limit: 999
-            });
-        });
+    layui.$.ajax({
+        type: 'POST',
+        url: "/api/combine",
+        data: {
+            "course": {{.plan.Course.Id}},
+            "title": "{{.plan.PaperTitle}}",
+            "plan": {{.plan.Plan}},
+            "score":{{.plan.Score}},
+        },
+        success: function (data) {
+            if (data['paperHtml'] === "" && data['answerHtml'] === "") {
+                return;
+            }
+            $("#test-paper-preview-fieldset").show();
+            $("#test-paper-answer-preview-fieldset").show();
+            if (data['success'] === true) {
+                $("#test-paper-preview").html(data['paperHtml']);
+                $("#test-paper-preview img").attr("crossorigin", "anonymous");
+                $("#test-paper-answer-preview").html(data['answerHtml']);
+                $("#test-paper-answer-preview img").attr("crossorigin", "anonymous");
+            } else {
+                $("#test-paper-preview").html("<strong>组卷出现错误，详情：</strong><br/>" + data['paperHtml']);
+                $("#test-paper-answer-preview").html("<strong>组卷出现错误，详情：</strong><br/>" + data['answerHtml']);
+            }
+        },
+        dataType: "json"
     });
 
-    function doCombine() {
-        const paperTitle = $("#paper-title").val();
-        if (paperTitle.trim() === "") {
-            alert("请输入试卷标题！");
-            return;
-        }
-
-        const courseId = $("#course option:selected").val();
-        if (courseId === "0") {
-            alert("请选择课程！");
-            return;
-        }
-
-        const difficultyId = Number($('input[type=radio]:checked').val());
-        let result = []
-        if (difficultyId === 1) {
-            result = [{
-                "type": "SQL",
-                "typeId": 8,
-                "difficulty": "中等",
-                "difficultyId": 2,
-                "num": "2",
-                "score": "2",
-                "dScore": 4,
-                "tScore": 20,
-                "scoreId": ""
-            }, {
-                "type": "SQL",
-                "typeId": 8,
-                "difficulty": "困难",
-                "difficultyId": 3,
-                "num": "",
-                "score": "",
-                "dScore": "",
-                "tScore": 20,
-                "scoreId": ""
-            }, {
-                "type": "SQL",
-                "typeId": 8,
-                "difficulty": "简单",
-                "difficultyId": 1,
-                "num": "8",
-                "score": "2",
-                "dScore": 16,
-                "tScore": 20,
-                "scoreId": ""
-            }, {
-                "type": "关系代数",
-                "typeId": 7,
-                "difficulty": "中等",
-                "difficultyId": 2,
-                "num": "1",
-                "score": "4",
-                "dScore": 4,
-                "tScore": 20,
-                "scoreId": ""
-            }, {
-                "type": "关系代数",
-                "typeId": 7,
-                "difficulty": "困难",
-                "difficultyId": 3,
-                "num": "",
-                "score": "",
-                "dScore": "",
-                "tScore": 20,
-                "scoreId": ""
-            }, {
-                "type": "关系代数",
-                "typeId": 7,
-                "difficulty": "简单",
-                "difficultyId": 1,
-                "num": "4",
-                "score": "4",
-                "dScore": 16,
-                "tScore": 20,
-                "scoreId": ""
-            }, {
-                "type": "判断",
-                "typeId": 4,
-                "difficulty": "中等",
-                "difficultyId": 2,
-                "num": "2",
-                "score": "1",
-                "dScore": 2,
-                "tScore": 10,
-                "scoreId": ""
-            }, {
-                "type": "判断",
-                "typeId": 4,
-                "difficulty": "困难",
-                "difficultyId": 3,
-                "num": "",
-                "score": "",
-                "dScore": "",
-                "tScore": 10,
-                "scoreId": ""
-            }, {
-                "type": "判断",
-                "typeId": 4,
-                "difficulty": "简单",
-                "difficultyId": 1,
-                "num": "8",
-                "score": "1",
-                "dScore": 8,
-                "tScore": 10,
-                "scoreId": ""
-            }, {
-                "type": "单选",
-                "typeId": 1,
-                "difficulty": "中等",
-                "difficultyId": 2,
-                "num": "2",
-                "score": "1",
-                "dScore": 2,
-                "tScore": 10,
-                "scoreId": ""
-            }, {
-                "type": "单选",
-                "typeId": 1,
-                "difficulty": "困难",
-                "difficultyId": 3,
-                "num": "",
-                "score": "",
-                "dScore": "",
-                "tScore": 10,
-                "scoreId": ""
-            }, {
-                "type": "单选",
-                "typeId": 1,
-                "difficulty": "简单",
-                "difficultyId": 1,
-                "num": "8",
-                "score": "1",
-                "dScore": 8,
-                "tScore": 10,
-                "scoreId": ""
-            }, {
-                "type": "填空",
-                "typeId": 3,
-                "difficulty": "中等",
-                "difficultyId": 2,
-                "num": "1",
-                "score": "2",
-                "dScore": 2,
-                "tScore": 10,
-                "scoreId": ""
-            }, {
-                "type": "填空",
-                "typeId": 3,
-                "difficulty": "困难",
-                "difficultyId": 3,
-                "num": "",
-                "score": "",
-                "dScore": "",
-                "tScore": 10,
-                "scoreId": ""
-            }, {
-                "type": "填空",
-                "typeId": 3,
-                "difficulty": "简单",
-                "difficultyId": 1,
-                "num": "4",
-                "score": "2",
-                "dScore": 8,
-                "tScore": 10,
-                "scoreId": ""
-            }, {
-                "type": "多选",
-                "typeId": 2,
-                "difficulty": "中等",
-                "difficultyId": 2,
-                "num": "1",
-                "score": "2",
-                "dScore": 2,
-                "tScore": 10,
-                "scoreId": ""
-            }, {
-                "type": "多选",
-                "typeId": 2,
-                "difficulty": "困难",
-                "difficultyId": 3,
-                "num": "",
-                "score": "",
-                "dScore": "",
-                "tScore": 10,
-                "scoreId": ""
-            }, {
-                "type": "多选",
-                "typeId": 2,
-                "difficulty": "简单",
-                "difficultyId": 1,
-                "num": "4",
-                "score": "2",
-                "dScore": 8,
-                "tScore": 10,
-                "scoreId": ""
-            }, {
-                "type": "简答",
-                "typeId": 5,
-                "difficulty": "中等",
-                "difficultyId": 2,
-                "num": "1",
-                "score": "5",
-                "dScore": 5,
-                "tScore": 20,
-                "scoreId": ""
-            }, {
-                "type": "简答",
-                "typeId": 5,
-                "difficulty": "困难",
-                "difficultyId": 3,
-                "num": "",
-                "score": "",
-                "dScore": "",
-                "tScore": 20,
-                "scoreId": ""
-            }, {
-                "type": "简答",
-                "typeId": 5,
-                "difficulty": "简单",
-                "difficultyId": 1,
-                "num": "3",
-                "score": "5",
-                "dScore": 15,
-                "tScore": 20,
-                "scoreId": ""
-            }, {
-                "type": "综合",
-                "typeId": 6,
-                "difficulty": "中等",
-                "difficultyId": 2,
-                "num": "",
-                "score": "",
-                "dScore": "",
-                "tScore": "",
-                "scoreId": ""
-            }, {
-                "type": "综合",
-                "typeId": 6,
-                "difficulty": "困难",
-                "difficultyId": 3,
-                "num": "",
-                "score": "",
-                "dScore": "",
-                "tScore": "",
-                "scoreId": ""
-            }, {
-                "type": "综合",
-                "typeId": 6,
-                "difficulty": "简单",
-                "difficultyId": 1,
-                "num": "",
-                "score": "",
-                "dScore": "",
-                "tScore": "",
-                "scoreId": ""
-            }]
-        } else if (difficultyId === 2) {
-            result = [{
-                "type": "SQL",
-                "typeId": 8,
-                "difficulty": "中等",
-                "difficultyId": 2,
-                "num": "4",
-                "score": "2",
-                "dScore": 8,
-                "tScore": 20,
-                "scoreId": ""
-            }, {
-                "type": "SQL",
-                "typeId": 8,
-                "difficulty": "困难",
-                "difficultyId": 3,
-                "num": "1",
-                "score": "2",
-                "dScore": 2,
-                "tScore": 20,
-                "scoreId": ""
-            }, {
-                "type": "SQL",
-                "typeId": 8,
-                "difficulty": "简单",
-                "difficultyId": 1,
-                "num": "5",
-                "score": "2",
-                "dScore": 10,
-                "tScore": 20,
-                "scoreId": ""
-            }, {
-                "type": "关系代数",
-                "typeId": 7,
-                "difficulty": "中等",
-                "difficultyId": 2,
-                "num": "2",
-                "score": "4",
-                "dScore": 8,
-                "tScore": 20,
-                "scoreId": ""
-            }, {
-                "type": "关系代数",
-                "typeId": 7,
-                "difficulty": "困难",
-                "difficultyId": 3,
-                "num": "1",
-                "score": "4",
-                "dScore": 4,
-                "tScore": 20,
-                "scoreId": ""
-            }, {
-                "type": "关系代数",
-                "typeId": 7,
-                "difficulty": "简单",
-                "difficultyId": 1,
-                "num": "2",
-                "score": "4",
-                "dScore": 8,
-                "tScore": 20,
-                "scoreId": ""
-            }, {
-                "type": "判断",
-                "typeId": 4,
-                "difficulty": "中等",
-                "difficultyId": 2,
-                "num": "4",
-                "score": "1",
-                "dScore": 4,
-                "tScore": 10,
-                "scoreId": ""
-            }, {
-                "type": "判断",
-                "typeId": 4,
-                "difficulty": "困难",
-                "difficultyId": 3,
-                "num": "1",
-                "score": "1",
-                "dScore": 1,
-                "tScore": 10,
-                "scoreId": ""
-            }, {
-                "type": "判断",
-                "typeId": 4,
-                "difficulty": "简单",
-                "difficultyId": 1,
-                "num": "5",
-                "score": "1",
-                "dScore": 5,
-                "tScore": 10,
-                "scoreId": ""
-            }, {
-                "type": "单选",
-                "typeId": 1,
-                "difficulty": "中等",
-                "difficultyId": 2,
-                "num": "4",
-                "score": "1",
-                "dScore": 4,
-                "tScore": 10,
-                "scoreId": ""
-            }, {
-                "type": "单选",
-                "typeId": 1,
-                "difficulty": "困难",
-                "difficultyId": 3,
-                "num": "1",
-                "score": "1",
-                "dScore": 1,
-                "tScore": 10,
-                "scoreId": ""
-            }, {
-                "type": "单选",
-                "typeId": 1,
-                "difficulty": "简单",
-                "difficultyId": 1,
-                "num": "5",
-                "score": "1",
-                "dScore": 5,
-                "tScore": 10,
-                "scoreId": ""
-            }, {
-                "type": "填空",
-                "typeId": 3,
-                "difficulty": "中等",
-                "difficultyId": 2,
-                "num": "2",
-                "score": "2",
-                "dScore": 4,
-                "tScore": 10,
-                "scoreId": ""
-            }, {
-                "type": "填空",
-                "typeId": 3,
-                "difficulty": "困难",
-                "difficultyId": 3,
-                "num": "1",
-                "score": "2",
-                "dScore": 2,
-                "tScore": 10,
-                "scoreId": ""
-            }, {
-                "type": "填空",
-                "typeId": 3,
-                "difficulty": "简单",
-                "difficultyId": 1,
-                "num": "2",
-                "score": "2",
-                "dScore": 4,
-                "tScore": 10,
-                "scoreId": ""
-            }, {
-                "type": "多选",
-                "typeId": 2,
-                "difficulty": "中等",
-                "difficultyId": 2,
-                "num": "2",
-                "score": "2",
-                "dScore": 4,
-                "tScore": 10,
-                "scoreId": ""
-            }, {
-                "type": "多选",
-                "typeId": 2,
-                "difficulty": "困难",
-                "difficultyId": 3,
-                "num": "1",
-                "score": "2",
-                "dScore": 2,
-                "tScore": 10,
-                "scoreId": ""
-            }, {
-                "type": "多选",
-                "typeId": 2,
-                "difficulty": "简单",
-                "difficultyId": 1,
-                "num": "2",
-                "score": "2",
-                "dScore": 4,
-                "tScore": 10,
-                "scoreId": ""
-            }, {
-                "type": "简答",
-                "typeId": 5,
-                "difficulty": "中等",
-                "difficultyId": 2,
-                "num": "1",
-                "score": "5",
-                "dScore": 5,
-                "tScore": 20,
-                "scoreId": ""
-            }, {
-                "type": "简答",
-                "typeId": 5,
-                "difficulty": "困难",
-                "difficultyId": 3,
-                "num": "1",
-                "score": "5",
-                "dScore": 5,
-                "tScore": 20,
-                "scoreId": ""
-            }, {
-                "type": "简答",
-                "typeId": 5,
-                "difficulty": "简单",
-                "difficultyId": 1,
-                "num": "2",
-                "score": "5",
-                "dScore": 10,
-                "tScore": 20,
-                "scoreId": ""
-            }, {
-                "type": "综合",
-                "typeId": 6,
-                "difficulty": "中等",
-                "difficultyId": 2,
-                "num": "",
-                "score": "",
-                "dScore": "",
-                "tScore": "",
-                "scoreId": ""
-            }, {
-                "type": "综合",
-                "typeId": 6,
-                "difficulty": "困难",
-                "difficultyId": 3,
-                "num": "",
-                "score": "",
-                "dScore": "",
-                "tScore": "",
-                "scoreId": ""
-            }, {
-                "type": "综合",
-                "typeId": 6,
-                "difficulty": "简单",
-                "difficultyId": 1,
-                "num": "",
-                "score": "",
-                "dScore": "",
-                "tScore": "",
-                "scoreId": ""
-            }]
-        } else if (difficultyId === 3) {
-            result = [{
-                "type": "SQL",
-                "typeId": 8,
-                "difficulty": "中等",
-                "difficultyId": 2,
-                "num": "4",
-                "score": "2",
-                "dScore": 8,
-                "tScore": 20,
-                "scoreId": ""
-            }, {
-                "type": "SQL",
-                "typeId": 8,
-                "difficulty": "困难",
-                "difficultyId": 3,
-                "num": "3",
-                "score": "2",
-                "dScore": 6,
-                "tScore": 20,
-                "scoreId": ""
-            }, {
-                "type": "SQL",
-                "typeId": 8,
-                "difficulty": "简单",
-                "difficultyId": 1,
-                "num": "3",
-                "score": "2",
-                "dScore": 6,
-                "tScore": 20,
-                "scoreId": ""
-            }, {
-                "type": "关系代数",
-                "typeId": 7,
-                "difficulty": "中等",
-                "difficultyId": 2,
-                "num": "2",
-                "score": "4",
-                "dScore": 8,
-                "tScore": 20,
-                "scoreId": ""
-            }, {
-                "type": "关系代数",
-                "typeId": 7,
-                "difficulty": "困难",
-                "difficultyId": 3,
-                "num": "2",
-                "score": "4",
-                "dScore": 8,
-                "tScore": 20,
-                "scoreId": ""
-            }, {
-                "type": "关系代数",
-                "typeId": 7,
-                "difficulty": "简单",
-                "difficultyId": 1,
-                "num": "1",
-                "score": "4",
-                "dScore": 4,
-                "tScore": 20,
-                "scoreId": ""
-            }, {
-                "type": "判断",
-                "typeId": 4,
-                "difficulty": "中等",
-                "difficultyId": 2,
-                "num": "4",
-                "score": "1",
-                "dScore": 4,
-                "tScore": 10,
-                "scoreId": ""
-            }, {
-                "type": "判断",
-                "typeId": 4,
-                "difficulty": "困难",
-                "difficultyId": 3,
-                "num": "3",
-                "score": "1",
-                "dScore": 3,
-                "tScore": 10,
-                "scoreId": ""
-            }, {
-                "type": "判断",
-                "typeId": 4,
-                "difficulty": "简单",
-                "difficultyId": 1,
-                "num": "3",
-                "score": "1",
-                "dScore": 3,
-                "tScore": 10,
-                "scoreId": ""
-            }, {
-                "type": "单选",
-                "typeId": 1,
-                "difficulty": "中等",
-                "difficultyId": 2,
-                "num": "4",
-                "score": "1",
-                "dScore": 4,
-                "tScore": 10,
-                "scoreId": ""
-            }, {
-                "type": "单选",
-                "typeId": 1,
-                "difficulty": "困难",
-                "difficultyId": 3,
-                "num": "3",
-                "score": "1",
-                "dScore": 3,
-                "tScore": 10,
-                "scoreId": ""
-            }, {
-                "type": "单选",
-                "typeId": 1,
-                "difficulty": "简单",
-                "difficultyId": 1,
-                "num": "3",
-                "score": "1",
-                "dScore": 3,
-                "tScore": 10,
-                "scoreId": ""
-            }, {
-                "type": "填空",
-                "typeId": 3,
-                "difficulty": "中等",
-                "difficultyId": 2,
-                "num": "2",
-                "score": "2",
-                "dScore": 4,
-                "tScore": 10,
-                "scoreId": ""
-            }, {
-                "type": "填空",
-                "typeId": 3,
-                "difficulty": "困难",
-                "difficultyId": 3,
-                "num": "2",
-                "score": "2",
-                "dScore": 4,
-                "tScore": 10,
-                "scoreId": ""
-            }, {
-                "type": "填空",
-                "typeId": 3,
-                "difficulty": "简单",
-                "difficultyId": 1,
-                "num": "1",
-                "score": "2",
-                "dScore": 2,
-                "tScore": 10,
-                "scoreId": ""
-            }, {
-                "type": "多选",
-                "typeId": 2,
-                "difficulty": "中等",
-                "difficultyId": 2,
-                "num": "2",
-                "score": "2",
-                "dScore": 4,
-                "tScore": 10,
-                "scoreId": ""
-            }, {
-                "type": "多选",
-                "typeId": 2,
-                "difficulty": "困难",
-                "difficultyId": 3,
-                "num": "2",
-                "score": "2",
-                "dScore": 4,
-                "tScore": 10,
-                "scoreId": ""
-            }, {
-                "type": "多选",
-                "typeId": 2,
-                "difficulty": "简单",
-                "difficultyId": 1,
-                "num": "1",
-                "score": "2",
-                "dScore": 2,
-                "tScore": 10,
-                "scoreId": ""
-            }, {
-                "type": "简答",
-                "typeId": 5,
-                "difficulty": "中等",
-                "difficultyId": 2,
-                "num": "1",
-                "score": "5",
-                "dScore": 5,
-                "tScore": 20,
-                "scoreId": ""
-            }, {
-                "type": "简答",
-                "typeId": 5,
-                "difficulty": "困难",
-                "difficultyId": 3,
-                "num": "2",
-                "score": "5",
-                "dScore": 10,
-                "tScore": 20,
-                "scoreId": ""
-            }, {
-                "type": "简答",
-                "typeId": 5,
-                "difficulty": "简单",
-                "difficultyId": 1,
-                "num": "1",
-                "score": "5",
-                "dScore": 5,
-                "tScore": 20,
-                "scoreId": ""
-            }, {
-                "type": "综合",
-                "typeId": 6,
-                "difficulty": "中等",
-                "difficultyId": 2,
-                "num": "",
-                "score": "",
-                "dScore": "",
-                "tScore": "",
-                "scoreId": ""
-            }, {
-                "type": "综合",
-                "typeId": 6,
-                "difficulty": "困难",
-                "difficultyId": 3,
-                "num": "",
-                "score": "",
-                "dScore": "",
-                "tScore": "",
-                "scoreId": ""
-            }, {
-                "type": "综合",
-                "typeId": 6,
-                "difficulty": "简单",
-                "difficultyId": 1,
-                "num": "",
-                "score": "",
-                "dScore": "",
-                "tScore": "",
-                "scoreId": ""
-            }]
-        } else {
-            return
-        }
-
-        layui.$.ajax({
-            type: 'POST',
-            url: "/api/combine/" + courseId + "?paper-title=" + paperTitle,
-            data: JSON.stringify(result),
-            contentType: "application/json",
-            success: function (data) {
-                if (data['paperHtml'] === "" && data['answerHtml'] === "") {
-                    return;
-                }
-                $("#test-paper-preview-fieldset").show();
-                $("#test-paper-answer-preview-fieldset").show();
-                if (data['success'] === true) {
-                    $("#test-paper-preview").html(data['paperHtml']);
-                    $("#test-paper-preview img").attr("crossorigin", "anonymous");
-                    $("#test-paper-answer-preview").html(data['answerHtml']);
-                    $("#test-paper-answer-preview img").attr("crossorigin", "anonymous");
-                } else {
-                    $("#test-paper-preview").html("<strong>组卷出现错误，详情：</strong><br/>" + data['paperHtml']);
-                    $("#test-paper-answer-preview").html("<strong>组卷出现错误，详情：</strong><br/>" + data['answerHtml']);
-                }
-            },
-            dataType: "json"
+    layui.$("#user-info").on("click", function () {
+        layer.open({
+            title: '{{.plan.User.Username}}',
+            type: 2,
+            shade: 0.2,
+            maxmin: false,
+            area: ['920px', '330px'],
+            shadeClose: true,
+            content: '/user/{{.plan.User.Username}}',
         });
-
-        // layui.$.ajax({
-        //     type: 'POST',
-        //     url: "/api/combine/auto/" + courseId + "/" + difficultyId,
-        //     data: {"paper-title": paperTitle},
-        //     success: function (data) {
-        //         $("#test-paper-preview-fieldset").show();
-        //         $("#test-paper-answer-preview-fieldset").show();
-        //         if (data['success'] === true) {
-        //             $("#test-paper-preview").html(data['paperHtml']);
-        //             $("#test-paper-preview img").attr("crossorigin", "anonymous");
-        //             $("#test-paper-answer-preview").html(data['answerHtml']);
-        //             $("#test-paper-answer-preview img").attr("crossorigin", "anonymous");
-        //         } else {
-        //             $("#test-paper-preview").html("组卷出现错误，详情：<br/>" + data['paperHtml']);
-        //             $("#test-paper-answer-preview").html("组卷出现错误，详情：<br/>" + data['answerHtml']);
-        //         }
-        //     }
-        // });
-    }
+    })
 </script>
 </body>
 </html>

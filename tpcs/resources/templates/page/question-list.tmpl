@@ -34,8 +34,7 @@
         <fieldset class="table-search-fieldset">
             <legend>搜索信息&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 <button type="button" class="layui-btn layui-btn-primary" lay-submit
-                        lay-filter="questions-distribution">
-                    查看题目分布
+                        lay-filter="questions-distribution">查看题目分布
                     <i class="fa fa-area-chart"> </i> <i class="fa fa-line-chart"> </i>
                     <i class="fa fa-bar-chart"> </i> <i class="fa fa-pie-chart"> </i>
                 </button>
@@ -72,7 +71,8 @@
                                         lay-filter="data-search-btn-by-type"><i class="layui-icon"></i> 仅凭此项查询
                                 </button>
                                 <i data-container="body" data-toggle="popover" data-placement="right"
-                                   data-content="精确匹配，如果没有选择的话则默认查询所有题型" class="fa fa-question-circle"></i>
+                                   data-content="精确匹配，如果没有选择的话则默认查询所有题型"
+                                   class="fa fa-question-circle"></i>
                             </div>
                         </div>
                         <div class="layui-inline">
@@ -90,7 +90,8 @@
                                         lay-filter="data-search-btn-by-difficulty"><i class="layui-icon"></i> 仅凭此项查询
                                 </button>
                                 <i data-container="body" data-toggle="popover" data-placement="right"
-                                   data-content="精确匹配，如果没有选择的话则默认查询所有题型" class="fa fa-question-circle"></i>
+                                   data-content="精确匹配，如果没有选择的话则默认查询所有题型"
+                                   class="fa fa-question-circle"></i>
                             </div>
                         </div>
                         <div class="layui-inline">
@@ -108,7 +109,8 @@
                                         lay-filter="data-search-btn-by-course"><i class="layui-icon"></i> 仅凭此项查询
                                 </button>
                                 <i data-container="body" data-toggle="popover" data-placement="right"
-                                   data-content="精确匹配，如果没有选择的话则默认查询所有题型" class="fa fa-question-circle"></i>
+                                   data-content="精确匹配，如果没有选择的话则默认查询所有题型"
+                                   class="fa fa-question-circle"></i>
                             </div>
                         </div>
 
@@ -180,7 +182,8 @@
                                         <i class="fa fa-refresh"></i> 重置条件
                                     </button>
                                     <i data-container="body" data-toggle="popover" data-placement="right"
-                                       data-content="重置条件后再点击“结合以上所有条件查询”即为默认的查询全部" class="fa fa-question-circle"></i>
+                                       data-content="重置条件后再点击“结合以上所有条件查询”即为默认的查询全部"
+                                       class="fa fa-question-circle"></i>
                                 </div>
                             </div>
                             {{if not .isAdminUser}}
@@ -210,8 +213,9 @@
             </div>
         </script>
         <table class="layui-hide" id="currentTableId" lay-filter="currentTableFilter"></table>
-        <script type="text/html" id="currentTableBar"></script>
-        <script>
+        {{/*<script type="text/html" id="currentTableBar"></script>*/}}
+        <div id="currentTableBar" hidden></div>
+        <script type="text/javascript">
             $('#currentTableBar').append(
                 '<button class="layui-btn layui-btn-normal layui-btn-xs data-count-edit" lay-event="detail">详情</button>' +
                 '{' + '{' + '# if(d.LAY_DISABLED){ }}' +

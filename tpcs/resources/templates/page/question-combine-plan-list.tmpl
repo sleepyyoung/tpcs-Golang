@@ -41,17 +41,20 @@
             </div>
         </script>
         <table class="layui-hide" id="currentTableId" lay-filter="currentTableFilter"></table>
-        <script type="text/html" id="currentTableBar"></script>
+
+        {{/*<script type="text/html" id="currentTableBar"></script>*/}}
+        <div id="currentTableBar" hidden></div>
         <script>
             $('#currentTableBar').append(
-                '<button class="layui-btn layui-btn-normal layui-btn-xs data-count-edit" lay-event="detail">详情</button>' +
+                '<button class="layui-btn layui-btn-normal layui-btn-xs" lay-event="detail">详情</button>' +
                 '{' + '{' + '# if(d.LAY_DISABLED){ }}' +
                 '<button class="layui-btn layui-btn-xs layui-btn-disabled" disabled="disabled">编辑</button>' +
                 '<button class="layui-btn layui-btn-xs layui-btn-disabled" disabled="disabled">删除</button>' +
                 '{' + '{' + '# }else{ }}' +
-                '<button class="layui-btn layui-btn-xs data-count-edit" lay-event="edit">编辑</button>' +
-                '<button class="layui-btn layui-btn-xs layui-btn-danger data-count-delete" lay-event="delete">删除</button>' +
-                '{' + '{# } }}');
+                '<button class="layui-btn layui-btn-xs" lay-event="edit">编辑</button>' +
+                '<button class="layui-btn layui-btn-xs layui-btn-danger" lay-event="delete">删除</button>' +
+                '{' + '{# } }}' +
+                '<button style="background-color: black;color: white;" class="layui-btn layui-btn-xs" lay-event="combine">组卷</button>');
         </script>
     </div>
 </div>
@@ -59,12 +62,14 @@
     const cols = [[
         {type: "checkbox"},
         {field: 'id', title: 'ID', sort: true, align: "center", hide: true},
+        {field: 'name', title: '方案名称', align: "center"},
+        {field: 'user', title: '所属教师', align: "center"},
         {field: 'course', title: '课程', align: "center"},
         {field: 'title', title: '试卷标题', align: "center"},
         // {field: 'plan', title: '组卷方案', align: "center"},
         {field: 'score', title: '试卷总分', align: "center"},
         {field: 'note', title: '备注', align: "center"},
-        {title: '操作', minWidth: 150, toolbar: '#currentTableBar', align: "center"}
+        {title: '操作', minWidth: 250, toolbar: '#currentTableBar', align: "center"}
     ]];
 
     function initTable(table, url) {
@@ -189,7 +194,7 @@
                     maxmin: true,
                     shadeClose: true,
                     area: ['100%', '100%'],
-                    content:  '/question-combine-plan-edit/' + data.id,
+                    content: '/question-combine-plan-edit/' + data.id,
                 });
                 $(window).on("resize", function () {
                     layer.full(index);
@@ -216,6 +221,19 @@
                             }
                         }
                     })
+                });
+            } else if (obj.event === 'combine') {
+                const index = layer.open({
+                    title: '自动组卷：' + data.name,
+                    type: 2,
+                    shade: 0.2,
+                    maxmin: true,
+                    shadeClose: true,
+                    area: ['100%', '100%'],
+                    content: '/question-combine-auto/' + data.id,
+                });
+                $(window).on("resize", function () {
+                    layer.full(index);
                 });
             }
         });

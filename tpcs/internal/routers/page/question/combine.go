@@ -33,6 +33,18 @@ func AutoCombineHandler(c *gin.Context) {
 	questionSvc := questionService.New(c.Request.Context())
 	courseSvc := courseService.New(c.Request.Context())
 
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		global.Logger.Errorf("strconv.Atoi(c.Param(\"id\")) err: %v", err)
+		return
+	}
+
+	plan, err := questionSvc.GetCombinePlanById(id)
+	if err != nil {
+		global.Logger.Errorf("questionSvc.GetCombinePlanById err: %v", err)
+		return
+	}
+
 	questionTypeList, err := questionSvc.AllQuestionTypes()
 	if err != nil {
 		global.Logger.Errorf("svc.AllQuestionTypes err: %v", err)
@@ -51,10 +63,11 @@ func AutoCombineHandler(c *gin.Context) {
 		return
 	}
 
-	c.HTML(http.StatusOK, "question-combine-auto1.tmpl", gin.H{
+	c.HTML(http.StatusOK, "question-combine-auto.tmpl", gin.H{
 		"questionTypeList":       questionTypeList,
 		"questionDifficultyList": questionDifficultyList,
 		"courseList":             courseList,
+		"plan":                   plan,
 	})
 }
 

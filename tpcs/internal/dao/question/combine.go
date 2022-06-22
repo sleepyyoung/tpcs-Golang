@@ -50,6 +50,7 @@ func (d *Dao) CombinePlanListWithUserId(db *gorm.DB, userId, pageNum, pageSize i
 		Select("question_combine_plan_info.ID,"+
 			"USER_ID,"+
 			"COURSE_ID,"+
+			"question_combine_plan_info.NAME,"+
 			"PAPER_TITLE,"+
 			"PLAN,"+
 			"SCORE,"+
@@ -84,6 +85,7 @@ func (d *Dao) CombinePlanList(db *gorm.DB, pageNum, pageSize int) ([]model.Combi
 		Select("question_combine_plan_info.ID," +
 			"USER_ID," +
 			"COURSE_ID," +
+			"question_combine_plan_info.NAME," +
 			"PAPER_TITLE," +
 			"PLAN," +
 			"SCORE," +
@@ -153,6 +155,7 @@ func (d *Dao) GetCombinePlanById(db *gorm.DB, id int) (*model.CombinePlan, error
 		Select("question_combine_plan_info.ID,"+
 			"USER_ID,"+
 			"COURSE_ID,"+
+			"question_combine_plan_info.NAME,"+
 			"PAPER_TITLE,"+
 			"PLAN,"+
 			"SCORE,"+

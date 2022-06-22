@@ -107,6 +107,7 @@ type AddCombinePlanRequest struct {
 	ListRequest service.ListRequest
 	UserId      *int    `json:"user" form:"user"`
 	CourseId    *int    `json:"course" form:"course"`
+	PlanName    *string `json:"planName" form:"name"`
 	PaperTitle  *string `json:"paperTitle" form:"title"`
 	Plan        *string `json:"plan" form:"plan"`
 	Score       *int    `json:"score" form:"score"`
@@ -124,6 +125,11 @@ func (acpr AddCombinePlanRequest) String() string {
 		result += fmt.Sprintf("CourseId: %v,", *acpr.CourseId)
 	} else {
 		result += fmt.Sprintf("CourseId: %v,", "<nil>")
+	}
+	if acpr.PlanName != nil {
+		result += fmt.Sprintf("PlanName: %v,", *acpr.PlanName)
+	} else {
+		result += fmt.Sprintf("PlanName: %v,", "<nil>")
 	}
 	if acpr.PaperTitle != nil {
 		result += fmt.Sprintf("PaperTitle: %v,", *acpr.PaperTitle)
