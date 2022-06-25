@@ -138,6 +138,10 @@ func (t Teacher) Thaw(c *gin.Context) {
 	response.ToSuccessResultResponse()
 }
 
+func (t Teacher) Audit2(c *gin.Context) {
+	t.Audit(c)
+}
+
 // Audit 审核用户
 func (t Teacher) Audit(c *gin.Context) {
 	userSvc := userService.New(c.Request.Context())

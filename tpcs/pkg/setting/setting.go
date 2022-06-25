@@ -6,9 +6,14 @@ type Setting struct {
 	vp *viper.Viper
 }
 
-func NewSetting() (*Setting, error) {
+const (
+	ENV_DEV  = "config-dev"
+	ENV_PROD = "config-prod"
+)
+
+func NewSetting(env string) (*Setting, error) {
 	vp := viper.New()
-	vp.SetConfigName("config-dev")
+	vp.SetConfigName(env)
 	vp.AddConfigPath("configs/")
 	vp.SetConfigType("yaml")
 	err := vp.ReadInConfig()

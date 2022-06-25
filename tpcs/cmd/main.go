@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/gob"
 	"encoding/json"
 	"fmt"
@@ -12,6 +13,8 @@ import (
 	"tpcs/global"
 	"tpcs/internal/pojo/model"
 	"tpcs/internal/routers"
+	userService "tpcs/internal/service/user"
+	"tpcs/pkg/app"
 	"tpcs/pkg/email"
 	"tpcs/pkg/file"
 	"tpcs/pkg/logger"
@@ -34,18 +37,13 @@ func main() {
 	gin.SetMode(global.ServerSetting.RunMode)
 	router := routers.NewRouter()
 	s := &http.Server{
-		Addr:           ":" + global.ServerSetting.HttpPort,
+		Addr: ":" +
+			global.ServerSetting.HttpPort,
 		Handler:        router,
 		ReadTimeout:    global.ServerSetting.ReadTimeout,
 		WriteTimeout:   global.ServerSetting.WriteTimeout,
 		MaxHeaderBytes: 1 << 20,
 	}
-
-	//token, err := app.GenerateToken("1807004728", "1807004728")
-	//if err != nil {
-	//	return
-	//}
-	//log.Println(token)
 
 	s.ListenAndServe()
 }
@@ -57,7 +55,7 @@ func setupSetting() {
 		}
 	}()
 
-	sets, _ := setting.NewSetting()
+	sets, _ := setting.NewSetting(setting.ENV_DEV)
 	_ = sets.ReadSection("Server", &global.ServerSetting)
 	_ = sets.ReadSection("App", &global.AppSetting)
 	_ = sets.ReadSection("Database", &global.DatabaseSetting)
@@ -78,7 +76,10 @@ func setupLogger() {
 	}()
 
 	global.Logger = logger.NewLogger(&lumberjack.Logger{
-		Filename:  global.AppSetting.LogSavePath + "/" + global.AppSetting.LogFileName + global.AppSetting.LogFileExt,
+		Filename: global.AppSetting.LogSavePath +
+			"/" +
+			global.AppSetting.LogFileName +
+			global.AppSetting.LogFileExt,
 		MaxSize:   600,
 		MaxAge:    10,
 		LocalTime: true,
@@ -125,44 +126,63 @@ func setupRedisClient() {
 
 // Redis订阅Topic:register（注册用）
 func registerRequestListener() {
-	var db = global.DBEngine
+	userSvc := userService.New(context.Background())
 
 	pubsub := global.RedisClient.Subscribe(global.RedisSetting.Topic)
 	_, err := pubsub.Receive()
 	if err != nil {
-		global.Logger.Errorf("Subscribe error: %v", err)
+		global.Logger.Errorf("global.RedisClient.Subscribe error: %v\n", err)
 	}
 
 	var adminList []model.User
-	if err := db.Table("user_info").
-		Where("IS_ADMINISTRATOR = ?", 1).
-		Order("ID").
-		Find(&adminList).
-		Error; err != nil {
-		global.Logger.Errorf("获取管理员列表出错: %v", err)
-	}
-	var adminEmailList []string
-	adminEmailList = make([]string, 0, len(adminList))
-	for _, admin := range adminList {
-		adminEmailList = append(adminEmailList, *admin.Email)
+	adminList, err = userSvc.GetAdminList()
+	if err != nil {
+		return
 	}
 
-	var newUser *model.User
+	var newUser0 *model.User
 	for msg := range pubsub.Channel() {
-		err := json.Unmarshal([]byte(msg.Payload), &newUser)
+		err := json.Unmarshal([]byte(msg.Payload), &newUser0)
 		if err != nil {
-			global.Logger.Errorf("json.Unmarshal error: %v", err)
+			global.Logger.Errorf("json.Unmarshal error: %v"+
+				"", err)
 		}
 
-		for _, email_ := range adminEmailList {
-			err = global.Email.SendMail(
-				[]string{email_},
-				fmt.Sprintf("TPCS：您有一个注册用户待审核"),
-				fmt.Sprintf("新用户 <strong>%v</strong> 发起了注册请求，请尽快前往 <strong>TPCS & 教师管理</strong> 进行审核", *newUser.Username),
+		newUser, err := userSvc.GetUserByUsername(*newUser0.Username)
+		if err != nil {
+			global.Logger.Errorf("userSvc.GetUserByUsername error: %v", err)
+			return
+		}
+
+		for _, admin := range adminList {
+			token, err := app.GenerateToken(
+				global.JWTSetting.Key,
+				global.JWTSetting.Secret,
+				*admin.Username,
+				*newUser0.Username,
 			)
 			if err != nil {
-				global.Logger.Errorf("向管理员[%v]发送有用户注册请求的邮件失败！error: %v\n", email_, err)
+				global.Logger.Errorf("[admin: %v]app.GenerateToken error: %v\n", *admin.Username, err)
+				return
+			}
+
+			err = global.Email.SendMail(
+				[]string{*admin.Email},
+				fmt.Sprintf("TPCS：您有一个注册用户待审核"),
+				fmt.Sprintf("您收到了新的注册请求：<br/>用户名：%v<br/>邮箱：%v<br/>备注：<br/><textarea disabled>%v</textarea><br/>请（在校园网环境下）点击链接确认是否审核通过：<a href=\"%vteacher-audit?token=%v\">%vteacher-audit?token=%v</a>，<br/>或请到 TPCS -> 教师管理 页面进行审核。",
+					*newUser.Username,
+					*newUser.Email,
+					*newUser.Note,
+					global.AppSetting.URL,
+					token,
+					global.AppSetting.URL,
+					token,
+				),
+			)
+			if err != nil {
+				global.Logger.Errorf("向管理员[%v]发送有用户注册请求的邮件失败！error: %v\n", *admin.Email, err)
 			}
 		}
+
 	}
 }

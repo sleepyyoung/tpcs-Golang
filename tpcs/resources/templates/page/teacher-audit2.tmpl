@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>用户审核</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="/static/lib/layui-v2.6.3/css/layui.css" media="all">
+    <link rel="stylesheet" href="/static/css/public.css" media="all">
+    <link rel="stylesheet" href="/static/lib/font-awesome-4.7.0/css/font-awesome.min.css" media="all">
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css" media="all">
+    <script src="/static/lib/jquery-3.4.1/jquery-3.4.1.min.js" charset="utf-8"></script>
+    <script src="/static/js/jquery.slim.min.js" charset="utf-8"></script>
+    <script src="/static/js/popper.min.js" charset="utf-8"></script>
+    <script src="/static/js/bootstrap.min.js" charset="utf-8"></script>
+    <script src="/static/lib/layui-v2.6.3/layui.js" charset="utf-8"></script>
+    <style>
+        body {
+            background-color: #ffffff;
+        }
+    </style>
+</head>
+<body style="margin: 1%">
+<form class="layui-form layui-form-pane" action="">
+    <div class="layui-form-item">
+        <label class="layui-form-label">用户名:</label>
+        <div class="layui-input-inline" style="margin-right: 0;">
+            <input disabled value="{{.user.Username}}" id="username" type="text" class="layui-input">
+        </div>
+    </div>
+</form>
+<form class="layui-form layui-form-pane" action="">
+    <div class="layui-form-item">
+        <label class="layui-form-label">邮箱:</label>
+        <div class="layui-input-inline" style="margin-right: 0;">
+            <input disabled value="{{.user.Email}}" id="email" type="email" class="layui-input">
+        </div>
+    </div>
+</form>
+<form class="layui-form layui-form-pane" action="">
+    <div style="width: 50px;"><span style="margin-left: 2%;">备注:</span></div>
+    <textarea class="layui-" style="resize: both;min-height: 35px;" disabled>{{.user.Note}}</textarea>
+</form>
+<form class="layui-form layui-form-pane" action="">
+    <input id="true" type="button" class="layui-btn" value="通过">
+    <input id="false" type="button" class="layui-btn layui-btn-danger" value="不通过">
+</form>
+<script src="/static/lib/layui-v2.6.3/layui.js" charset="utf-8"></script>
+<script src="/static/js/lay-config.js" charset="utf-8"></script>
+<script>
+    $("#true").click(function () {
+        layui.$.ajax({
+            type: 'POST',
+            url: "/api/teachers/audit2",
+            data: {
+                userid: {{.user.Id}},
+                username: "{{.user.Username}}",
+                email: "{{.user.Email}}",
+                pass: true
+            },
+            success: function (data) {
+                if (data['success'] === true) {
+                    const successIndex = layer.msg('用户已通过审核，修改用户状态（待审核 -> 正常）成功，通知邮件发送成功！',
+                        {icon: 6},
+                        function () {
+                            layer.close(successIndex);
+                            const iframeIndex = parent.layer.getFrameIndex(window.name);
+                            parent.layer.close(iframeIndex);
+                            $("body").replaceWith("<h1>用户通过审核的通知已送达，您可以关闭或退出此页面了</h1>");
+                        });
+                } else {
+                    const failIndex = layer.alert(data['msg'],
+                        {icon: 5,},
+                        function () {
+                            layer.close(failIndex);
+                            const iframeIndex = parent.layer.getFrameIndex(window.name);
+                            parent.layer.close(iframeIndex);
+                        });
+                }
+            }
+        })
+    })
+
+    $("#false").click(function () {
+        layer.prompt({title: '请输入不通过的原因', formType: 2}, function (text, index) {
+            layui.$.ajax({
+                type: 'POST',
+                url: "/api/teachers/audit2",
+                data: {
+                    userid: {{.user.Id}},
+                    username: "{{.user.Username}}",
+                    email: "{{.user.Email}}",
+                    pass: false,
+                    reason: text
+                },
+                success: function (data) {
+                    if (data['success'] === true) {
+                        const successIndex = layer.msg('用户未通过审核通知邮件发送成功！',
+                            {icon: 6}, function () {
+                                layer.close(successIndex);
+                                const iframeIndex = parent.layer.getFrameIndex(window.name);
+                                parent.layer.close(iframeIndex);
+                                $("body").replaceWith("<h1>用户未通过审核的通知已送达，您可以关闭或退出此页面了</h1>");
+                            });
+                    } else {
+                        const failIndex = layer.alert(data['msg'],
+                            {icon: 5,},
+                            function () {
+                                layer.close(failIndex);
+                                const iframeIndex = parent.layer.getFrameIndex(window.name);
+                                parent.layer.close(iframeIndex);
+                            });
+                    }
+                }
+            })
+            layer.close(index);
+        });
+    })
+</script>
+</body>
+</html>

@@ -4,6 +4,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"time"
 	"tpcs/global"
+	"tpcs/internal/pojo"
 	"tpcs/pkg/util/crypt"
 )
 
@@ -17,15 +18,43 @@ func GetJWTSecret() []byte {
 	return []byte(global.JWTSetting.Secret)
 }
 
-func GenerateToken(appKey, appSecret string) (string, error) {
+//func GenerateToken(appKey, appSecret string) (string, error) {
+//	nowTime := time.Now()
+//	expireTime := nowTime.Add(global.JWTSetting.Expire)
+//	claims := Claims{
+//		AppKey:    crypt.EncodeMD5(appKey),
+//		AppSecret: crypt.EncodeMD5(appSecret),
+//		StandardClaims: jwt.StandardClaims{
+//			ExpiresAt: expireTime.Unix(),
+//			Issuer:    global.JWTSetting.Issuer,
+//		},
+//	}
+//
+//	// jwt.NewWithClaims：根据 Claims 结构体创建 Token 实例，
+//	// 它一共包含两个形参，第一个参数是 SigningMethod，
+//	// 其包含 SigningMethodHS256、SigningMethodHS384、SigningMethodHS512
+//	// 三种 crypto.Hash 加密算法的方案。
+//	// 第二个参数是 Claims，主要是用于传递用户所预定义的一些权利要求，便于后续的加密、校验等行为
+//	tokenClaims := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+//	// tokenClaims.SignedString：生成签名字符串，
+//	// 根据所传入 Secret 不同，进行签名并返回标准的 Token
+//	token, err := tokenClaims.SignedString(GetJWTSecret())
+//	return token, err
+//}
+
+func GenerateToken(appKey, appSecret, issuer, audience string) (string, error) {
 	nowTime := time.Now()
-	expireTime := nowTime.Add(global.JWTSetting.Expire)
+	//expireTime := nowTime.Add(global.JWTSetting.Expire)
 	claims := Claims{
 		AppKey:    crypt.EncodeMD5(appKey),
 		AppSecret: crypt.EncodeMD5(appSecret),
 		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: expireTime.Unix(),
-			Issuer:    global.JWTSetting.Issuer,
+			Audience: audience,
+			//ExpiresAt: expireTime.Unix(),
+			IssuedAt:  nowTime.Unix(),
+			Issuer:    issuer,
+			NotBefore: nowTime.Unix(),
+			Subject:   pojo.TPCS_Register_Audit,
 		},
 	}
 
@@ -45,9 +74,12 @@ func GenerateToken(appKey, appSecret string) (string, error) {
 // 其函数流程主要是解析传入的 Token，然后根据 Claims 的相关属性要求进行校验
 func ParseToken(token string) (*Claims, error) {
 	// ParseWithClaims：用于解析鉴权的声明，方法内部主要是具体的解码和校验的过程，最终返回 *Token
-	tokenClaims, err := jwt.ParseWithClaims(token, &Claims{}, func(token *jwt.Token) (interface{}, error) {
-		return GetJWTSecret(), nil
-	})
+	tokenClaims, err := jwt.ParseWithClaims(
+		token,
+		&Claims{},
+		func(token *jwt.Token) (interface{}, error) {
+			return GetJWTSecret(), nil
+		})
 	if err != nil {
 		return nil, err
 	}

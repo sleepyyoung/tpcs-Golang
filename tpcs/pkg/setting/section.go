@@ -3,6 +3,7 @@ package setting
 import "time"
 
 type AppSettingS struct {
+	URL             string
 	LogSavePath     string
 	LogFileName     string
 	LogFileExt      string
@@ -58,6 +59,7 @@ type RedisSettingS struct {
 }
 
 type JWTSettingS struct {
+	Key    string
 	Secret string
 	Issuer string
 	Expire time.Duration

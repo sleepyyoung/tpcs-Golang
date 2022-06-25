@@ -1,4 +1,5 @@
 App:
+  URL: http://127.0.0.1/
   LogSavePath: D:/毕设/Code/logs
   LogFileName: app
   LogFileExt: .log
@@ -38,6 +39,7 @@ Email:
   To:
     - lipeiyang1024@163.com
 JWT:
-  Secret: philpy
+  Key: philpy~!@#$%^&*()_+
+  Secret: philpy+_)(*&^%$#@!~
   Issuer: tpcs
-  Expire: 7200
+  Expire: 300

@@ -91,10 +91,11 @@ func NewRouter() *gin.Engine {
 	withAuthPage.GET("/question-garbage-distribution", questionPageRouter.QuestionGarbageDistributionHandler)
 
 	withAdminAuthPage := r.Group("/")
+	withAdminAuthPage.GET("/teacher-audit", userPageRouter.TeacherAuditByJWTHandler)
 	withAdminAuthPage.Use(middleware.AdminPageInterceptor())
 	withAdminAuthPage.GET("/course-list", coursePageRouter.CourseListHandler)
 	withAdminAuthPage.GET("/teacher-list", userPageRouter.TeacherListHandler)
-	withAdminAuthPage.GET("/teacher-audit/:id", userPageRouter.TeacherAuditHandler)
+	withAdminAuthPage.GET("/teacher-audit/:id", userPageRouter.TeacherAuditBySessionHandler)
 	withAdminAuthPage.GET("/question-type-list", questionPageRouter.QuestionTypeListHandler)
 
 	withTeacherAuthPage := r.Group("/")
@@ -128,6 +129,7 @@ func NewRouter() *gin.Engine {
 	courseApi.POST("/:name", course.Create)
 
 	teacherApi := r.Group("/api/teachers")
+	teacherApi.POST("/audit2", teacher.Audit2)
 	teacherApi.Use(middleware.AdminApiInterceptor())
 	teacherApi.GET("/", teacher.List)
 	teacherApi.POST("/freeze", teacher.Freeze)

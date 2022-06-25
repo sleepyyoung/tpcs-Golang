@@ -29,6 +29,8 @@ const (
 	ResultMsg_CourseExisted             = "该课程已存在！"
 	ResultMsg_FileNotFound              = "文件丢失或已损坏，下载失败！"
 	ResultMsg_UserFreezed               = "该用户已被冻结！"
+
+	TPCS_Register_Audit = "TPCS Register Audit"
 )
 
 type Result struct {
