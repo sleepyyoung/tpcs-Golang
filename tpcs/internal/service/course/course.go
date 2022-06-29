@@ -20,6 +20,7 @@ func (svc *Service) CreateCourse(name string) pojo.Result {
 	}
 	err := svc.dao.CreateCourse(name)
 	if err != nil {
+		global.Logger.Errorf("svc.dao.CreateCourse err: %v\n", err)
 		return pojo.Result{Success: pojo.ResultSuccess_False, Msg: pojo.ResultMsg_TryAgainLater}
 	}
 	return pojo.Result{Success: pojo.ResultSuccess_True}

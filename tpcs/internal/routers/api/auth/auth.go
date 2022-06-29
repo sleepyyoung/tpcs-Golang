@@ -124,7 +124,6 @@ func (a Auth) Register(c *gin.Context) {
 		return
 	}
 
-	//u, _ := userSvc.GetUserByUsernameAndPassword(*request.BaseUserRequest.Username, *request.BaseUserRequest.Password)
 	u, _ := userSvc.GetUserByUsernameAndPassword(
 		*request.BaseUserRequest.Username,
 		crypt.EncryptBySHA512(*request.BaseUserRequest.Password),
@@ -193,7 +192,6 @@ func (a Auth) Login(c *gin.Context) {
 		})
 		return
 	}
-	//u, _ := userSvc.GetUserByUsernameAndPassword(*request.BaseUserRequest.Username, *request.BaseUserRequest.Password)
 	u, _ := userSvc.GetUserByUsernameAndPassword(
 		*request.BaseUserRequest.Username,
 		crypt.EncryptBySHA512(*request.BaseUserRequest.Password),
@@ -296,7 +294,6 @@ func (a Auth) ModifyPassword(c *gin.Context) {
 		return
 	}
 
-	//u, _ := userSvc.GetUserByUsernameAndPassword(*request.BaseUserRequest.Username, *request.BaseUserRequest.Password)
 	u, _ := userSvc.GetUserByUsernameAndPassword(
 		*request.BaseUserRequest.Username,
 		crypt.EncryptBySHA512(*request.BaseUserRequest.Password),

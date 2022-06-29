@@ -153,7 +153,6 @@ func (l *Logger) Output(level Level, message string) {
 
 func (l *Logger) Debug(v ...interface{}) {
 	l.Output(LevelDebug, fmt.Sprint(v...))
-	log.Print(v...)
 }
 
 func (l *Logger) Debugf(format string, v ...interface{}) {
@@ -183,7 +182,7 @@ func (l *Logger) Error(v ...interface{}) {
 
 func (l *Logger) Errorf(format string, v ...interface{}) {
 	l.Output(LevelError, fmt.Sprintf(format, v...))
-	log.Panicf(format, v...)
+	log.Printf(format, v...)
 }
 
 func (l *Logger) Fatal(v ...interface{}) {

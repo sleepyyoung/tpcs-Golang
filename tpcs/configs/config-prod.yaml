@@ -1,5 +1,5 @@
 App:
-  URL: http://192.168.152.37/
+  URL: http://192.168.75.37/
   LogSavePath: D:/毕设/Code/logs
   LogFileName: app
   LogFileExt: .log
@@ -10,7 +10,7 @@ App:
     - user
     - upload_status
 Server:
-  RunMode: debug
+  RunMode: release
   HttpPort: 8080
   ReadTimeout: 60
   WriteTimeout: 60

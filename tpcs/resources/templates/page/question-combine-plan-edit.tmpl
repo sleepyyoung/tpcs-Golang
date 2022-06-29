@@ -306,6 +306,7 @@
             url: "/api/combine/plans/" +{{.plan.Id}},
             data: {
                 "user":{{.userId}},
+                "name":$("#plan-name").val(),
                 "course": courseId,
                 "title": paperTitle,
                 "plan": JSON.stringify(result),

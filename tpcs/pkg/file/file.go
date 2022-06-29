@@ -41,7 +41,7 @@ func GetSavePath() string {
 // 其原理是利用 os.Stat 方法所返回的 error 值与系统中所定义的 oserror.ErrNotExist 进行判断，
 // 以此达到校验效果
 func SavePathExists(dst string) bool {
-	_, err := os.Stat(dst)
+	_, err := os.Stat(global.AppSetting.UploadDir + dst)
 	return !os.IsNotExist(err)
 }
 

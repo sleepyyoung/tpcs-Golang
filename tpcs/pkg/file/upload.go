@@ -11,7 +11,7 @@ import (
 	"tpcs/global"
 )
 
-var session sessions.Session
+var Session sessions.Session
 
 type UploadStatus struct {
 	// 已读数据
@@ -33,26 +33,30 @@ func (us *UploadStatus) Write(p []byte) (int, error) {
 	us.BytesRead += uint64(n)
 
 	us.Percent = int(100 * us.BytesRead / uint64(us.ContentLength))
-	session.Delete("upload_status")
-	session.Options(sessions.Options{
+	Session.Delete("upload_status")
+	Session.Options(sessions.Options{
 		Path:     "/",
 		Domain:   "",
 		MaxAge:   -1,
-		Secure:   true,
+		Secure:   false,
 		HttpOnly: true,
-		SameSite: http.SameSiteNoneMode,
+		SameSite: http.SameSiteDefaultMode,
 	})
-	//_ = session.Save()
-	session.Set("upload_status", us)
-	session.Options(sessions.Options{
+	_ = Session.Save()
+	Session.Set("upload_status", us)
+	Session.Options(sessions.Options{
 		Path:     "/",
 		Domain:   "",
 		MaxAge:   0,
-		Secure:   true,
+		Secure:   false,
 		HttpOnly: true,
-		SameSite: http.SameSiteNoneMode,
+		SameSite: http.SameSiteDefaultMode,
 	})
-	_ = session.Save()
+	err := Session.Save()
+	if err != nil {
+		global.Logger.Errorf("session.Save() error: %v\n", err)
+		return 0, err
+	}
 
 	return n, nil
 }
@@ -87,7 +91,6 @@ func SaveFile4MdImg(file *multipart.FileHeader, dst string) error {
 // 再通过 file.Open 方法打开源地址的文件，
 // 结合 io.Copy 方法实现两者之间的文件内容拷贝
 func SaveFile(c *gin.Context, item int, file *multipart.FileHeader, dst string) error {
-	session = sessions.DefaultMany(c, "upload_status")
 	src, err := file.Open()
 	if err != nil {
 		return err

@@ -22,6 +22,11 @@ func (svc *Service) CombinePlanList(param *service.ListRequest) ([]model.Combine
 	return svc.dao.CombinePlanList(global.DBEngine, param.Page, param.Limit)
 }
 
+// GetCombinePlanByPlanName 通过方案名称获取组卷方案
+func (svc *Service) GetCombinePlanByPlanName(planName string) (*model.CombinePlan, error) {
+	return svc.dao.GetCombinePlanByPlanName(global.DBEngine, planName)
+}
+
 // AddCombinePlan 添加组卷方案
 func (svc *Service) AddCombinePlan(request AddCombinePlanRequest) pojo.Result {
 	err := svc.dao.AddCombinePlan(global.DBEngine, model.CombinePlan4Add{

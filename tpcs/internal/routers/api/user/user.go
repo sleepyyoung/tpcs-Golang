@@ -11,7 +11,6 @@ import (
 	"tpcs/global"
 	userService "tpcs/internal/service/user"
 	"tpcs/pkg/app"
-	"tpcs/pkg/email"
 )
 
 type User struct{}
@@ -54,8 +53,8 @@ func (u User) UpdateUsername(c *gin.Context) {
 		response.ToFailResultResponse("修改用户名失败！")
 		return
 	} else {
-		session := sessions.DefaultMany(c, "user_")
-		session.Delete("user_")
+		session := sessions.DefaultMany(c, "user")
+		session.Delete("user")
 		options := sessions.Options{
 			Path:     "/",
 			Domain:   "",
@@ -149,14 +148,7 @@ func (u User) SendVcode(c *gin.Context) {
 		return
 	}
 
-	err = email.NewEmail(&email.SMTPInfo{
-		Host:     global.EmailSetting.Host,
-		Port:     global.EmailSetting.Port,
-		IsSSL:    global.EmailSetting.IsSSL,
-		UserName: global.EmailSetting.UserName,
-		Password: global.EmailSetting.Password,
-		From:     global.EmailSetting.From,
-	}).SendMail(
+	err = global.Email.SendMail(
 		[]string{to},
 		fmt.Sprintf("TPCS Verify Code for Modify Email"),
 		fmt.Sprintf("您正在将该邮箱更新为TPCS用户 %v 的默认邮箱，验证码为 <strong>%v</strong> ，五分钟内有效", *user_.Username, vcode),

@@ -37,15 +37,18 @@ func main() {
 	gin.SetMode(global.ServerSetting.RunMode)
 	router := routers.NewRouter()
 	s := &http.Server{
-		Addr: ":" +
-			global.ServerSetting.HttpPort,
+		Addr:           ":" + global.ServerSetting.HttpPort,
 		Handler:        router,
 		ReadTimeout:    global.ServerSetting.ReadTimeout,
 		WriteTimeout:   global.ServerSetting.WriteTimeout,
 		MaxHeaderBytes: 1 << 20,
 	}
 
-	s.ListenAndServe()
+	err := s.ListenAndServe()
+	if err != nil {
+		log.Fatalf("s.ListenAndServe() error! : %v", err)
+		return
+	}
 }
 
 func setupSetting() {
@@ -71,7 +74,7 @@ func setupSetting() {
 func setupLogger() {
 	defer func() {
 		if r := recover(); r != nil {
-			log.Fatalf("setupLogger() error! : %v", r)
+			log.Fatalf("setupLogger() error! : %v\n", r)
 		}
 	}()
 
@@ -84,7 +87,6 @@ func setupLogger() {
 		MaxAge:    10,
 		LocalTime: true,
 	}, "", log.LstdFlags).WithCaller(2)
-	global.Logger = global.Logger.WithCallersFrames()
 }
 
 func setupEmail() {
@@ -137,6 +139,7 @@ func registerRequestListener() {
 	var adminList []model.User
 	adminList, err = userSvc.GetAdminList()
 	if err != nil {
+		global.Logger.Errorf("userSvc.GetAdminList error: %v\n", err)
 		return
 	}
 
@@ -144,13 +147,12 @@ func registerRequestListener() {
 	for msg := range pubsub.Channel() {
 		err := json.Unmarshal([]byte(msg.Payload), &newUser0)
 		if err != nil {
-			global.Logger.Errorf("json.Unmarshal error: %v"+
-				"", err)
+			global.Logger.Errorf("json.Unmarshal error: %v\n", err)
 		}
 
 		newUser, err := userSvc.GetUserByUsername(*newUser0.Username)
 		if err != nil {
-			global.Logger.Errorf("userSvc.GetUserByUsername error: %v", err)
+			global.Logger.Errorf("userSvc.GetUserByUsername error: %v\n", err)
 			return
 		}
 
@@ -159,7 +161,7 @@ func registerRequestListener() {
 				global.JWTSetting.Key,
 				global.JWTSetting.Secret,
 				*admin.Username,
-				*newUser0.Username,
+				*newUser.Username,
 			)
 			if err != nil {
 				global.Logger.Errorf("[admin: %v]app.GenerateToken error: %v\n", *admin.Username, err)

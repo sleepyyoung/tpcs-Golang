@@ -139,6 +139,7 @@ func (p File) List(c *gin.Context) {
 
 // Upload 文件上传
 func (p File) Upload(c *gin.Context) {
+	file.Session = sessions.DefaultMany(c, "upload_status")
 	fileSvc := fileService.New(c.Request.Context())
 	response := app.NewResponse(c)
 	w := response.Ctx.Writer
@@ -170,6 +171,12 @@ func (p File) Upload(c *gin.Context) {
 
 // UploadStatus 文件上传进度
 func (p File) UploadStatus(c *gin.Context) {
+	defer func() {
+		if r := recover(); r != nil {
+			global.Logger.Errorf("从session中获取文件上传进度失败! : %v\n", r)
+		}
+	}()
+
 	response := app.NewResponse(c)
 	session := sessions.DefaultMany(c, "upload_status")
 	uploadStatus := session.Get("upload_status").(file.UploadStatus)

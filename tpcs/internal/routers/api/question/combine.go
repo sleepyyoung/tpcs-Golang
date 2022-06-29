@@ -424,6 +424,17 @@ func (cb Combine) AddCombinePlan(c *gin.Context) {
 
 	b, s, _ := doCombine(c)
 	if b {
+		plan, err := questionSvc.GetCombinePlanByPlanName(strings.Trim(*request.PlanName, " "))
+		if err != nil {
+			global.Logger.Errorf("questionSvc.GetCombinePlanByPlanName err: %v\n", err)
+			response.ToFailResultResponse(pojo.ResultMsg_TryAgainLater)
+			return
+		}
+		if plan != nil {
+			response.ToFailResultResponse(pojo.ResultMsg_QuestionCombinePlanNameExisted)
+			return
+		}
+
 		var result pojo.Result
 		result = questionSvc.AddCombinePlan(request)
 		response.ToResultResponse(&result)
@@ -456,6 +467,17 @@ func (cb Combine) EditCombinePlan(c *gin.Context) {
 
 	b, s, _ := doCombine(c)
 	if b {
+		plan, err := questionSvc.GetCombinePlanByPlanName(strings.Trim(*request.PlanName, " "))
+		if err != nil {
+			global.Logger.Errorf("questionSvc.GetCombinePlanByPlanName err: %v\n", err)
+			response.ToFailResultResponse(pojo.ResultMsg_TryAgainLater)
+			return
+		}
+		if plan != nil {
+			response.ToFailResultResponse(pojo.ResultMsg_QuestionCombinePlanNameExisted)
+			return
+		}
+
 		var result pojo.Result
 		result = questionSvc.EditCombinePlan(id, request)
 		response.ToResultResponse(&result)

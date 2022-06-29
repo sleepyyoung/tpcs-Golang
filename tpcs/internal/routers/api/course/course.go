@@ -44,11 +44,11 @@ func (course Course) List(c *gin.Context) {
 		})
 	}
 
-	response.ToResponse(map[string]interface{}{
-		"code":  0,
-		"msg":   "",
-		"count": count,
-		"data":  courseMapList,
+	response.ToResponse(pojo.Result{
+		Code:  0,
+		Msg:   "",
+		Count: count,
+		Data:  courseMapList,
 	})
 }
 

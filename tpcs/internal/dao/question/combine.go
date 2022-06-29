@@ -104,6 +104,33 @@ func (d *Dao) CombinePlanList(db *gorm.DB, pageNum, pageSize int) ([]model.Combi
 	return combinePlanList, count, nil
 }
 
+// GetCombinePlanByPlanName 通过方案名称获取组卷方案
+func (d *Dao) GetCombinePlanByPlanName(db *gorm.DB, planName string) (*model.CombinePlan, error) {
+	var plan model.CombinePlan
+	if err := db.
+		Table("question_combine_plan_info").
+		Preload("User").
+		Preload("Course").
+		Select("question_combine_plan_info.ID,"+
+			"USER_ID,"+
+			"COURSE_ID,"+
+			"question_combine_plan_info.NAME,"+
+			"PAPER_TITLE,"+
+			"PLAN,"+
+			"SCORE,"+
+			"question_combine_plan_info.NOTE").
+		Joins("left join user_info "+
+			"on user_info.ID = question_combine_plan_info.USER_ID").
+		Joins("left join course_info "+
+			"on course_info.ID = question_combine_plan_info.COURSE_ID").
+		Where("question_combine_plan_info.NAME = ?", planName).
+		Find(&plan).
+		Error; err != nil {
+		return nil, err
+	}
+	return &plan, nil
+}
+
 // AddCombinePlan 添加组卷方案
 func (d *Dao) AddCombinePlan(db *gorm.DB, plan model.CombinePlan4Add) error {
 	if err := db.Table("question_combine_plan_info").Create(&plan).Error; err != nil {
