@@ -9,12 +9,12 @@ import (
 
 // CourseList 获取课程列表
 func (svc *Service) CourseList(param *service.ListRequest) ([]model.Course, int, error) {
-	return svc.dao.CourseList(global.DBEngine, param.Page, param.Limit)
+	return svc.dao.CourseList(param.Page, param.Limit)
 }
 
 // CreateCourse 添加课程
 func (svc *Service) CreateCourse(name string) pojo.Result {
-	exists, _ := svc.dao.CourseIsExistsByCourseName(global.DBEngine, name)
+	exists, _ := svc.dao.CourseIsExistsByCourseName(name)
 	if exists {
 		return pojo.Result{Success: pojo.ResultSuccess_False, Msg: pojo.ResultMsg_CourseExisted}
 	}
@@ -28,5 +28,5 @@ func (svc *Service) CreateCourse(name string) pojo.Result {
 
 // GetCourseById 通过id获取课程
 func (svc *Service) GetCourseById(id int) (*model.Course, error) {
-	return svc.dao.GetCourseById(global.DBEngine, id)
+	return svc.dao.GetCourseById(id)
 }

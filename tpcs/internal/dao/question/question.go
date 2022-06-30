@@ -1,12 +1,13 @@
 package question
 
 import (
-	"github.com/jinzhu/gorm"
+	"tpcs/global"
 	"tpcs/internal/pojo/model"
 )
 
 // GetQuestionCountByCourseIdAndQuestionTypeAndScoreAndDifficulty 通过课程id、题型、分值、难度获取题目数量
-func (d *Dao) GetQuestionCountByCourseIdAndQuestionTypeAndScoreAndDifficulty(courseId int, typeId int, score float64, difficultyId int, isRemoved bool, db *gorm.DB) (int, error) {
+func (d *Dao) GetQuestionCountByCourseIdAndQuestionTypeAndScoreAndDifficulty(courseId int, typeId int, score float64, difficultyId int, isRemoved bool) (int, error) {
+	db := global.DBEngine
 	var count int
 	db = db.Table("question_info").
 		Where("TYPE_ID = ?", typeId).
@@ -24,7 +25,8 @@ func (d *Dao) GetQuestionCountByCourseIdAndQuestionTypeAndScoreAndDifficulty(cou
 }
 
 // ExistsQuestionInfoList 题库现存题目信息
-func (d *Dao) ExistsQuestionInfoList(db *gorm.DB, courseId int) ([]model.ExistsQuestionInfo, error) {
+func (d *Dao) ExistsQuestionInfoList(courseId int) ([]model.ExistsQuestionInfo, error) {
+	db := global.DBEngine
 	var existsQuestionInfoList []model.ExistsQuestionInfo
 	if err := db.Raw("select * "+
 		"from ( "+
@@ -50,7 +52,8 @@ func (d *Dao) ExistsQuestionInfoList(db *gorm.DB, courseId int) ([]model.ExistsQ
 }
 
 // QuestionCount 获取题目数量
-func (d *Dao) QuestionCount(db *gorm.DB, isRemoved bool) (int, error) {
+func (d *Dao) QuestionCount(isRemoved bool) (int, error) {
+	db := global.DBEngine
 	var count int
 	if err := db.Table("question_info").
 		Where("REMOVED = ?", isRemoved).
@@ -62,8 +65,9 @@ func (d *Dao) QuestionCount(db *gorm.DB, isRemoved bool) (int, error) {
 }
 
 // QuestionList 获取题目列表
-func (d *Dao) QuestionList(db *gorm.DB, isRemoved bool, pageNum, pageSize int) ([]model.Question, int, error) {
-	count, err := d.QuestionCount(db, isRemoved)
+func (d *Dao) QuestionList(isRemoved bool, pageNum, pageSize int) ([]model.Question, int, error) {
+	db := global.DBEngine
+	count, err := d.QuestionCount(isRemoved)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -103,15 +107,25 @@ func (d *Dao) QuestionList(db *gorm.DB, isRemoved bool, pageNum, pageSize int) (
 }
 
 // AddQuestion 添加题目
-func (d *Dao) AddQuestion(db *gorm.DB, question model.AddQuestion) error {
-	if err := db.Table("question_info").Create(&question).Error; err != nil {
+func (d *Dao) AddQuestion(question model.AddQuestion) error {
+	db := global.DBEngine
+	tx := db.Begin()
+	if err := tx.Error; err != nil {
+		global.Logger.Errorf("事务开启异常: %v\n", err)
 		return err
 	}
+
+	if err := tx.Table("question_info").Create(&question).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	tx.Commit()
 	return nil
 }
 
 // GetQuestionById 通过id获取题目
-func (d *Dao) GetQuestionById(db *gorm.DB, isRemoved bool, id int) (*model.Question, error) {
+func (d *Dao) GetQuestionById(isRemoved bool, id int) (*model.Question, error) {
+	db := global.DBEngine
 	var question model.Question
 	if err := db.Table("question_info").
 		Preload("QuestionType").
@@ -152,7 +166,8 @@ func (d *Dao) GetQuestionById(db *gorm.DB, isRemoved bool, id int) (*model.Quest
 }
 
 // GetQuestionByUserId 通过所属用户获取题目
-func (d *Dao) GetQuestionByUserId(db *gorm.DB, isRemoved bool, id int, pageNum, pageSize int) ([]model.Question, int, error) {
+func (d *Dao) GetQuestionByUserId(isRemoved bool, id int, pageNum, pageSize int) ([]model.Question, int, error) {
+	db := global.DBEngine
 	var count int
 	if err := db.Table("question_info").
 		Where("USER_ID = ?", id).
@@ -197,44 +212,71 @@ func (d *Dao) GetQuestionByUserId(db *gorm.DB, isRemoved bool, id int, pageNum, 
 }
 
 // ModifyQuestion 修改题目
-func (d *Dao) ModifyQuestion(db *gorm.DB, id int, question model.ModifyQuestion) error {
-	if err := db.Model(&question).
+func (d *Dao) ModifyQuestion(id int, question model.ModifyQuestion) error {
+	db := global.DBEngine
+	tx := db.Begin()
+	if err := tx.Error; err != nil {
+		global.Logger.Errorf("事务开启异常: %v\n", err)
+		return err
+	}
+
+	if err := tx.Model(&question).
 		Where("ID = ?", id).
 		Updates(question).
 		Error; err != nil {
+		tx.Rollback()
 		return err
 	}
+	tx.Commit()
 	return nil
 }
 
 // RemoveQuestion 通过id移除题目
-func (d *Dao) RemoveQuestion(db *gorm.DB, id int) error {
-	if err := db.Table("question_info").
+func (d *Dao) RemoveQuestion(id int) error {
+	db := global.DBEngine
+	tx := db.Begin()
+	if err := tx.Error; err != nil {
+		global.Logger.Errorf("事务开启异常: %v\n", err)
+		return err
+	}
+
+	if err := tx.Table("question_info").
 		Where("ID = ?", id).
 		Update("REMOVED", 1).
 		Error; err != nil {
+		tx.Rollback()
 		return err
 	}
+	tx.Commit()
 	return nil
 }
 
 // BatchRemoveQuestion 通过id批量移除题目
-func (d *Dao) BatchRemoveQuestion(db *gorm.DB, ids []int) error {
-	if err := db.Table("question_info").
+func (d *Dao) BatchRemoveQuestion(ids []int) error {
+	db := global.DBEngine
+	tx := db.Begin()
+	if err := tx.Error; err != nil {
+		global.Logger.Errorf("事务开启异常: %v\n", err)
+		return err
+	}
+
+	if err := tx.Table("question_info").
 		Where("ID in (?)", ids).
 		Update("REMOVED", 1).
 		Error; err != nil {
+		tx.Rollback()
 		return err
 	}
+	tx.Commit()
 	return nil
 }
 
 // QueryQuestion 综合所有条件查询
-func (d *Dao) QueryQuestion(db *gorm.DB, score, min, max *float64,
+func (d *Dao) QueryQuestion(score, min, max *float64,
 	typeId, difficultyId, courseId *int,
 	questionContent, answerContent *string,
 	pageNum, pageSize int, isRemoved bool) ([]model.Question, int, error) {
-
+	db := global.DBEngine
 	var questionList []model.Question
 	db = db.Table("question_info").
 		Preload("QuestionType").
@@ -300,7 +342,8 @@ func (d *Dao) QueryQuestion(db *gorm.DB, score, min, max *float64,
 }
 
 // PreciseQueryQuestionByScore 仅凭分值精确查询
-func (d *Dao) PreciseQueryQuestionByScore(db *gorm.DB, score float64, isRemoved bool, pageNum, pageSize int) ([]model.Question, int, error) {
+func (d *Dao) PreciseQueryQuestionByScore(score float64, isRemoved bool, pageNum, pageSize int) ([]model.Question, int, error) {
+	db := global.DBEngine
 	var count int
 	if err := db.Table("question_info").
 		Where("SCORE = ?", score).
@@ -347,7 +390,8 @@ func (d *Dao) PreciseQueryQuestionByScore(db *gorm.DB, score float64, isRemoved 
 }
 
 // IntervalQueryQuestionByScore 仅凭分值区间查询
-func (d *Dao) IntervalQueryQuestionByScore(db *gorm.DB, min, max float64, isRemoved bool, pageNum, pageSize int) ([]model.Question, int, error) {
+func (d *Dao) IntervalQueryQuestionByScore(min, max float64, isRemoved bool, pageNum, pageSize int) ([]model.Question, int, error) {
+	db := global.DBEngine
 	var count int
 	db = db.Table("question_info").Where("REMOVED = ?", isRemoved)
 
@@ -408,7 +452,8 @@ func (d *Dao) IntervalQueryQuestionByScore(db *gorm.DB, min, max float64, isRemo
 }
 
 // QueryQuestionByType 通过题型查询
-func (d *Dao) QueryQuestionByType(db *gorm.DB, typeId int, isRemoved bool, pageNum, pageSize int) ([]model.Question, int, error) {
+func (d *Dao) QueryQuestionByType(typeId int, isRemoved bool, pageNum, pageSize int) ([]model.Question, int, error) {
+	db := global.DBEngine
 	var count int
 	db = db.Table("question_info")
 	if typeId > 0 {
@@ -457,7 +502,8 @@ func (d *Dao) QueryQuestionByType(db *gorm.DB, typeId int, isRemoved bool, pageN
 }
 
 // QueryQuestionByDifficulty 通过难度查询
-func (d *Dao) QueryQuestionByDifficulty(db *gorm.DB, difficultyId int, isRemoved bool, pageNum, pageSize int) ([]model.Question, int, error) {
+func (d *Dao) QueryQuestionByDifficulty(difficultyId int, isRemoved bool, pageNum, pageSize int) ([]model.Question, int, error) {
+	db := global.DBEngine
 	var count int
 	db = db.Table("question_info")
 	if difficultyId > 0 {
@@ -508,7 +554,8 @@ func (d *Dao) QueryQuestionByDifficulty(db *gorm.DB, difficultyId int, isRemoved
 }
 
 // QueryQuestionByCourse 通过所属课程查询
-func (d *Dao) QueryQuestionByCourse(db *gorm.DB, courseId int, isRemoved bool, pageNum, pageSize int) ([]model.Question, int, error) {
+func (d *Dao) QueryQuestionByCourse(courseId int, isRemoved bool, pageNum, pageSize int) ([]model.Question, int, error) {
+	db := global.DBEngine
 	var count int
 	db = db.Table("question_info")
 	if courseId > 0 {
@@ -559,7 +606,8 @@ func (d *Dao) QueryQuestionByCourse(db *gorm.DB, courseId int, isRemoved bool, p
 }
 
 // QueryQuestionByQuestionContent 通过题目内容查询
-func (d *Dao) QueryQuestionByQuestionContent(db *gorm.DB, questionContent string, isRemoved bool, pageNum, pageSize int) ([]model.Question, int, error) {
+func (d *Dao) QueryQuestionByQuestionContent(questionContent string, isRemoved bool, pageNum, pageSize int) ([]model.Question, int, error) {
+	db := global.DBEngine
 	var count int
 	if err := db.Table("question_info").
 		Where("MATCH(QUESTION_TXT) AGAINST(? IN BOOLEAN MODE)", questionContent).
@@ -606,7 +654,8 @@ func (d *Dao) QueryQuestionByQuestionContent(db *gorm.DB, questionContent string
 }
 
 // QueryQuestionByAnswerContent 通过答案内容查询
-func (d *Dao) QueryQuestionByAnswerContent(db *gorm.DB, answerContent string, isRemoved bool, pageNum, pageSize int) ([]model.Question, int, error) {
+func (d *Dao) QueryQuestionByAnswerContent(answerContent string, isRemoved bool, pageNum, pageSize int) ([]model.Question, int, error) {
+	db := global.DBEngine
 	var count int
 	if err := db.Table("question_info").
 		Where("MATCH(ANSWER_TXT) AGAINST(? IN BOOLEAN MODE)", answerContent).

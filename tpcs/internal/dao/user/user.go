@@ -70,12 +70,6 @@ func (d *Dao) DeleteUserById(id int) (bool, error) {
 	return true, nil
 }
 
-//// IsExistsUser 判断用户是否存在
-//func (d *Dao) IsExistsUser(username, password string) (exists bool, err error) {
-//	user := model.User{Username: username, Password: password}
-//	return user.IsExists(d.engine)
-//}
-
 // IsAdminByUsernameAndPassword 根据用户名和密码判断用户是否为管理员
 func (d *Dao) IsAdminByUsernameAndPassword(username, password string) (bool, error) {
 	user, err := d.GetUserByUsernameAndPassword(username, password)
@@ -111,11 +105,6 @@ func (d *Dao) IsAdminUserByUserId(db *gorm.DB, id int) (bool, error) {
 	}
 	return count == 1, nil
 }
-
-//// ModifyUserPassword 修改用户密码
-//func (d *Dao) ModifyUserPassword(user *model.User, newPassword string) (exists bool, err error) {
-//	return user.ModifyPassword(d.engine, newPassword)
-//}
 
 // ModifyUser 修改用户
 func (d *Dao) ModifyUser(user *model.User) (exists bool, err error) {

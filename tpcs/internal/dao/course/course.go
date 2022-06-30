@@ -1,12 +1,13 @@
 package course
 
 import (
-	"github.com/jinzhu/gorm"
+	"tpcs/global"
 	"tpcs/internal/pojo/model"
 )
 
 // CourseCount 获取课程数量
-func (d *Dao) CourseCount(db *gorm.DB) (int, error) {
+func (d *Dao) CourseCount() (int, error) {
+	db := global.DBEngine
 	var count int
 	if err := db.Table("course_info").Count(&count).Error; err != nil {
 		return 0, err
@@ -15,8 +16,9 @@ func (d *Dao) CourseCount(db *gorm.DB) (int, error) {
 }
 
 // CourseList 获取课程列表
-func (d *Dao) CourseList(db *gorm.DB, pageNum, pageSize int) ([]model.Course, int, error) {
-	count, err := d.CourseCount(db)
+func (d *Dao) CourseList(pageNum, pageSize int) ([]model.Course, int, error) {
+	db := global.DBEngine
+	count, err := d.CourseCount()
 	if err != nil {
 		return nil, 0, err
 	}
@@ -36,7 +38,8 @@ func (d *Dao) CourseList(db *gorm.DB, pageNum, pageSize int) ([]model.Course, in
 }
 
 // CourseIsExistsByCourseName 通过课程名判断课程是否存在
-func (d *Dao) CourseIsExistsByCourseName(db *gorm.DB, name string) (bool, error) {
+func (d *Dao) CourseIsExistsByCourseName(name string) (bool, error) {
+	db := global.DBEngine
 	var count int
 	if err := db.
 		Table("course_info").
@@ -50,11 +53,25 @@ func (d *Dao) CourseIsExistsByCourseName(db *gorm.DB, name string) (bool, error)
 
 // CreateCourse 添加课程
 func (d *Dao) CreateCourse(name string) error {
-	return (&model.Course{Name: &name}).Create(d.engine)
+	db := global.DBEngine
+	tx := db.Begin()
+	if err := tx.Error; err != nil {
+		global.Logger.Errorf("事务开启异常: %v\n", err)
+		return err
+	}
+
+	err := tx.Create(&model.Course{Name: &name}).Error
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+	tx.Commit()
+	return nil
 }
 
 // GetCourseById 通过id获取课程
-func (d *Dao) GetCourseById(db *gorm.DB, id int) (*model.Course, error) {
+func (d *Dao) GetCourseById(id int) (*model.Course, error) {
+	db := global.DBEngine
 	var course model.Course
 	if err := db.Table("course_info").Where("ID = ?", id).Find(&course).Error; err != nil {
 		return nil, err

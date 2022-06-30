@@ -2,7 +2,6 @@ package model
 
 import (
 	"fmt"
-	"github.com/jinzhu/gorm"
 )
 
 type QuestionType struct {
@@ -12,10 +11,6 @@ type QuestionType struct {
 
 func (q *QuestionType) TableName() string {
 	return "question_type_info"
-}
-
-func (q *QuestionType) Create(db *gorm.DB) error {
-	return db.Create(&q).Error
 }
 
 type QuestionDifficulty struct {

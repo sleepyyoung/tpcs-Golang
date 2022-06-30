@@ -1,12 +1,13 @@
 package question
 
 import (
-	"github.com/jinzhu/gorm"
+	"tpcs/global"
 	"tpcs/internal/pojo/model"
 )
 
 // QuestionScoreList 获取题目分值列表
-func (d *Dao) QuestionScoreList(isRemoved bool, db *gorm.DB) ([]float64, error) {
+func (d *Dao) QuestionScoreList(isRemoved bool) ([]float64, error) {
+	db := global.DBEngine
 	var questionList []model.Question
 	if err := db.
 		Table("question_info").

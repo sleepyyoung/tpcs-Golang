@@ -16,7 +16,7 @@ import (
 
 // GetFileById 通过id获取文件
 func (svc *Service) GetFileById(id int) (*model.File, error) {
-	return svc.dao.GetFileById(global.DBEngine, id)
+	return svc.dao.GetFileById(id)
 }
 
 // Upload4MdImg markdown图片上传
@@ -49,7 +49,7 @@ func (svc *Service) Upload4MdImg(fileHeader *multipart.FileHeader) (string, erro
 
 // FileList 获取文件列表
 func (svc *Service) FileList(userId int, param *service.ListRequest) ([]model.File, int, error) {
-	return svc.dao.FileList(global.DBEngine, userId, param.Page, param.Limit)
+	return svc.dao.FileList(userId, param.Page, param.Limit)
 }
 
 // Upload 上传文件
@@ -62,7 +62,6 @@ func (svc *Service) Upload(c *gin.Context, item int, fileHeader *multipart.FileH
 	if !file.SavePathExists(savePath) {
 		if err := file.CreateSavePath(savePath, os.ModePerm); err != nil {
 			global.Logger.Errorf("文件上传失败！原因: %v\n", err)
-			//return pojo.Result{Success: pojo.ResultSuccess_False, Msg: pojo.ResultMsg_TryAgainLater}
 			return err
 		}
 	}
@@ -71,28 +70,25 @@ func (svc *Service) Upload(c *gin.Context, item int, fileHeader *multipart.FileH
 	dst := savePath + "/" + formatFileName
 	if err := file.SaveFile(c, item, fileHeader, dst); err != nil {
 		global.Logger.Errorf("文件上传失败！原因: %v\n", err)
-		//return pojo.Result{Success: pojo.ResultSuccess_False, Msg: pojo.ResultMsg_TryAgainLater}
 		return err
 	}
 
 	fileName := "/uploads/" + formatFileName
-	err := svc.dao.AddFile(global.DBEngine, model.File4Add{
+	err := svc.dao.AddFile(model.File4Add{
 		TruthName: &truthName,
 		UserId:    &userId,
 		FileName:  &fileName,
 	})
 	if err != nil {
 		global.Logger.Errorf("文件上传失败！原因: %v\n", err)
-		//return pojo.Result{Success: pojo.ResultSuccess_False, Msg: pojo.ResultMsg_TryAgainLater}
 		return err
 	}
-	//return pojo.Result{Success: pojo.ResultSuccess_True}
 	return nil
 }
 
 // DeleteFile 删除文件
 func (svc *Service) DeleteFile(id int) pojo.Result {
-	err := svc.dao.DeleteFile(global.DBEngine, id)
+	err := svc.dao.DeleteFile(id)
 	if err != nil {
 		global.Logger.Errorf("文件删除失败！原因: %v\n", err)
 		return pojo.Result{Success: pojo.ResultSuccess_False, Msg: pojo.ResultMsg_TryAgainLater}
@@ -102,7 +98,7 @@ func (svc *Service) DeleteFile(id int) pojo.Result {
 
 // BatchDeleteFile 批量删除文件
 func (svc *Service) BatchDeleteFile(ids []int) pojo.Result {
-	err := svc.dao.BatchDeleteFile(global.DBEngine, ids)
+	err := svc.dao.BatchDeleteFile(ids)
 	if err != nil {
 		global.Logger.Errorf("批量删除失败！原因: %v\n", err)
 		return pojo.Result{Success: pojo.ResultSuccess_False, Msg: pojo.ResultMsg_TryAgainLater}

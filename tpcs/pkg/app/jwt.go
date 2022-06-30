@@ -4,7 +4,6 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"time"
 	"tpcs/global"
-	"tpcs/internal/pojo"
 	"tpcs/pkg/util/crypt"
 )
 
@@ -30,7 +29,7 @@ func GenerateToken(appKey, appSecret, issuer, audience string) (string, error) {
 			IssuedAt:  nowTime.Unix(),
 			Issuer:    issuer,
 			NotBefore: nowTime.Unix(),
-			Subject:   pojo.TPCS_Register_Audit,
+			Subject:   "TPCS Register Audit",
 		},
 	}
 

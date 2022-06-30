@@ -1,13 +1,13 @@
 package question
 
 import (
-	"github.com/jinzhu/gorm"
 	"tpcs/global"
 	"tpcs/internal/pojo/model"
 )
 
 // GetQuestionTypeByName 通过名称获取题型
-func (d *Dao) GetQuestionTypeByName(name string, db *gorm.DB) (*model.QuestionType, error) {
+func (d *Dao) GetQuestionTypeByName(name string) (*model.QuestionType, error) {
+	db := global.DBEngine
 	var questionType model.QuestionType
 	if err := db.Table("question_type_info").
 		Where("NAME = ?", name).
@@ -19,7 +19,8 @@ func (d *Dao) GetQuestionTypeByName(name string, db *gorm.DB) (*model.QuestionTy
 }
 
 // AllQuestionTypes 获取题型列表（无分页）
-func (d *Dao) AllQuestionTypes(db *gorm.DB) ([]model.QuestionType, error) {
+func (d *Dao) AllQuestionTypes() ([]model.QuestionType, error) {
+	db := global.DBEngine
 	var questionTypeList []model.QuestionType
 	if err := db.Table("question_type_info").
 		Order("ID").
@@ -31,7 +32,8 @@ func (d *Dao) AllQuestionTypes(db *gorm.DB) ([]model.QuestionType, error) {
 }
 
 // QuestionTypeList 题型列表（有分页）
-func (d *Dao) QuestionTypeList(db *gorm.DB, pageNum, pageSize int) ([]model.QuestionType, int, error) {
+func (d *Dao) QuestionTypeList(pageNum, pageSize int) ([]model.QuestionType, int, error) {
+	db := global.DBEngine
 	var count int
 	if err := db.Table("question_type_info").Count(&count).
 		Error; err != nil {
@@ -53,7 +55,8 @@ func (d *Dao) QuestionTypeList(db *gorm.DB, pageNum, pageSize int) ([]model.Ques
 }
 
 // GetQuestionTypeById 通过题型id获取题型
-func (d *Dao) GetQuestionTypeById(db *gorm.DB, id int) (*model.QuestionType, error) {
+func (d *Dao) GetQuestionTypeById(id int) (*model.QuestionType, error) {
+	db := global.DBEngine
 	var questionType model.QuestionType
 	if err := db.Table("question_type_info").
 		Where("ID = ?", id).
@@ -66,7 +69,8 @@ func (d *Dao) GetQuestionTypeById(db *gorm.DB, id int) (*model.QuestionType, err
 }
 
 // GetQuestionDifficultyById 通过难度id获取题型
-func (d *Dao) GetQuestionDifficultyById(db *gorm.DB, id int) (*model.QuestionDifficulty, error) {
+func (d *Dao) GetQuestionDifficultyById(id int) (*model.QuestionDifficulty, error) {
+	db := global.DBEngine
 	var questionDifficulty model.QuestionDifficulty
 	if err := db.Table("question_difficulty_info").
 		Where("ID = ?", id).
@@ -80,10 +84,18 @@ func (d *Dao) GetQuestionDifficultyById(db *gorm.DB, id int) (*model.QuestionDif
 
 // AddQuestionType 添加题型
 func (d *Dao) AddQuestionType(questionTypeName string) error {
-	var questionType = model.QuestionType{Name: &questionTypeName}
-	err := questionType.Create(global.DBEngine)
-	if err != nil {
+	db := global.DBEngine
+	tx := db.Begin()
+	if err := tx.Error; err != nil {
+		global.Logger.Errorf("事务开启异常: %v\n", err)
 		return err
 	}
+
+	err := tx.Create(&model.QuestionType{Name: &questionTypeName}).Error
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+	tx.Commit()
 	return nil
 }

@@ -1,12 +1,13 @@
 package question
 
 import (
-	"github.com/jinzhu/gorm"
+	"tpcs/global"
 	"tpcs/internal/pojo/model"
 )
 
 // QueryIdListByTypeIdAndDifficultyIdAndScore 组卷用，取id
-func (d *Dao) QueryIdListByTypeIdAndDifficultyIdAndScore(db *gorm.DB, courseId, typeId, difficultyId int, score float64) ([]int, error) {
+func (d *Dao) QueryIdListByTypeIdAndDifficultyIdAndScore(courseId, typeId, difficultyId int, score float64) ([]int, error) {
+	db := global.DBEngine
 	var indexQuestionList []model.IndexQuestion
 	if err := db.Raw("select ID "+
 		"        from question_info "+
@@ -25,7 +26,8 @@ func (d *Dao) QueryIdListByTypeIdAndDifficultyIdAndScore(db *gorm.DB, courseId, 
 }
 
 // CombinePlanCount 获取组卷方案数量
-func (d *Dao) CombinePlanCount(db *gorm.DB) (int, error) {
+func (d *Dao) CombinePlanCount() (int, error) {
+	db := global.DBEngine
 	var count int
 	if err := db.Table("question_combine_plan_info").
 		Count(&count).
@@ -36,8 +38,9 @@ func (d *Dao) CombinePlanCount(db *gorm.DB) (int, error) {
 }
 
 // CombinePlanListWithUserId 组卷方案列表
-func (d *Dao) CombinePlanListWithUserId(db *gorm.DB, userId, pageNum, pageSize int) ([]model.CombinePlan, int, error) {
-	count, err := d.CombinePlanCount(db)
+func (d *Dao) CombinePlanListWithUserId(userId, pageNum, pageSize int) ([]model.CombinePlan, int, error) {
+	db := global.DBEngine
+	count, err := d.CombinePlanCount()
 	if err != nil {
 		return nil, 0, err
 	}
@@ -71,8 +74,9 @@ func (d *Dao) CombinePlanListWithUserId(db *gorm.DB, userId, pageNum, pageSize i
 }
 
 // CombinePlanList 组卷方案列表
-func (d *Dao) CombinePlanList(db *gorm.DB, pageNum, pageSize int) ([]model.CombinePlan, int, error) {
-	count, err := d.CombinePlanCount(db)
+func (d *Dao) CombinePlanList(pageNum, pageSize int) ([]model.CombinePlan, int, error) {
+	db := global.DBEngine
+	count, err := d.CombinePlanCount()
 	if err != nil {
 		return nil, 0, err
 	}
@@ -105,9 +109,11 @@ func (d *Dao) CombinePlanList(db *gorm.DB, pageNum, pageSize int) ([]model.Combi
 }
 
 // GetCombinePlanByPlanName 通过方案名称获取组卷方案
-func (d *Dao) GetCombinePlanByPlanName(db *gorm.DB, planName string) (*model.CombinePlan, error) {
+func (d *Dao) GetCombinePlanByPlanName(planName string) (*model.CombinePlan, error) {
+	db := global.DBEngine
 	var plan model.CombinePlan
-	if err := db.
+	var count = 0
+	db = db.
 		Table("question_combine_plan_info").
 		Preload("User").
 		Preload("Course").
@@ -123,57 +129,100 @@ func (d *Dao) GetCombinePlanByPlanName(db *gorm.DB, planName string) (*model.Com
 			"on user_info.ID = question_combine_plan_info.USER_ID").
 		Joins("left join course_info "+
 			"on course_info.ID = question_combine_plan_info.COURSE_ID").
-		Where("question_combine_plan_info.NAME = ?", planName).
-		Find(&plan).
-		Error; err != nil {
-		return nil, err
+		Where("question_combine_plan_info.NAME = ?", planName)
+
+	db.Count(&count)
+	if count > 0 {
+		if err := db.Find(&plan).
+			Error; err != nil {
+			return nil, err
+		}
+		return &plan, nil
+	} else {
+		return nil, nil
 	}
-	return &plan, nil
 }
 
 // AddCombinePlan 添加组卷方案
-func (d *Dao) AddCombinePlan(db *gorm.DB, plan model.CombinePlan4Add) error {
-	if err := db.Table("question_combine_plan_info").Create(&plan).Error; err != nil {
+func (d *Dao) AddCombinePlan(plan model.CombinePlan4Add) error {
+	db := global.DBEngine
+	tx := db.Begin()
+	if err := tx.Error; err != nil {
+		global.Logger.Errorf("事务开启异常: %v\n", err)
 		return err
 	}
+
+	if err := tx.Table("question_combine_plan_info").Create(&plan).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	tx.Commit()
 	return nil
 }
 
 // DeleteCombinePlan 删除组卷方案
-func (d *Dao) DeleteCombinePlan(db *gorm.DB, id int) error {
-	if err := db.Table("question_combine_plan_info").
+func (d *Dao) DeleteCombinePlan(id int) error {
+	db := global.DBEngine
+	tx := db.Begin()
+	if err := tx.Error; err != nil {
+		global.Logger.Errorf("事务开启异常: %v\n", err)
+		return err
+	}
+
+	if err := tx.Table("question_combine_plan_info").
 		Where("ID = ?", id).
 		Delete(&model.CombinePlan{Id: &id}).
 		Error; err != nil {
+		tx.Rollback()
 		return err
 	}
+	tx.Commit()
 	return nil
 }
 
 // EditCombinePlan 修改组卷方案
-func (d *Dao) EditCombinePlan(db *gorm.DB, plan model.CombinePlan4Edit) error {
-	if err := db.Model(&plan).
+func (d *Dao) EditCombinePlan(plan model.CombinePlan4Edit) error {
+	db := global.DBEngine
+	tx := db.Begin()
+	if err := tx.Error; err != nil {
+		global.Logger.Errorf("事务开启异常: %v\n", err)
+		return err
+	}
+
+	if err := tx.Model(&plan).
 		Where("ID = ?", *plan.Id).
 		Updates(plan).
 		Error; err != nil {
+		tx.Rollback()
 		return err
 	}
+	tx.Commit()
 	return nil
 }
 
 // BatchDeleteCombinePlan 批量删除组卷方案
-func (d *Dao) BatchDeleteCombinePlan(db *gorm.DB, ids []int) error {
-	if err := db.Table("question_combine_plan_info").
+func (d *Dao) BatchDeleteCombinePlan(ids []int) error {
+	db := global.DBEngine
+	tx := db.Begin()
+	if err := tx.Error; err != nil {
+		global.Logger.Errorf("事务开启异常: %v\n", err)
+		return err
+	}
+
+	if err := tx.Table("question_combine_plan_info").
 		Where("ID in (?) ", ids).
 		Delete(&model.CombinePlan{}).
 		Error; err != nil {
+		tx.Rollback()
 		return err
 	}
+	tx.Commit()
 	return nil
 }
 
 // GetCombinePlanById 通过id获取组卷方案
-func (d *Dao) GetCombinePlanById(db *gorm.DB, id int) (*model.CombinePlan, error) {
+func (d *Dao) GetCombinePlanById(id int) (*model.CombinePlan, error) {
+	db := global.DBEngine
 	var plan model.CombinePlan
 	if err := db.
 		Table("question_combine_plan_info").

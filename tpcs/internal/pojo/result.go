@@ -1,8 +1,9 @@
 package pojo
 
 const (
-	ResultSuccess_False                      = false
-	ResultSuccess_True                       = true
+	ResultSuccess_False = false
+	ResultSuccess_True  = true
+
 	ResultMsg_TryAgainLater                  = "请稍后再试！"
 	ResultMsg_SendVcodeFail                  = "验证码发送失败！"
 	ResultMsg_UserExisted                    = "该用户已存在！"
@@ -31,16 +32,14 @@ const (
 	ResultMsg_QuestionCombinePlanNameExisted = "该组卷方案名称已存在！"
 	ResultMsg_FileNotFound                   = "文件丢失或已损坏，下载失败！"
 	ResultMsg_UserFreezed                    = "该用户已被冻结！"
-
-	TPCS_Register_Audit = "TPCS Register Audit"
 )
 
 type Result struct {
-	Code    interface{}/* int */ `json:"code"`
-	Success interface{}/* bool */ `json:"success"`
-	Msg     interface{}/* string */ `json:"msg"`
-	Count   interface{}/* int */ `json:"count"`
-	Data    interface{} `json:"data"`
+	Code    interface{} /* int */    `json:"code"`
+	Success interface{} /* bool */   `json:"success"`
+	Msg     interface{} /* string */ `json:"msg"`
+	Count   interface{} /* int */    `json:"count"`
+	Data    interface{}              `json:"data"`
 }
 
 type CombineResult struct {

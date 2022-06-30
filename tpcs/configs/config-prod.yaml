@@ -1,11 +1,11 @@
 App:
-  URL: http://192.168.75.37/
-  LogSavePath: D:/毕设/Code/logs
+  URL: http://10.0.119.208/
+  LogSavePath: D:/tpcs/logs
   LogFileName: app
   LogFileExt: .log
-  UploadDir: D:/毕设/Code
-  FileUploadPath: D:/毕设/Code/uploads
-  MdImgUploadPath: D:/毕设/Code/files
+  UploadDir: D:/tpcs
+  FileUploadPath: D:/tpcs/uploads
+  MdImgUploadPath: D:/tpcs/files
   SessionNames:
     - user
     - upload_status
@@ -17,7 +17,7 @@ Server:
 Database:
   DBType: mysql
   Username: root
-  Password: 19834044876
+  Password: 1234
   Host: 127.0.0.1:3306
   DBName: tpcs_go
   Charset: utf8

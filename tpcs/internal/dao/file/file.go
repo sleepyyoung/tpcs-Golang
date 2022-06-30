@@ -1,7 +1,6 @@
 package file
 
 import (
-	"github.com/jinzhu/gorm"
 	"tpcs/global"
 	"tpcs/internal/dao/user"
 	"tpcs/internal/pojo/model"
@@ -9,7 +8,8 @@ import (
 )
 
 // GetFileById 通过id获取文件
-func (d *Dao) GetFileById(db *gorm.DB, id int) (*model.File, error) {
+func (d *Dao) GetFileById(id int) (*model.File, error) {
+	db := global.DBEngine
 	var f model.File
 	if err := db.Table("file_info").
 		Select("ID, USER_ID, TRUTH_NAME, FILE_NAME, GMT_CREATE").
@@ -22,7 +22,8 @@ func (d *Dao) GetFileById(db *gorm.DB, id int) (*model.File, error) {
 }
 
 // FileCount 获取文件数量
-func (d *Dao) FileCount(db *gorm.DB) (int, error) {
+func (d *Dao) FileCount() (int, error) {
+	db := global.DBEngine
 	var count int
 	if err := db.Table("file_info").Count(&count).Error; err != nil {
 		return 0, err
@@ -31,14 +32,15 @@ func (d *Dao) FileCount(db *gorm.DB) (int, error) {
 }
 
 // FileList 获取文件列表
-func (d *Dao) FileList(db *gorm.DB, userId, pageNum, pageSize int) ([]model.File, int, error) {
-	isAdminUser, err := user.New(global.DBEngine).IsAdminUserByUserId(db, userId)
+func (d *Dao) FileList(userId, pageNum, pageSize int) ([]model.File, int, error) {
+	db := global.DBEngine
+	isAdminUser, err := user.New(db).IsAdminUserByUserId(db, userId)
 	if err != nil {
 		global.Logger.Errorf("d.IsAdminUserByUserId err: %v", err)
 		return nil, 0, err
 	}
 
-	count, err := d.FileCount(db)
+	count, err := d.FileCount()
 	if err != nil {
 		return nil, 0, err
 	}
@@ -57,12 +59,13 @@ func (d *Dao) FileList(db *gorm.DB, userId, pageNum, pageSize int) ([]model.File
 }
 
 // AddFile 添加文件
-func (d *Dao) AddFile(db *gorm.DB, file model.File4Add) error {
-	return file.Create(db)
+func (d *Dao) AddFile(file model.File4Add) error {
+	return file.Create(global.DBEngine)
 }
 
 // DeleteFile 删除文件
-func (d *Dao) DeleteFile(db *gorm.DB, id int) error {
+func (d *Dao) DeleteFile(id int) error {
+	db := global.DBEngine
 	tx := db.Begin()
 	if err := tx.Error; err != nil {
 		global.Logger.Errorf("事务开启异常: %v\n", err)
@@ -77,7 +80,7 @@ func (d *Dao) DeleteFile(db *gorm.DB, id int) error {
 		return err
 	}
 
-	fileById, err := d.GetFileById(global.DBEngine, id)
+	fileById, err := d.GetFileById(id)
 	if err != nil {
 		global.Logger.Errorf("通过Id获取文件异常，事务回滚。异常原因: %v\n", err)
 		tx.Rollback()
@@ -95,14 +98,15 @@ func (d *Dao) DeleteFile(db *gorm.DB, id int) error {
 }
 
 // BatchDeleteFile 批量删除文件
-func (d *Dao) BatchDeleteFile(db *gorm.DB, ids []int) error {
+func (d *Dao) BatchDeleteFile(ids []int) error {
+	db := global.DBEngine
 	tx := db.Begin()
 	if err := tx.Error; err != nil {
 		global.Logger.Errorf("事务开启异常: %v\n", err)
 	}
 
 	for _, id := range ids {
-		fileById, err := d.GetFileById(global.DBEngine, id)
+		fileById, err := d.GetFileById(id)
 		if err != nil {
 			global.Logger.Errorf("通过Id获取文件异常，事务回滚。异常原因: %v\n", err)
 			tx.Rollback()
@@ -117,7 +121,7 @@ func (d *Dao) BatchDeleteFile(db *gorm.DB, ids []int) error {
 		}
 	}
 
-	if err := db.Table("file_info").
+	if err := tx.Table("file_info").
 		Where("ID in (?)", ids).
 		Delete(&model.File{}).
 		Error; err != nil {
