@@ -2,7 +2,6 @@ package file
 
 import (
 	"github.com/gin-contrib/sessions"
-	"github.com/gin-gonic/gin"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -26,6 +25,31 @@ type UploadStatus struct {
 	UseTime int64 `json:"useTime"`
 	// 完成百分比
 	Percent int `json:"percent"`
+}
+
+// SaveFile4MdImg 保存所上传的文件markdown图片
+func SaveFile4MdImg(file *multipart.FileHeader, dst string) error {
+	src, err := file.Open()
+	if err != nil {
+		global.Logger.Errorf("file.Open err: %v\n", err)
+		return err
+	}
+	defer src.Close()
+
+	out, err := os.Create(dst)
+	if err != nil {
+		global.Logger.Errorf("os.Create err: %v\n", err)
+		return err
+	}
+	defer out.Close()
+
+	_, err = io.Copy(out, src)
+	if err != nil {
+		global.Logger.Errorf("io.Copy err: %v\n", err)
+		return err
+	}
+
+	return nil
 }
 
 func (us *UploadStatus) Write(p []byte) (int, error) {
@@ -61,36 +85,11 @@ func (us *UploadStatus) Write(p []byte) (int, error) {
 	return n, nil
 }
 
-// SaveFile4MdImg 保存所上传的文件markdown图片
-func SaveFile4MdImg(file *multipart.FileHeader, dst string) error {
-	src, err := file.Open()
-	if err != nil {
-		global.Logger.Errorf("file.Open err: %v\n", err)
-		return err
-	}
-	defer src.Close()
-
-	out, err := os.Create(dst)
-	if err != nil {
-		global.Logger.Errorf("os.Create err: %v\n", err)
-		return err
-	}
-	defer out.Close()
-
-	_, err = io.Copy(out, src)
-	if err != nil {
-		global.Logger.Errorf("io.Copy err: %v\n", err)
-		return err
-	}
-
-	return nil
-}
-
 // SaveFile 保存所上传的文件，
 // 该方法主要是通过调用 os.Create 方法创建目标地址的文件，
 // 再通过 file.Open 方法打开源地址的文件，
 // 结合 io.Copy 方法实现两者之间的文件内容拷贝
-func SaveFile(c *gin.Context, item int, file *multipart.FileHeader, dst string) error {
+func SaveFile(item int, file *multipart.FileHeader, dst string) error {
 	src, err := file.Open()
 	if err != nil {
 		return err

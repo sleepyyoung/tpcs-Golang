@@ -306,7 +306,7 @@ func doCombine(c *gin.Context) (bool, string, *pojo.CombineResult) {
 				return false, "课程为[<span style=\"color: red;\">" + *course.Name +
 					"</span>]、题型为[<span style=\"color: red;\">" + *questionType.Name +
 					"</span>]、难度为[<span style=\"color: red;\">" + *questionDifficulty.Name +
-					"</span>]、分值为[<span style=\"color: red;\">" + strconv.FormatFloat(score, 'f', -1, 64) +
+					//"</span>]、分值为[<span style=\"color: red;\">" + strconv.FormatFloat(score, 'f', -1, 64) + // 按老师要求对分值不做硬性限制
 					"</span>]的题目不足[<span style=\"color: red;\">" + strconv.Itoa(num) + "</span>]道", nil
 			}
 
@@ -473,7 +473,7 @@ func (cb Combine) EditCombinePlan(c *gin.Context) {
 			response.ToFailResultResponse(pojo.ResultMsg_TryAgainLater)
 			return
 		}
-		if plan != nil {
+		if plan != nil && *plan.Id != id {
 			response.ToFailResultResponse(pojo.ResultMsg_QuestionCombinePlanNameExisted)
 			return
 		}

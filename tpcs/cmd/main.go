@@ -46,7 +46,7 @@ func main() {
 
 	err := s.ListenAndServe()
 	if err != nil {
-		log.Fatalf("s.ListenAndServe() error! : %v", err)
+		log.Fatalf("s.ListenAndServe() error! : %v\n", err)
 		return
 	}
 }
@@ -54,7 +54,7 @@ func main() {
 func setupSetting() {
 	defer func() {
 		if r := recover(); r != nil {
-			log.Fatalf("setupSetting() error! : %v", r)
+			log.Fatalf("setupSetting() error! : %v\n", r)
 		}
 	}()
 

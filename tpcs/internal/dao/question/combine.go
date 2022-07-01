@@ -6,6 +6,7 @@ import (
 )
 
 // QueryIdListByTypeIdAndDifficultyIdAndScore 组卷用，取id
+// 按老师要求对分值不做硬性限制
 func (d *Dao) QueryIdListByTypeIdAndDifficultyIdAndScore(courseId, typeId, difficultyId int, score float64) ([]int, error) {
 	db := global.DBEngine
 	var indexQuestionList []model.IndexQuestion
@@ -13,9 +14,13 @@ func (d *Dao) QueryIdListByTypeIdAndDifficultyIdAndScore(courseId, typeId, diffi
 		"        from question_info "+
 		"        where TYPE_ID = ? "+
 		"          and DIFFICULTY_ID = ? "+
-		"          and SCORE = ? "+
+		//"          and SCORE = ? "+
 		"          and COURSE_ID = ? ",
-		typeId, difficultyId, score, courseId).Scan(&indexQuestionList).Error; err != nil {
+		typeId,
+		difficultyId,
+		//score,
+		courseId,
+	).Scan(&indexQuestionList).Error; err != nil {
 		return nil, err
 	}
 	var list []int

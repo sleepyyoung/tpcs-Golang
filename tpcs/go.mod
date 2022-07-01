@@ -7,9 +7,7 @@ require (
 	github.com/gin-contrib/sessions v0.0.5
 	github.com/gin-gonic/gin v1.8.1
 	github.com/go-redis/redis v6.15.9+incompatible
-	github.com/google/uuid v1.1.2
 	github.com/jinzhu/gorm v1.9.16
-	github.com/matoous/go-nanoid/v2 v2.0.0
 	github.com/spf13/viper v1.12.0
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0

@@ -68,7 +68,7 @@ func (svc *Service) Upload(c *gin.Context, item int, fileHeader *multipart.FileH
 
 	formatFileName := strconv.FormatInt(time.Now().UnixNano(), 10) + "." + suffix
 	dst := savePath + "/" + formatFileName
-	if err := file.SaveFile(c, item, fileHeader, dst); err != nil {
+	if err := file.SaveFile(item, fileHeader, dst); err != nil {
 		global.Logger.Errorf("文件上传失败！原因: %v\n", err)
 		return err
 	}
