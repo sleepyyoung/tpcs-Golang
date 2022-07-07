@@ -3,6 +3,7 @@ package question
 import (
 	"tpcs/global"
 	"tpcs/internal/pojo/model"
+	"tpcs/pkg/logger"
 )
 
 // QueryIdListByTypeIdAndDifficultyIdAndScore 组卷用，取id
@@ -153,7 +154,7 @@ func (d *Dao) AddCombinePlan(plan model.CombinePlan4Add) error {
 	db := global.DBEngine
 	tx := db.Begin()
 	if err := tx.Error; err != nil {
-		global.Logger.Errorf("事务开启异常: %v\n", err)
+		logger.Errorf("事务开启异常: %v\n", err)
 		return err
 	}
 
@@ -170,7 +171,7 @@ func (d *Dao) DeleteCombinePlan(id int) error {
 	db := global.DBEngine
 	tx := db.Begin()
 	if err := tx.Error; err != nil {
-		global.Logger.Errorf("事务开启异常: %v\n", err)
+		logger.Errorf("事务开启异常: %v\n", err)
 		return err
 	}
 
@@ -190,7 +191,7 @@ func (d *Dao) EditCombinePlan(plan model.CombinePlan4Edit) error {
 	db := global.DBEngine
 	tx := db.Begin()
 	if err := tx.Error; err != nil {
-		global.Logger.Errorf("事务开启异常: %v\n", err)
+		logger.Errorf("事务开启异常: %v\n", err)
 		return err
 	}
 
@@ -210,7 +211,7 @@ func (d *Dao) BatchDeleteCombinePlan(ids []int) error {
 	db := global.DBEngine
 	tx := db.Begin()
 	if err := tx.Error; err != nil {
-		global.Logger.Errorf("事务开启异常: %v\n", err)
+		logger.Errorf("事务开启异常: %v\n", err)
 		return err
 	}
 

@@ -3,6 +3,7 @@ package question
 import (
 	"tpcs/global"
 	"tpcs/internal/pojo/model"
+	"tpcs/pkg/logger"
 )
 
 // GetQuestionTypeByName 通过名称获取题型
@@ -87,7 +88,7 @@ func (d *Dao) AddQuestionType(questionTypeName string) error {
 	db := global.DBEngine
 	tx := db.Begin()
 	if err := tx.Error; err != nil {
-		global.Logger.Errorf("事务开启异常: %v\n", err)
+		logger.Errorf("事务开启异常: %v\n", err)
 		return err
 	}
 

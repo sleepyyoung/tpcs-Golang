@@ -1,11 +1,12 @@
 App:
   URL: http://127.0.0.1/
-  LogSavePath: D:/毕设/Code/logs
-  LogFileName: app
-  LogFileExt: .log
-  UploadDir: D:/毕设/Code
-  FileUploadPath: D:/毕设/Code/uploads
-  MdImgUploadPath: D:/毕设/Code/files
+  LogSavePath: D:/Code/GitProject/tpcs-Golang/logs/
+  LogSaveName: log
+  LogFileExt: log
+  TimeFormat: 20060102
+  UploadDir: D:/Code/GitProject/tpcs-Golang
+  FileUploadPath: D:/Code/GitProject/tpcs-Golang/uploads
+  MdImgUploadPath: D:/Code/GitProject/tpcs-Golang/files
   SessionNames:
     - user
     - upload_status

@@ -24,3 +24,8 @@
 2022/06/20 10:55:03 [error] 17164#7780: *810 CreateFile() "D:/毕设/Code/uploads/1655687114493800100.conf" failed (2: The system cannot find the file specified), client: 127.0.0.1, server: tpcs.com, request: "GET /api/files/download/1863. HTTP/1.1", upstream: "http://[::1]:8080/api/files/download/1863", host: "127.0.0.1"
 2022/06/21 16:13:11 [error] 3348#9800: *782 connect() failed (10061: No connection could be made because the target machine actively refused it) while connecting to upstream, client: 127.0.0.1, server: tpcs.com, request: "GET / HTTP/1.1", upstream: "http://127.0.0.1:8080/", host: "127.0.0.1", referrer: "http://127.0.0.1/question-combine-auto"
 2022/06/21 16:13:13 [error] 3348#9800: *782 connect() failed (10061: No connection could be made because the target machine actively refused it) while connecting to upstream, client: 127.0.0.1, server: tpcs.com, request: "GET / HTTP/1.1", upstream: "http://[::1]:8080/", host: "127.0.0.1", referrer: "http://127.0.0.1/question-combine-auto"
+2022/07/05 18:30:20 [notice] 9732#25680: signal process started
+2022/07/05 18:30:20 [error] 9732#25680: OpenEvent("Global\ngx_quit_19476") failed (2: The system cannot find the file specified)
+2022/07/05 18:30:40 [notice] 25436#15560: signal process started
+2022/07/05 18:30:40 [error] 25436#15560: OpenEvent("Global\ngx_stop_19476") failed (2: The system cannot find the file specified)
+2022/07/05 18:30:44 [emerg] 26088#24304: CreateDirectory() "D:\Code\GitProject\tpcs-Golang\environments\nginx-1.21.4/temp/client_body_temp" failed (3: The system cannot find the path specified)

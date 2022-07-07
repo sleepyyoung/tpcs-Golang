@@ -15,6 +15,7 @@ import (
 	"tpcs/internal/service/user"
 	userService "tpcs/internal/service/user"
 	"tpcs/pkg/app"
+	"tpcs/pkg/logger"
 	"tpcs/pkg/util/crypt"
 )
 
@@ -35,7 +36,7 @@ func (a Auth) SendVcode4Register(c *gin.Context) {
 	vcode := fmt.Sprintf("%04v", rand.New(rand.NewSource(time.Now().UnixNano())).Int31n(10000))
 	_, err := global.RedisClient.Set(email_, vcode, 1000000000*300).Result()
 	if err != nil {
-		global.Logger.Errorf("global.RedisClient.Set err: %v\n", err)
+		logger.Errorf("global.RedisClient.Set err: %v\n", err)
 		response.ToFailResultResponse(pojo.ResultMsg_SendVcodeFail)
 		return
 	}
@@ -46,7 +47,7 @@ func (a Auth) SendVcode4Register(c *gin.Context) {
 		fmt.Sprintf("您正在注册为TPCS用户，验证码为 <strong>%v</strong> ，五分钟内有效", vcode),
 	)
 	if err != nil {
-		global.Logger.Errorf("SendMail err: %v\n", err)
+		logger.Errorf("SendMail err: %v\n", err)
 		response.ToFailResultResponse(pojo.ResultMsg_SendVcodeFail)
 		return
 	}
@@ -69,7 +70,7 @@ func (a Auth) SendVcode4Forgot(c *gin.Context) {
 	vcode := fmt.Sprintf("%04v", rand.New(rand.NewSource(time.Now().UnixNano())).Int31n(10000))
 	_, err := global.RedisClient.Set(to, vcode, 1000000000*300).Result()
 	if err != nil {
-		global.Logger.Errorf("global.RedisClient.Set err: %v\n", err)
+		logger.Errorf("global.RedisClient.Set err: %v\n", err)
 		response.ToFailResultResponse(pojo.ResultMsg_SendVcodeFail)
 		return
 	}
@@ -80,7 +81,7 @@ func (a Auth) SendVcode4Forgot(c *gin.Context) {
 		fmt.Sprintf("TPCS用户 %v 正在修改密码，验证码为 <strong>%v</strong> ，五分钟内有效", username, vcode),
 	)
 	if err != nil {
-		global.Logger.Errorf("SendMail err: %v\n", err)
+		logger.Errorf("SendMail err: %v\n", err)
 		response.ToFailResultResponse(pojo.ResultMsg_SendVcodeFail)
 		return
 	}
@@ -95,7 +96,7 @@ func (a Auth) Register(c *gin.Context) {
 	var request *user.RegisterUserRequest
 	err := c.ShouldBindWith(&request, binding.Form)
 	if err != nil {
-		global.Logger.Errorf("c.ShouldBindWith err: %v", err)
+		logger.Errorf("c.ShouldBindWith err: %v", err)
 		response.ToFailResultResponse(pojo.ResultMsg_FormParseErr)
 		return
 	}
@@ -167,13 +168,13 @@ func (a Auth) Register(c *gin.Context) {
 
 	err = userSvc.CreateUser(newUser)
 	if err != nil {
-		global.Logger.Errorf("svc.CreateUser err: %v", err)
+		logger.Errorf("svc.CreateUser err: %v", err)
 		response.ToFailResultResponse(pojo.ResultMsg_TryAgainLater)
 		return
 	} else {
 		err := global.RedisClient.Publish(global.RedisSetting.Topic, newUser).Err()
 		if err != nil {
-			global.Logger.Errorf("Redis Publish error: %v", err)
+			logger.Errorf("Redis Publish error: %v", err)
 		}
 	}
 	response.ToSuccessResultResponse()
@@ -186,7 +187,7 @@ func (a Auth) Login(c *gin.Context) {
 	var request *user.UserLoginRequest
 	err := c.ShouldBindWith(&request, binding.Form)
 	if err != nil {
-		global.Logger.Errorf("c.ShouldBindWith err: %v", err)
+		logger.Errorf("c.ShouldBindWith err: %v", err)
 		c.HTML(http.StatusOK, "login.tmpl", gin.H{
 			"title": "表单异常",
 		})
@@ -221,7 +222,7 @@ func (a Auth) Login(c *gin.Context) {
 		session.Options(options)
 		err := session.Save()
 		if err != nil {
-			global.Logger.Errorf("session.Save err: %v", err)
+			logger.Errorf("session.Save err: %v", err)
 			return
 		}
 		c.Redirect(http.StatusFound, "/")
@@ -234,7 +235,7 @@ func (a Auth) ForgotPassword(c *gin.Context) {
 	var forgotPasswordRequest *user.ForgotPasswordRequest
 	err := c.ShouldBindJSON(&forgotPasswordRequest)
 	if err != nil {
-		global.Logger.Errorf("c.ShouldBindWith err: %v", err)
+		logger.Errorf("c.ShouldBindWith err: %v", err)
 		response.ToFailResultResponse(pojo.ResultMsg_FormParseErr)
 		return
 	}
@@ -270,7 +271,7 @@ func (a Auth) ForgotPassword(c *gin.Context) {
 			session.Options(options)
 			err := session.Save()
 			if err != nil {
-				global.Logger.Errorf("session.Save err: %v", err)
+				logger.Errorf("session.Save err: %v", err)
 				return
 			}
 		} else {
@@ -289,7 +290,7 @@ func (a Auth) ModifyPassword(c *gin.Context) {
 	var request *user.ModifyPasswordRequest
 	err := c.ShouldBindJSON(&request)
 	if err != nil {
-		global.Logger.Errorf("c.ShouldBindWith err: %v", err)
+		logger.Errorf("c.ShouldBindWith err: %v", err)
 		response.ToFailResultResponse(pojo.ResultMsg_FormParseErr)
 		return
 	}
@@ -320,7 +321,7 @@ func (a Auth) ModifyPassword(c *gin.Context) {
 			session.Options(options)
 			err := session.Save()
 			if err != nil {
-				global.Logger.Errorf("session.Save err: %v", err)
+				logger.Errorf("session.Save err: %v", err)
 				return
 			}
 		} else {
@@ -347,7 +348,7 @@ func (a Auth) Logout(c *gin.Context) {
 	session.Options(options)
 	err := session.Save()
 	if err != nil {
-		global.Logger.Errorf("session.Save err: %v", err)
+		logger.Errorf("session.Save err: %v", err)
 		return
 	}
 

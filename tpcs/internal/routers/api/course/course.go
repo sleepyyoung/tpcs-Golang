@@ -2,12 +2,12 @@ package course
 
 import (
 	"github.com/gin-gonic/gin"
-	"tpcs/global"
 	"tpcs/internal/pojo"
 	"tpcs/internal/pojo/model"
 	"tpcs/internal/service"
 	courseService "tpcs/internal/service/course"
 	"tpcs/pkg/app"
+	"tpcs/pkg/logger"
 )
 
 type Course struct{}
@@ -23,7 +23,7 @@ func (course Course) List(c *gin.Context) {
 	var request service.ListRequest
 	err := c.ShouldBindQuery(&request)
 	if err != nil {
-		global.Logger.Errorf("c.ShouldBindWith err: %v", err)
+		logger.Errorf("c.ShouldBindWith err: %v", err)
 		response.ToFailResultResponse(pojo.ResultMsg_FormParseErr)
 		return
 	}
@@ -32,7 +32,7 @@ func (course Course) List(c *gin.Context) {
 	var courseList []model.Course
 	courseList, count, err = courseSvc.CourseList(&request)
 	if err != nil {
-		global.Logger.Errorf("svc.SelectPaperListByUserId err: %v", err)
+		logger.Errorf("svc.SelectPaperListByUserId err: %v", err)
 		return
 	}
 

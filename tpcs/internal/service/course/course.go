@@ -1,10 +1,10 @@
 package course
 
 import (
-	"tpcs/global"
 	"tpcs/internal/pojo"
 	"tpcs/internal/pojo/model"
 	"tpcs/internal/service"
+	"tpcs/pkg/logger"
 )
 
 // CourseList 获取课程列表
@@ -20,7 +20,7 @@ func (svc *Service) CreateCourse(name string) pojo.Result {
 	}
 	err := svc.dao.CreateCourse(name)
 	if err != nil {
-		global.Logger.Errorf("svc.dao.CreateCourse err: %v\n", err)
+		logger.Errorf("svc.dao.CreateCourse err: %v\n", err)
 		return pojo.Result{Success: pojo.ResultSuccess_False, Msg: pojo.ResultMsg_TryAgainLater}
 	}
 	return pojo.Result{Success: pojo.ResultSuccess_True}

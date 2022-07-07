@@ -11,6 +11,7 @@ import (
 	"tpcs/global"
 	userService "tpcs/internal/service/user"
 	"tpcs/pkg/app"
+	"tpcs/pkg/logger"
 )
 
 type User struct{}
@@ -66,7 +67,7 @@ func (u User) UpdateUsername(c *gin.Context) {
 		session.Options(options)
 		err := session.Save()
 		if err != nil {
-			global.Logger.Errorf("session.Save err: %v", err)
+			logger.Errorf("session.Save err: %v", err)
 			return
 		}
 		response.ToSuccessResultResponse()

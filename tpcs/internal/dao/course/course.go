@@ -3,6 +3,7 @@ package course
 import (
 	"tpcs/global"
 	"tpcs/internal/pojo/model"
+	"tpcs/pkg/logger"
 )
 
 // CourseCount 获取课程数量
@@ -56,7 +57,7 @@ func (d *Dao) CreateCourse(name string) error {
 	db := global.DBEngine
 	tx := db.Begin()
 	if err := tx.Error; err != nil {
-		global.Logger.Errorf("事务开启异常: %v\n", err)
+		logger.Errorf("事务开启异常: %v\n", err)
 		return err
 	}
 

@@ -3,10 +3,10 @@ package question
 import (
 	"strconv"
 	"strings"
-	"tpcs/global"
 	"tpcs/internal/pojo"
 	"tpcs/internal/pojo/model"
 	"tpcs/internal/service"
+	"tpcs/pkg/logger"
 )
 
 // GetQuestionCountByCourseIdAndQuestionTypeAndScoreAndDifficulty 通过课程id、题型、分值、难度获取题目数量
@@ -40,7 +40,7 @@ func (svc *Service) AddQuestion(userid *int, param *AddAndModifyQuestionRequest)
 		AnswerHtml:           param.AnswerHtml,
 	})
 	if err != nil {
-		global.Logger.Errorf("添加题目失败！原因: %v\n", err)
+		logger.Errorf("添加题目失败！原因: %v\n", err)
 		return pojo.Result{Success: pojo.ResultSuccess_False, Msg: pojo.ResultMsg_TryAgainLater}
 	}
 	return pojo.Result{Success: pojo.ResultSuccess_True}
@@ -71,7 +71,7 @@ func (svc *Service) ModifyQuestion(id int, param AddAndModifyQuestionRequest) po
 		AnswerHtml:           param.AnswerHtml,
 	})
 	if err != nil {
-		global.Logger.Errorf("修改题目失败！原因: %v\n", err)
+		logger.Errorf("修改题目失败！原因: %v\n", err)
 		return pojo.Result{Success: pojo.ResultSuccess_False, Msg: pojo.ResultMsg_TryAgainLater}
 	}
 	return pojo.Result{Success: pojo.ResultSuccess_True}
@@ -81,7 +81,7 @@ func (svc *Service) ModifyQuestion(id int, param AddAndModifyQuestionRequest) po
 func (svc *Service) RemoveQuestion(id int) pojo.Result {
 	err := svc.dao.RemoveQuestion(id)
 	if err != nil {
-		global.Logger.Errorf("移除题目失败！原因: %v\n", err)
+		logger.Errorf("移除题目失败！原因: %v\n", err)
 		return pojo.Result{Success: pojo.ResultSuccess_False, Msg: pojo.ResultMsg_TryAgainLater}
 	}
 	return pojo.Result{Success: pojo.ResultSuccess_True}
@@ -91,7 +91,7 @@ func (svc *Service) RemoveQuestion(id int) pojo.Result {
 func (svc *Service) BatchRemoveQuestion(ids []int) pojo.Result {
 	err := svc.dao.BatchRemoveQuestion(ids)
 	if err != nil {
-		global.Logger.Errorf("批量移除题目失败！原因: %v\n", err)
+		logger.Errorf("批量移除题目失败！原因: %v\n", err)
 		return pojo.Result{Success: pojo.ResultSuccess_False, Msg: pojo.ResultMsg_TryAgainLater}
 	}
 	return pojo.Result{Success: pojo.ResultSuccess_True}

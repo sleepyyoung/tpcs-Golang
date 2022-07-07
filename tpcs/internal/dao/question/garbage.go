@@ -3,6 +3,7 @@ package question
 import (
 	"tpcs/global"
 	"tpcs/internal/pojo/model"
+	"tpcs/pkg/logger"
 )
 
 // RecoverQuestion 从回收站中恢复题目
@@ -10,7 +11,7 @@ func (d *Dao) RecoverQuestion(id int) error {
 	db := global.DBEngine
 	tx := db.Begin()
 	if err := tx.Error; err != nil {
-		global.Logger.Errorf("事务开启异常: %v\n", err)
+		logger.Errorf("事务开启异常: %v\n", err)
 		return err
 	}
 
@@ -30,7 +31,7 @@ func (d *Dao) BatchRecoverQuestion(ids []int) error {
 	db := global.DBEngine
 	tx := db.Begin()
 	if err := tx.Error; err != nil {
-		global.Logger.Errorf("事务开启异常: %v\n", err)
+		logger.Errorf("事务开启异常: %v\n", err)
 		return err
 	}
 
@@ -50,7 +51,7 @@ func (d *Dao) DeleteQuestion(id int) error {
 	db := global.DBEngine
 	tx := db.Begin()
 	if err := tx.Error; err != nil {
-		global.Logger.Errorf("事务开启异常: %v\n", err)
+		logger.Errorf("事务开启异常: %v\n", err)
 		return err
 	}
 
@@ -70,7 +71,7 @@ func (d *Dao) BatchDeleteQuestion(ids []int) error {
 	db := global.DBEngine
 	tx := db.Begin()
 	if err := tx.Error; err != nil {
-		global.Logger.Errorf("事务开启异常: %v\n", err)
+		logger.Errorf("事务开启异常: %v\n", err)
 		return err
 	}
 

@@ -5,12 +5,12 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
-	"tpcs/global"
 	"tpcs/internal/pojo/model"
 	"tpcs/internal/service"
 	courseService "tpcs/internal/service/course"
 	questionService "tpcs/internal/service/question"
 	userService "tpcs/internal/service/user"
+	"tpcs/pkg/logger"
 )
 
 // CombineHandler 手动组卷页面
@@ -19,7 +19,7 @@ func CombineHandler(c *gin.Context) {
 
 	courseList, _, err := courseSvc.CourseList(&service.ListRequest{Page: 0, Limit: 0})
 	if err != nil {
-		global.Logger.Errorf("svc.CourseList err: %v", err)
+		logger.Errorf("svc.CourseList err: %v", err)
 		return
 	}
 
@@ -35,31 +35,31 @@ func AutoCombineHandler(c *gin.Context) {
 
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		global.Logger.Errorf("strconv.Atoi(c.Param(\"id\")) err: %v", err)
+		logger.Errorf("strconv.Atoi(c.Param(\"id\")) err: %v", err)
 		return
 	}
 
 	plan, err := questionSvc.GetCombinePlanById(id)
 	if err != nil {
-		global.Logger.Errorf("questionSvc.GetCombinePlanById err: %v", err)
+		logger.Errorf("questionSvc.GetCombinePlanById err: %v", err)
 		return
 	}
 
 	questionTypeList, err := questionSvc.AllQuestionTypes()
 	if err != nil {
-		global.Logger.Errorf("svc.AllQuestionTypes err: %v", err)
+		logger.Errorf("svc.AllQuestionTypes err: %v", err)
 		return
 	}
 
 	questionDifficultyList, err := questionSvc.AllQuestionDifficulties()
 	if err != nil {
-		global.Logger.Errorf("svc.AllQuestionDifficulties err: %v", err)
+		logger.Errorf("svc.AllQuestionDifficulties err: %v", err)
 		return
 	}
 
 	courseList, _, err := courseSvc.CourseList(&service.ListRequest{Page: 0, Limit: 0})
 	if err != nil {
-		global.Logger.Errorf("svc.CourseList err: %v", err)
+		logger.Errorf("svc.CourseList err: %v", err)
 		return
 	}
 
@@ -78,19 +78,19 @@ func CombinePlanHandler(c *gin.Context) {
 
 	questionTypeList, err := questionSvc.AllQuestionTypes()
 	if err != nil {
-		global.Logger.Errorf("svc.AllQuestionTypes err: %v", err)
+		logger.Errorf("svc.AllQuestionTypes err: %v", err)
 		return
 	}
 
 	questionDifficultyList, err := questionSvc.AllQuestionDifficulties()
 	if err != nil {
-		global.Logger.Errorf("svc.AllQuestionDifficulties err: %v", err)
+		logger.Errorf("svc.AllQuestionDifficulties err: %v", err)
 		return
 	}
 
 	courseList, _, err := courseSvc.CourseList(&service.ListRequest{Page: 0, Limit: 0})
 	if err != nil {
-		global.Logger.Errorf("svc.CourseList err: %v", err)
+		logger.Errorf("svc.CourseList err: %v", err)
 		return
 	}
 
@@ -109,19 +109,19 @@ func AddCombinePlanHandler(c *gin.Context) {
 
 	questionTypeList, err := questionSvc.AllQuestionTypes()
 	if err != nil {
-		global.Logger.Errorf("svc.AllQuestionTypes err: %v", err)
+		logger.Errorf("svc.AllQuestionTypes err: %v", err)
 		return
 	}
 
 	questionDifficultyList, err := questionSvc.AllQuestionDifficulties()
 	if err != nil {
-		global.Logger.Errorf("svc.AllQuestionDifficulties err: %v", err)
+		logger.Errorf("svc.AllQuestionDifficulties err: %v", err)
 		return
 	}
 
 	courseList, _, err := courseSvc.CourseList(&service.ListRequest{Page: 0, Limit: 0})
 	if err != nil {
-		global.Logger.Errorf("svc.CourseList err: %v", err)
+		logger.Errorf("svc.CourseList err: %v", err)
 		return
 	}
 
@@ -146,31 +146,31 @@ func EditCombinePlanHandler(c *gin.Context) {
 
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		global.Logger.Errorf("strconv.Atoi(c.Param(\"id\")) err: %v", err)
+		logger.Errorf("strconv.Atoi(c.Param(\"id\")) err: %v", err)
 		return
 	}
 
 	plan, err := questionSvc.GetCombinePlanById(id)
 	if err != nil {
-		global.Logger.Errorf("questionSvc.GetCombinePlanById err: %v", err)
+		logger.Errorf("questionSvc.GetCombinePlanById err: %v", err)
 		return
 	}
 
 	questionTypeList, err := questionSvc.AllQuestionTypes()
 	if err != nil {
-		global.Logger.Errorf("svc.AllQuestionTypes err: %v", err)
+		logger.Errorf("svc.AllQuestionTypes err: %v", err)
 		return
 	}
 
 	questionDifficultyList, err := questionSvc.AllQuestionDifficulties()
 	if err != nil {
-		global.Logger.Errorf("svc.AllQuestionDifficulties err: %v", err)
+		logger.Errorf("svc.AllQuestionDifficulties err: %v", err)
 		return
 	}
 
 	courseList, _, err := courseSvc.CourseList(&service.ListRequest{Page: 0, Limit: 0})
 	if err != nil {
-		global.Logger.Errorf("svc.CourseList err: %v", err)
+		logger.Errorf("svc.CourseList err: %v", err)
 		return
 	}
 
@@ -195,13 +195,13 @@ func CombinePlanDetailHandler(c *gin.Context) {
 
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		global.Logger.Errorf("strconv.Atoi(c.Param(\"id\")) err: %v", err)
+		logger.Errorf("strconv.Atoi(c.Param(\"id\")) err: %v", err)
 		return
 	}
 
 	plan, err := questionSvc.GetCombinePlanById(id)
 	if err != nil {
-		global.Logger.Errorf("questionSvc.GetCombinePlanById err: %v", err)
+		logger.Errorf("questionSvc.GetCombinePlanById err: %v", err)
 		return
 	}
 

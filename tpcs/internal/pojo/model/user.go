@@ -14,6 +14,7 @@ type User struct {
 	Note            *string `gorm:"column:NOTE;" json:"note"`
 	Status          *int    `gorm:"column:STATUS;" json:"status"`
 	IsAdministrator *bool   `gorm:"column:IS_ADMINISTRATOR;" json:"isAdministrator"`
+	*Model
 }
 
 func (u *User) TableName() string {

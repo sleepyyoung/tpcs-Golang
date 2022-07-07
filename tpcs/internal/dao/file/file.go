@@ -5,6 +5,7 @@ import (
 	"tpcs/internal/dao/user"
 	"tpcs/internal/pojo/model"
 	"tpcs/pkg/file"
+	"tpcs/pkg/logger"
 )
 
 // GetFileById 通过id获取文件
@@ -36,7 +37,7 @@ func (d *Dao) FileList(userId, pageNum, pageSize int) ([]model.File, int, error)
 	db := global.DBEngine
 	isAdminUser, err := user.New(db).IsAdminUserByUserId(db, userId)
 	if err != nil {
-		global.Logger.Errorf("d.IsAdminUserByUserId err: %v", err)
+		logger.Errorf("d.IsAdminUserByUserId err: %v", err)
 		return nil, 0, err
 	}
 
@@ -68,27 +69,27 @@ func (d *Dao) DeleteFile(id int) error {
 	db := global.DBEngine
 	tx := db.Begin()
 	if err := tx.Error; err != nil {
-		global.Logger.Errorf("事务开启异常: %v\n", err)
+		logger.Errorf("事务开启异常: %v\n", err)
 	}
 
 	if err := tx.Table("file_info").
 		Where("ID = ?", id).
 		Delete(&model.File{Id: &id}).
 		Error; err != nil {
-		global.Logger.Errorf("删除文件异常，事务回滚。异常原因: %v\n", err)
+		logger.Errorf("删除文件异常，事务回滚。异常原因: %v\n", err)
 		tx.Rollback()
 		return err
 	}
 
 	fileById, err := d.GetFileById(id)
 	if err != nil {
-		global.Logger.Errorf("通过Id获取文件异常，事务回滚。异常原因: %v\n", err)
+		logger.Errorf("通过Id获取文件异常，事务回滚。异常原因: %v\n", err)
 		tx.Rollback()
 		return err
 	}
 	err = file.DeleteFile(global.AppSetting.UploadDir + "/" + *fileById.FileName)
 	if err != nil {
-		global.Logger.Errorf("文件物理删除失败，事务回滚。失败原因: %v\n", err)
+		logger.Errorf("文件物理删除失败，事务回滚。失败原因: %v\n", err)
 		tx.Rollback()
 		return err
 	}
@@ -102,20 +103,20 @@ func (d *Dao) BatchDeleteFile(ids []int) error {
 	db := global.DBEngine
 	tx := db.Begin()
 	if err := tx.Error; err != nil {
-		global.Logger.Errorf("事务开启异常: %v\n", err)
+		logger.Errorf("事务开启异常: %v\n", err)
 	}
 
 	for _, id := range ids {
 		fileById, err := d.GetFileById(id)
 		if err != nil {
-			global.Logger.Errorf("通过Id获取文件异常，事务回滚。异常原因: %v\n", err)
+			logger.Errorf("通过Id获取文件异常，事务回滚。异常原因: %v\n", err)
 			tx.Rollback()
 			return err
 		}
 
 		err = file.DeleteFile(global.AppSetting.UploadDir + "/" + *fileById.FileName)
 		if err != nil {
-			global.Logger.Errorf("文件物理删除失败，事务回滚。失败原因: %v\n", err)
+			logger.Errorf("文件物理删除失败，事务回滚。失败原因: %v\n", err)
 			tx.Rollback()
 			return err
 		}
@@ -125,7 +126,7 @@ func (d *Dao) BatchDeleteFile(ids []int) error {
 		Where("ID in (?)", ids).
 		Delete(&model.File{}).
 		Error; err != nil {
-		global.Logger.Errorf("删除文件异常，事务回滚。异常原因: %v\n", err)
+		logger.Errorf("删除文件异常，事务回滚。异常原因: %v\n", err)
 		tx.Rollback()
 		return err
 	}

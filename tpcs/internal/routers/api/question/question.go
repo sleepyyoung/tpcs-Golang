@@ -6,12 +6,12 @@ import (
 	"github.com/gin-gonic/gin"
 	"io/ioutil"
 	"strconv"
-	"tpcs/global"
 	"tpcs/internal/pojo"
 	"tpcs/internal/pojo/model"
 	"tpcs/internal/service"
 	questionService "tpcs/internal/service/question"
 	"tpcs/pkg/app"
+	"tpcs/pkg/logger"
 )
 
 //// ********** Public **********//
@@ -28,7 +28,7 @@ func Query(c *gin.Context, isRemoved bool) {
 	var request *questionService.QueryQuestionRequest
 	err := c.ShouldBindQuery(&request)
 	if err != nil {
-		global.Logger.Errorf("c.ShouldBindJSON err: %v", err)
+		logger.Errorf("c.ShouldBindJSON err: %v", err)
 		response.ToFailResultResponse(pojo.ResultMsg_FormParseErr)
 		return
 	}
@@ -37,7 +37,7 @@ func Query(c *gin.Context, isRemoved bool) {
 	var questionList []model.Question
 	questionList, count, err = svc.QueryQuestion(request, isRemoved)
 	if err != nil {
-		global.Logger.Errorf("svc.QueryQuestion err: %v", err)
+		logger.Errorf("svc.QueryQuestion err: %v", err)
 		response.ToFailResultResponse(pojo.ResultMsg_TryAgainLater)
 		return
 	}
@@ -74,7 +74,7 @@ func PreciseQueryByScore(c *gin.Context, isRemoved bool) {
 
 	score, err := strconv.ParseFloat(c.Param("score"), 64)
 	if err != nil {
-		global.Logger.Errorf("strconv.ParseFloat err: %v", err)
+		logger.Errorf("strconv.ParseFloat err: %v", err)
 		response.ToFailResultResponse(pojo.ResultMsg_FormParseErr)
 		return
 	}
@@ -82,7 +82,7 @@ func PreciseQueryByScore(c *gin.Context, isRemoved bool) {
 	var request service.ListRequest
 	err = c.ShouldBindQuery(&request)
 	if err != nil {
-		global.Logger.Errorf("c.ShouldBindQuery err: %v", err)
+		logger.Errorf("c.ShouldBindQuery err: %v", err)
 		response.ToFailResultResponse(pojo.ResultMsg_FormParseErr)
 		return
 	}
@@ -91,7 +91,7 @@ func PreciseQueryByScore(c *gin.Context, isRemoved bool) {
 	var questionList []model.Question
 	questionList, count, err = svc.PreciseQueryQuestionByScore(&request, score, isRemoved)
 	if err != nil {
-		global.Logger.Errorf("svc.PreciseQueryQuestionByScore err: %v", err)
+		logger.Errorf("svc.PreciseQueryQuestionByScore err: %v", err)
 		response.ToFailResultResponse(pojo.ResultMsg_TryAgainLater)
 		return
 	}
@@ -128,14 +128,14 @@ func IntervalQueryByScore(c *gin.Context, isRemoved bool) {
 
 	min, err := strconv.ParseFloat(c.Param("min"), 64)
 	if err != nil {
-		global.Logger.Errorf("strconv.ParseFloat err: %v", err)
+		logger.Errorf("strconv.ParseFloat err: %v", err)
 		response.ToFailResultResponse(pojo.ResultMsg_FormParseErr)
 		return
 	}
 
 	max, err := strconv.ParseFloat(c.Param("max"), 64)
 	if err != nil {
-		global.Logger.Errorf("strconv.ParseFloat err: %v", err)
+		logger.Errorf("strconv.ParseFloat err: %v", err)
 		response.ToFailResultResponse(pojo.ResultMsg_FormParseErr)
 		return
 	}
@@ -143,7 +143,7 @@ func IntervalQueryByScore(c *gin.Context, isRemoved bool) {
 	var request service.ListRequest
 	err = c.ShouldBindQuery(&request)
 	if err != nil {
-		global.Logger.Errorf("c.ShouldBindQuery err: %v", err)
+		logger.Errorf("c.ShouldBindQuery err: %v", err)
 		response.ToFailResultResponse(pojo.ResultMsg_FormParseErr)
 		return
 	}
@@ -152,7 +152,7 @@ func IntervalQueryByScore(c *gin.Context, isRemoved bool) {
 	var questionList []model.Question
 	questionList, count, err = svc.IntervalQueryQuestionByScore(&request, min, max, isRemoved)
 	if err != nil {
-		global.Logger.Errorf("svc.PreciseQueryQuestionByScore err: %v", err)
+		logger.Errorf("svc.PreciseQueryQuestionByScore err: %v", err)
 		return
 	}
 
@@ -188,7 +188,7 @@ func QueryByType(c *gin.Context, isRemoved bool) {
 
 	typeId, err := strconv.Atoi(c.Param("type"))
 	if err != nil {
-		global.Logger.Errorf("strconv.Atoi err: %v", err)
+		logger.Errorf("strconv.Atoi err: %v", err)
 		response.ToFailResultResponse(pojo.ResultMsg_TryAgainLater)
 		return
 	}
@@ -196,7 +196,7 @@ func QueryByType(c *gin.Context, isRemoved bool) {
 	var request service.ListRequest
 	err = c.ShouldBindQuery(&request)
 	if err != nil {
-		global.Logger.Errorf("c.ShouldBindQuery err: %v", err)
+		logger.Errorf("c.ShouldBindQuery err: %v", err)
 		response.ToFailResultResponse(pojo.ResultMsg_FormParseErr)
 		return
 	}
@@ -205,7 +205,7 @@ func QueryByType(c *gin.Context, isRemoved bool) {
 	var questionList []model.Question
 	questionList, count, err = svc.QueryQuestionByType(&request, typeId, isRemoved)
 	if err != nil {
-		global.Logger.Errorf("svc.PreciseQueryQuestionByScore err: %v", err)
+		logger.Errorf("svc.PreciseQueryQuestionByScore err: %v", err)
 		response.ToFailResultResponse(pojo.ResultMsg_TryAgainLater)
 		return
 	}
@@ -242,7 +242,7 @@ func QueryByDifficulty(c *gin.Context, isRemoved bool) {
 
 	difficultyId, err := strconv.Atoi(c.Param("difficulty"))
 	if err != nil {
-		global.Logger.Errorf("strconv.Atoi err: %v", err)
+		logger.Errorf("strconv.Atoi err: %v", err)
 		response.ToFailResultResponse(pojo.ResultMsg_FormParseErr)
 		return
 	}
@@ -250,7 +250,7 @@ func QueryByDifficulty(c *gin.Context, isRemoved bool) {
 	var request service.ListRequest
 	err = c.ShouldBindQuery(&request)
 	if err != nil {
-		global.Logger.Errorf("c.ShouldBindQuery err: %v", err)
+		logger.Errorf("c.ShouldBindQuery err: %v", err)
 		response.ToFailResultResponse(pojo.ResultMsg_FormParseErr)
 		return
 	}
@@ -259,7 +259,7 @@ func QueryByDifficulty(c *gin.Context, isRemoved bool) {
 	var questionList []model.Question
 	questionList, count, err = svc.QueryQuestionByDifficulty(&request, difficultyId, isRemoved)
 	if err != nil {
-		global.Logger.Errorf("svc.PreciseQueryQuestionByScore err: %v", err)
+		logger.Errorf("svc.PreciseQueryQuestionByScore err: %v", err)
 		response.ToFailResultResponse(pojo.ResultMsg_TryAgainLater)
 		return
 	}
@@ -296,7 +296,7 @@ func QueryByCourse(c *gin.Context, isRemoved bool) {
 
 	courseId, err := strconv.Atoi(c.Param("course"))
 	if err != nil {
-		global.Logger.Errorf("strconv.Atoi err: %v", err)
+		logger.Errorf("strconv.Atoi err: %v", err)
 		response.ToFailResultResponse(pojo.ResultMsg_FormParseErr)
 		return
 	}
@@ -304,7 +304,7 @@ func QueryByCourse(c *gin.Context, isRemoved bool) {
 	var request service.ListRequest
 	err = c.ShouldBindQuery(&request)
 	if err != nil {
-		global.Logger.Errorf("c.ShouldBindQuery err: %v", err)
+		logger.Errorf("c.ShouldBindQuery err: %v", err)
 		response.ToFailResultResponse(pojo.ResultMsg_FormParseErr)
 		return
 	}
@@ -313,7 +313,7 @@ func QueryByCourse(c *gin.Context, isRemoved bool) {
 	var questionList []model.Question
 	questionList, count, err = svc.QueryQuestionByCourse(&request, courseId, isRemoved)
 	if err != nil {
-		global.Logger.Errorf("svc.PreciseQueryQuestionByScore err: %v", err)
+		logger.Errorf("svc.PreciseQueryQuestionByScore err: %v", err)
 		response.ToFailResultResponse(pojo.ResultMsg_TryAgainLater)
 		return
 	}
@@ -352,7 +352,7 @@ func QueryByQuestionContent(c *gin.Context, isRemoved bool) {
 	var request service.ListRequest
 	err := c.ShouldBindQuery(&request)
 	if err != nil {
-		global.Logger.Errorf("c.ShouldBindQuery err: %v", err)
+		logger.Errorf("c.ShouldBindQuery err: %v", err)
 		response.ToFailResultResponse(pojo.ResultMsg_FormParseErr)
 		return
 	}
@@ -361,7 +361,7 @@ func QueryByQuestionContent(c *gin.Context, isRemoved bool) {
 	var questionList []model.Question
 	questionList, count, err = svc.QueryQuestionByQuestionContent(&request, questionContent, isRemoved)
 	if err != nil {
-		global.Logger.Errorf("svc.PreciseQueryQuestionByScore err: %v", err)
+		logger.Errorf("svc.PreciseQueryQuestionByScore err: %v", err)
 		response.ToFailResultResponse(pojo.ResultMsg_TryAgainLater)
 		return
 	}
@@ -400,7 +400,7 @@ func QueryByAnswerContent(c *gin.Context, isRemoved bool) {
 	var request service.ListRequest
 	err := c.ShouldBindQuery(&request)
 	if err != nil {
-		global.Logger.Errorf("c.ShouldBindQuery err: %v", err)
+		logger.Errorf("c.ShouldBindQuery err: %v", err)
 		response.ToFailResultResponse(pojo.ResultMsg_FormParseErr)
 		return
 	}
@@ -409,7 +409,7 @@ func QueryByAnswerContent(c *gin.Context, isRemoved bool) {
 	var questionList []model.Question
 	questionList, count, err = svc.QueryQuestionByAnswerContent(&request, answerContent, isRemoved)
 	if err != nil {
-		global.Logger.Errorf("svc.PreciseQueryQuestionByScore err: %v", err)
+		logger.Errorf("svc.PreciseQueryQuestionByScore err: %v", err)
 		response.ToFailResultResponse(pojo.ResultMsg_TryAgainLater)
 		return
 	}
@@ -447,7 +447,7 @@ func GetQuestionByUserId(c *gin.Context, isRemoved bool) {
 	var request service.ListRequest
 	err := c.ShouldBindQuery(&request)
 	if err != nil {
-		global.Logger.Errorf("c.ShouldBindQuery err: %v", err)
+		logger.Errorf("c.ShouldBindQuery err: %v", err)
 		response.ToFailResultResponse(pojo.ResultMsg_FormParseErr)
 		return
 	}
@@ -456,7 +456,7 @@ func GetQuestionByUserId(c *gin.Context, isRemoved bool) {
 	var questionList []model.Question
 	questionList, count, err = svc.GetQuestionByUserId(&request, *user.Id, isRemoved)
 	if err != nil {
-		global.Logger.Errorf("svc.PreciseQueryQuestionByScore err: %v", err)
+		logger.Errorf("svc.PreciseQueryQuestionByScore err: %v", err)
 		response.ToFailResultResponse(pojo.ResultMsg_TryAgainLater)
 		return
 	}
@@ -489,7 +489,7 @@ func GetQuestionDistribution(c *gin.Context, isRemoved bool) {
 
 	courseId, err := strconv.Atoi(c.Param("courseId"))
 	if err != nil {
-		global.Logger.Errorf("strconv.Atoi(c.Param(\"courseId\"))[id = %v] err: %v", courseId, err)
+		logger.Errorf("strconv.Atoi(c.Param(\"courseId\"))[id = %v] err: %v", courseId, err)
 		response.ToFailResultResponse(pojo.ResultMsg_FormParseErr)
 		return
 	}
@@ -628,7 +628,7 @@ func (q Question) List(c *gin.Context) {
 	var request service.ListRequest
 	err := c.ShouldBindQuery(&request)
 	if err != nil {
-		global.Logger.Errorf("c.ShouldBindQuery err: %v", err)
+		logger.Errorf("c.ShouldBindQuery err: %v", err)
 		response.ToFailResultResponse(pojo.ResultMsg_FormParseErr)
 		return
 	}
@@ -637,7 +637,7 @@ func (q Question) List(c *gin.Context) {
 	var questionList []model.Question
 	questionList, count, err = svc.QuestionList(&request, false)
 	if err != nil {
-		global.Logger.Errorf("svc.QuestionList err: %v", err)
+		logger.Errorf("svc.QuestionList err: %v", err)
 		response.ToFailResultResponse(pojo.ResultMsg_TryAgainLater)
 		return
 	}
@@ -671,7 +671,7 @@ func (q Question) Add(c *gin.Context) {
 	var request *questionService.AddAndModifyQuestionRequest
 	err := c.ShouldBindJSON(&request)
 	if err != nil {
-		global.Logger.Errorf("c.ShouldBindJSON err: %v", err)
+		logger.Errorf("c.ShouldBindJSON err: %v", err)
 		response.ToFailResultResponse(pojo.ResultMsg_FormParseErr)
 		return
 	}
@@ -715,7 +715,7 @@ func (q Question) Edit(c *gin.Context) {
 
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		global.Logger.Errorf("strconv.Atoi(c.Param(\"id\"))[id = %v] err: %v", id, err)
+		logger.Errorf("strconv.Atoi(c.Param(\"id\"))[id = %v] err: %v", id, err)
 		response.ToFailResultResponse(pojo.ResultMsg_TryAgainLater)
 		return
 	}
@@ -726,7 +726,7 @@ func (q Question) Edit(c *gin.Context) {
 
 	questionById, err := svc.GetQuestionById(id, false)
 	if err != nil {
-		global.Logger.Errorf("svc.GetQuestionById(%v, false) err: %v", id, err)
+		logger.Errorf("svc.GetQuestionById(%v, false) err: %v", id, err)
 		response.ToFailResultResponse(pojo.ResultMsg_TryAgainLater)
 		return
 	}
@@ -738,7 +738,7 @@ func (q Question) Edit(c *gin.Context) {
 	var request questionService.AddAndModifyQuestionRequest
 	err = c.ShouldBindJSON(&request)
 	if err != nil {
-		global.Logger.Errorf("c.ShouldBindJSON err: %v", err)
+		logger.Errorf("c.ShouldBindJSON err: %v", err)
 		response.ToFailResultResponse(pojo.ResultMsg_TryAgainLater)
 		return
 	}
@@ -755,7 +755,7 @@ func (q Question) Remove(c *gin.Context) {
 
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		global.Logger.Errorf("strconv.Atoi(c.Param(\"id\")) err: %v", err)
+		logger.Errorf("strconv.Atoi(c.Param(\"id\")) err: %v", err)
 		response.ToFailResultResponse(pojo.ResultMsg_FormParseErr)
 		return
 	}
@@ -772,7 +772,7 @@ func (q Question) BatchRemove(c *gin.Context) {
 
 	body, err := ioutil.ReadAll(c.Request.Body)
 	if err != nil {
-		global.Logger.Errorf("ioutil.ReadAll err: %v", err)
+		logger.Errorf("ioutil.ReadAll err: %v", err)
 		response.ToFailResultResponse(pojo.ResultMsg_TryAgainLater)
 		return
 	}
@@ -780,7 +780,7 @@ func (q Question) BatchRemove(c *gin.Context) {
 	ids := make([]int, 15)
 	err = json.Unmarshal(body, &ids)
 	if err != nil {
-		global.Logger.Errorf("json.Unmarshal err: %v", err)
+		logger.Errorf("json.Unmarshal err: %v", err)
 		response.ToFailResultResponse(pojo.ResultMsg_TryAgainLater)
 		return
 	}

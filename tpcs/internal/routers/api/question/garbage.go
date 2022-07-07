@@ -6,12 +6,12 @@ import (
 	"github.com/gin-gonic/gin"
 	"io/ioutil"
 	"strconv"
-	"tpcs/global"
 	"tpcs/internal/pojo"
 	"tpcs/internal/pojo/model"
 	"tpcs/internal/service"
 	questionService "tpcs/internal/service/question"
 	"tpcs/pkg/app"
+	"tpcs/pkg/logger"
 )
 
 //// *********** Garbage *********** //
@@ -34,7 +34,7 @@ func (g Garbage) List(c *gin.Context) {
 	var listRequest service.ListRequest
 	err := c.ShouldBindQuery(&listRequest)
 	if err != nil {
-		global.Logger.Errorf("c.ShouldBindQuery err: %v", err)
+		logger.Errorf("c.ShouldBindQuery err: %v", err)
 		response.ToFailResultResponse(pojo.ResultMsg_FormParseErr)
 		return
 	}
@@ -43,7 +43,7 @@ func (g Garbage) List(c *gin.Context) {
 	var questionList []model.Question
 	questionList, count, err = svc.QuestionList(&listRequest, true)
 	if err != nil {
-		global.Logger.Errorf("svc.QuestionList err: %v", err)
+		logger.Errorf("svc.QuestionList err: %v", err)
 		response.ToFailResultResponse(pojo.ResultMsg_TryAgainLater)
 		return
 	}
@@ -76,7 +76,7 @@ func (g Garbage) Recover(c *gin.Context) {
 
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		global.Logger.Errorf("strconv.Atoi(c.Param(\"id\")) err: %v", err)
+		logger.Errorf("strconv.Atoi(c.Param(\"id\")) err: %v", err)
 		response.ToFailResultResponse(pojo.ResultMsg_FormParseErr)
 		return
 	}
@@ -93,7 +93,7 @@ func (g Garbage) Delete(c *gin.Context) {
 
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		global.Logger.Errorf("strconv.Atoi(c.Param(\"id\")) err: %v", err)
+		logger.Errorf("strconv.Atoi(c.Param(\"id\")) err: %v", err)
 		response.ToFailResultResponse(pojo.ResultMsg_FormParseErr)
 		return
 	}
@@ -110,7 +110,7 @@ func (g Garbage) BatchRecover(c *gin.Context) {
 
 	body, err := ioutil.ReadAll(c.Request.Body)
 	if err != nil {
-		global.Logger.Errorf("ioutil.ReadAll err: %v", err)
+		logger.Errorf("ioutil.ReadAll err: %v", err)
 		response.ToFailResultResponse(pojo.ResultMsg_TryAgainLater)
 		return
 	}
@@ -118,7 +118,7 @@ func (g Garbage) BatchRecover(c *gin.Context) {
 	ids := make([]int, 15)
 	err = json.Unmarshal(body, &ids)
 	if err != nil {
-		global.Logger.Errorf("json.Unmarshal err: %v", err)
+		logger.Errorf("json.Unmarshal err: %v", err)
 		response.ToFailResultResponse(pojo.ResultMsg_TryAgainLater)
 		return
 	}
@@ -135,7 +135,7 @@ func (g Garbage) BatchDelete(c *gin.Context) {
 
 	body, err := ioutil.ReadAll(c.Request.Body)
 	if err != nil {
-		global.Logger.Errorf("ioutil.ReadAll err: %v", err)
+		logger.Errorf("ioutil.ReadAll err: %v", err)
 		response.ToFailResultResponse(pojo.ResultMsg_TryAgainLater)
 		return
 	}
@@ -143,7 +143,7 @@ func (g Garbage) BatchDelete(c *gin.Context) {
 	ids := make([]int, 15)
 	err = json.Unmarshal(body, &ids)
 	if err != nil {
-		global.Logger.Errorf("json.Unmarshal err: %v", err)
+		logger.Errorf("json.Unmarshal err: %v", err)
 		response.ToFailResultResponse(pojo.ResultMsg_TryAgainLater)
 		return
 	}

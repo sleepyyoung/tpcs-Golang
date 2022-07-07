@@ -1,10 +1,10 @@
 package question
 
 import (
-	"tpcs/global"
 	"tpcs/internal/pojo"
 	"tpcs/internal/pojo/model"
 	"tpcs/internal/service"
+	"tpcs/pkg/logger"
 )
 
 // GetQuestionTypeByName 通过名称获取题型
@@ -36,7 +36,7 @@ func (svc *Service) GetQuestionDifficultyById(id int) (*model.QuestionDifficulty
 func (svc *Service) AddQuestionType(questionTypeName string) pojo.Result {
 	err := svc.dao.AddQuestionType(questionTypeName)
 	if err != nil {
-		global.Logger.Errorf("添加题型失败！原因：%v", err)
+		logger.Errorf("添加题型失败！原因：%v", err)
 		return pojo.Result{Success: pojo.ResultSuccess_False, Msg: pojo.ResultMsg_TryAgainLater}
 	}
 	return pojo.Result{Success: pojo.ResultSuccess_True}

@@ -4,9 +4,9 @@ import (
 	"sort"
 	"strconv"
 	"strings"
-	"tpcs/global"
 	"tpcs/internal/pojo"
 	questionService "tpcs/internal/service/question"
+	"tpcs/pkg/logger"
 )
 
 type Question struct {
@@ -56,7 +56,7 @@ func QuestionCombine(paperTitle string) pojo.CombineResult {
 		}
 		questionType, err := Svc.GetQuestionTypeById(id)
 		if err != nil {
-			global.Logger.Errorf("Svc.GetQuestionTypeById err: %v", err)
+			logger.Errorf("Svc.GetQuestionTypeById err: %v", err)
 			return pojo.CombineResult{
 				Success:    pojo.ResultSuccess_False,
 				PaperHtml:  pojo.ResultMsg_TryAgainLater,
@@ -96,7 +96,7 @@ func questionCombine(list []int) string {
 	for i := 1; i <= len(list); i++ {
 		question, err := Svc.GetQuestionById(list[i-1], false)
 		if err != nil {
-			global.Logger.Errorf("Svc.GetQuestionById err: %v", err)
+			logger.Errorf("Svc.GetQuestionById err: %v", err)
 			return err.Error()
 		}
 		questionHtml := *question.QuestionHtml
@@ -111,7 +111,7 @@ func answerCombine(list []int) string {
 	for i := 1; i <= len(list); i++ {
 		question, err := Svc.GetQuestionById(list[i-1], false)
 		if err != nil {
-			global.Logger.Errorf("Svc.GetQuestionById err: %v", err)
+			logger.Errorf("Svc.GetQuestionById err: %v", err)
 			return err.Error()
 		}
 		answerHtml := *question.AnswerHtml

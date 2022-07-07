@@ -5,8 +5,9 @@ import "time"
 type AppSettingS struct {
 	URL             string
 	LogSavePath     string
-	LogFileName     string
+	LogSaveName     string
 	LogFileExt      string
+	TimeFormat      string
 	UploadDir       string
 	FileUploadPath  string
 	MdImgUploadPath string

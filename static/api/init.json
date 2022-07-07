@@ -47,7 +47,7 @@
             },
             {
               "title": "自动组卷",
-              "href": "question-combine-auto",
+              "href": "question-combine-plan-list",
               "icon": "fa fa-heartbeat",
               "target": "_self"
             }

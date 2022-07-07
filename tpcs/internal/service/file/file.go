@@ -1,7 +1,6 @@
 package file
 
 import (
-	"github.com/gin-gonic/gin"
 	"mime/multipart"
 	"os"
 	"strconv"
@@ -12,6 +11,8 @@ import (
 	"tpcs/internal/pojo/model"
 	"tpcs/internal/service"
 	"tpcs/pkg/file"
+	"tpcs/pkg/logger"
+	"tpcs/pkg/upload"
 )
 
 // GetFileById 通过id获取文件
@@ -28,7 +29,7 @@ func (svc *Service) Upload4MdImg(fileHeader *multipart.FileHeader) (string, erro
 	savePath := global.AppSetting.MdImgUploadPath
 	if !file.SavePathExists(savePath) {
 		if err := file.CreateSavePath(savePath, os.ModePerm); err != nil {
-			global.Logger.Errorf("图片上传失败！原因: %v\n", err)
+			logger.Errorf("图片上传失败！原因: %v\n", err)
 			//return pojo.Result{Success: pojo.ResultSuccess_False, Msg: pojo.ResultMsg_TryAgainLater}
 			return "", err
 		}
@@ -37,8 +38,8 @@ func (svc *Service) Upload4MdImg(fileHeader *multipart.FileHeader) (string, erro
 	formatFileName := strconv.FormatInt(time.Now().UnixMilli(), 10) + "." + suffix
 	dst := savePath + "/" + formatFileName
 
-	if err := file.SaveFile4MdImg(fileHeader, dst); err != nil {
-		global.Logger.Errorf("图片上传失败！原因: %v\n", err)
+	if err := upload.SaveFile4MdImg(fileHeader, dst); err != nil {
+		logger.Errorf("图片上传失败！原因: %v\n", err)
 		//return pojo.Result{Success: pojo.ResultSuccess_False, Msg: pojo.ResultMsg_TryAgainLater}
 		return "", err
 	}
@@ -53,7 +54,7 @@ func (svc *Service) FileList(userId int, param *service.ListRequest) ([]model.Fi
 }
 
 // Upload 上传文件
-func (svc *Service) Upload(c *gin.Context, item int, fileHeader *multipart.FileHeader, userId int) error {
+func (svc *Service) Upload(item int, fileHeader *multipart.FileHeader, userId int) error {
 	truthName := file.GetFileName(fileHeader.Filename)
 	splits := strings.Split(truthName, ".")
 	suffix := splits[len(splits)-1]
@@ -61,15 +62,15 @@ func (svc *Service) Upload(c *gin.Context, item int, fileHeader *multipart.FileH
 	savePath := global.AppSetting.FileUploadPath
 	if !file.SavePathExists(savePath) {
 		if err := file.CreateSavePath(savePath, os.ModePerm); err != nil {
-			global.Logger.Errorf("文件上传失败！原因: %v\n", err)
+			logger.Errorf("文件上传失败！原因: %v\n", err)
 			return err
 		}
 	}
 
 	formatFileName := strconv.FormatInt(time.Now().UnixNano(), 10) + "." + suffix
 	dst := savePath + "/" + formatFileName
-	if err := file.SaveFile(item, fileHeader, dst); err != nil {
-		global.Logger.Errorf("文件上传失败！原因: %v\n", err)
+	if err := upload.SaveFile(item, fileHeader, dst); err != nil {
+		logger.Errorf("文件上传失败！原因: %v\n", err)
 		return err
 	}
 
@@ -80,7 +81,7 @@ func (svc *Service) Upload(c *gin.Context, item int, fileHeader *multipart.FileH
 		FileName:  &fileName,
 	})
 	if err != nil {
-		global.Logger.Errorf("文件上传失败！原因: %v\n", err)
+		logger.Errorf("文件上传失败！原因: %v\n", err)
 		return err
 	}
 	return nil
@@ -90,7 +91,7 @@ func (svc *Service) Upload(c *gin.Context, item int, fileHeader *multipart.FileH
 func (svc *Service) DeleteFile(id int) pojo.Result {
 	err := svc.dao.DeleteFile(id)
 	if err != nil {
-		global.Logger.Errorf("文件删除失败！原因: %v\n", err)
+		logger.Errorf("文件删除失败！原因: %v\n", err)
 		return pojo.Result{Success: pojo.ResultSuccess_False, Msg: pojo.ResultMsg_TryAgainLater}
 	}
 	return pojo.Result{Success: pojo.ResultSuccess_True}
@@ -100,7 +101,7 @@ func (svc *Service) DeleteFile(id int) pojo.Result {
 func (svc *Service) BatchDeleteFile(ids []int) pojo.Result {
 	err := svc.dao.BatchDeleteFile(ids)
 	if err != nil {
-		global.Logger.Errorf("批量删除失败！原因: %v\n", err)
+		logger.Errorf("批量删除失败！原因: %v\n", err)
 		return pojo.Result{Success: pojo.ResultSuccess_False, Msg: pojo.ResultMsg_TryAgainLater}
 	}
 	return pojo.Result{Success: pojo.ResultSuccess_True}

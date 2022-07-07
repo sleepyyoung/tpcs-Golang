@@ -11,13 +11,13 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"tpcs/global"
 	"tpcs/internal/pojo"
 	"tpcs/internal/pojo/model"
 	"tpcs/internal/service"
 	courseService "tpcs/internal/service/course"
 	questionService "tpcs/internal/service/question"
 	"tpcs/pkg/app"
+	"tpcs/pkg/logger"
 	"tpcs/pkg/util/combine"
 )
 
@@ -34,14 +34,14 @@ func (cb Combine) Init(c *gin.Context) {
 
 	questionTypeList, err := svc.AllQuestionTypes()
 	if err != nil {
-		global.Logger.Errorf("svc.AllQuestionTypes err: %v", err)
+		logger.Errorf("svc.AllQuestionTypes err: %v", err)
 		response.ToFailResultResponse(pojo.ResultMsg_TryAgainLater)
 		return
 	}
 
 	questionDifficultyList, err := svc.AllQuestionDifficulties()
 	if err != nil {
-		global.Logger.Errorf("svc.AllQuestionDifficulties err: %v", err)
+		logger.Errorf("svc.AllQuestionDifficulties err: %v", err)
 		response.ToFailResultResponse(pojo.ResultMsg_TryAgainLater)
 		return
 	}
@@ -77,7 +77,7 @@ func (cb Combine) ExistsInfoByCourse(c *gin.Context) {
 
 	courseId, err := strconv.Atoi(c.Param("courseId"))
 	if err != nil {
-		global.Logger.Errorf("strconv.Atoi err: %v", err)
+		logger.Errorf("strconv.Atoi err: %v", err)
 		response.ToFailResultResponse(pojo.ResultMsg_FormParseErr)
 		return
 	}
@@ -93,7 +93,7 @@ func (cb Combine) ExistsInfoByCourse(c *gin.Context) {
 
 	existsQuestionInfoList, err := svc.ExistsQuestionInfoList(courseId)
 	if err != nil {
-		global.Logger.Errorf("svc.ExistsQuestionInfoList err: %v", err)
+		logger.Errorf("svc.ExistsQuestionInfoList err: %v", err)
 		response.ToFailResultResponse(pojo.ResultMsg_TryAgainLater)
 		return
 	}
@@ -132,7 +132,7 @@ func (cb Combine) Update(c *gin.Context) {
 
 	body, err := ioutil.ReadAll(c.Request.Body)
 	if err != nil {
-		global.Logger.Errorf("ioutil.ReadAll err: %v", err)
+		logger.Errorf("ioutil.ReadAll err: %v", err)
 		response.ToFailResultResponse(pojo.ResultMsg_TryAgainLater)
 		return
 	}
@@ -140,7 +140,7 @@ func (cb Combine) Update(c *gin.Context) {
 	tableDataList := make([]map[string]interface{}, 0)
 	err = json.Unmarshal(body, &tableDataList)
 	if err != nil {
-		global.Logger.Errorf("json.Unmarshal err: %v", err)
+		logger.Errorf("json.Unmarshal err: %v", err)
 		response.ToFailResultResponse(pojo.ResultMsg_TryAgainLater)
 		return
 	}
@@ -192,7 +192,7 @@ func (cb Combine) Update(c *gin.Context) {
 		}
 		questionType, err := svc.GetQuestionTypeById(int(m["typeId"].(float64)))
 		if err != nil {
-			global.Logger.Errorf("svc.GetQuestionTypeById err: %v", err)
+			logger.Errorf("svc.GetQuestionTypeById err: %v", err)
 			return
 		}
 		m = map[string]interface{}{
@@ -224,7 +224,7 @@ func doCombine(c *gin.Context) (bool, string, *pojo.CombineResult) {
 	var request questionService.AddCombinePlanRequest
 	err := c.ShouldBindWith(&request, binding.FormPost)
 	if err != nil {
-		global.Logger.Errorf("c.ShouldBindWith err: %v", err)
+		logger.Errorf("c.ShouldBindWith err: %v", err)
 		return false, pojo.ResultMsg_FormParseErr, nil
 	}
 
@@ -235,13 +235,13 @@ func doCombine(c *gin.Context) (bool, string, *pojo.CombineResult) {
 	tableDataList := make([]map[string]interface{}, 0)
 	err = json.Unmarshal([]byte(*request.Plan), &tableDataList)
 	if err != nil {
-		global.Logger.Errorf("json.Unmarshal err: %v", err)
+		logger.Errorf("json.Unmarshal err: %v", err)
 		return false, pojo.ResultMsg_TryAgainLater, nil
 	}
 
 	questionTypeList, err := questionSvc.AllQuestionTypes()
 	if err != nil {
-		global.Logger.Errorf("questionSvc.AllQuestionTypes err: %v", err)
+		logger.Errorf("questionSvc.AllQuestionTypes err: %v", err)
 		return false, pojo.ResultMsg_TryAgainLater, nil
 	}
 
@@ -255,32 +255,32 @@ func doCombine(c *gin.Context) (bool, string, *pojo.CombineResult) {
 		if "" != fmt.Sprintf("%v", m["score"]) && "" != fmt.Sprintf("%v", m["num"]) {
 			typeId, err := strconv.Atoi(fmt.Sprintf("%v", m["typeId"]))
 			if err != nil {
-				global.Logger.Errorf("strconv.Atoi err: %v", err)
+				logger.Errorf("strconv.Atoi err: %v", err)
 				return false, pojo.ResultMsg_FormParseErr, nil
 			}
 			difficultyId, err := strconv.Atoi(fmt.Sprintf("%v", m["difficultyId"]))
 			if err != nil {
-				global.Logger.Errorf("strconv.Atoi err: %v", err)
+				logger.Errorf("strconv.Atoi err: %v", err)
 				return false, pojo.ResultMsg_FormParseErr, nil
 			}
 			score, err := strconv.ParseFloat(fmt.Sprintf("%v", m["score"]), 64)
 			if err != nil {
-				global.Logger.Errorf("strconv.ParseFloat err: %v", err)
+				logger.Errorf("strconv.ParseFloat err: %v", err)
 				return false, pojo.ResultMsg_FormParseErr, nil
 			}
 			tScore, err := strconv.ParseFloat(fmt.Sprintf("%v", m["tScore"]), 64)
 			if err != nil {
-				global.Logger.Errorf("strconv.ParseFloat err: %v", err)
+				logger.Errorf("strconv.ParseFloat err: %v", err)
 				return false, pojo.ResultMsg_FormParseErr, nil
 			}
 			num, err := strconv.Atoi(fmt.Sprintf("%v", m["num"]))
 			if err != nil {
-				global.Logger.Errorf("strconv.Atoi err: %v", err)
+				logger.Errorf("strconv.Atoi err: %v", err)
 				return false, pojo.ResultMsg_FormParseErr, nil
 			}
 			ids, err := questionSvc.QueryIdListByTypeIdAndDifficultyIdAndScore(*request.CourseId, typeId, difficultyId, score)
 			if err != nil {
-				global.Logger.Errorf("questionSvc.QueryIdListByTypeIdAndDifficultyIdAndScore err: %v", err)
+				logger.Errorf("questionSvc.QueryIdListByTypeIdAndDifficultyIdAndScore err: %v", err)
 				return false, pojo.ResultMsg_TryAgainLater, nil
 			}
 
@@ -290,17 +290,17 @@ func doCombine(c *gin.Context) (bool, string, *pojo.CombineResult) {
 			if len(ids) < num {
 				course, err := courseSvc.GetCourseById(*request.CourseId)
 				if err != nil {
-					global.Logger.Errorf("questionSvc.GetCourseById err: %v", err)
+					logger.Errorf("questionSvc.GetCourseById err: %v", err)
 					return false, pojo.ResultMsg_TryAgainLater, nil
 				}
 				questionType, err := questionSvc.GetQuestionTypeById(typeId)
 				if err != nil {
-					global.Logger.Errorf("questionSvc.GetQuestionTypeById err: %v", err)
+					logger.Errorf("questionSvc.GetQuestionTypeById err: %v", err)
 					return false, pojo.ResultMsg_TryAgainLater, nil
 				}
 				questionDifficulty, err := questionSvc.GetQuestionDifficultyById(difficultyId)
 				if err != nil {
-					global.Logger.Errorf("questionSvc.GetQuestionDifficultyById err: %v", err)
+					logger.Errorf("questionSvc.GetQuestionDifficultyById err: %v", err)
 					return false, pojo.ResultMsg_TryAgainLater, nil
 				}
 				return false, "课程为[<span style=\"color: red;\">" + *course.Name +
@@ -346,7 +346,7 @@ func (cb Combine) Combine(c *gin.Context) {
 	var request questionService.AddCombinePlanRequest
 	err := c.ShouldBindWith(&request, binding.FormPost)
 	if err != nil {
-		global.Logger.Errorf("c.ShouldBindWith err: %v", err)
+		logger.Errorf("c.ShouldBindWith err: %v", err)
 		return
 	}
 
@@ -371,7 +371,7 @@ func (cb Combine) CombinePlanList(c *gin.Context) {
 	var request service.ListRequest
 	err := c.ShouldBindQuery(&request)
 	if err != nil {
-		global.Logger.Errorf("c.ShouldBindQuery err: %v", err)
+		logger.Errorf("c.ShouldBindQuery err: %v", err)
 		response.ToFailResultResponse(pojo.ResultMsg_FormParseErr)
 		return
 	}
@@ -380,7 +380,7 @@ func (cb Combine) CombinePlanList(c *gin.Context) {
 	var combinePlanList []model.CombinePlan
 	combinePlanList, count, err = svc.CombinePlanList(&request)
 	if err != nil {
-		global.Logger.Errorf("svc.QuestionList err: %v", err)
+		logger.Errorf("svc.QuestionList err: %v", err)
 		response.ToFailResultResponse(pojo.ResultMsg_TryAgainLater)
 		return
 	}
@@ -417,7 +417,7 @@ func (cb Combine) AddCombinePlan(c *gin.Context) {
 	var request questionService.AddCombinePlanRequest
 	err := c.ShouldBindWith(&request, binding.FormPost)
 	if err != nil {
-		global.Logger.Errorf("c.ShouldBindWith err: %v", err)
+		logger.Errorf("c.ShouldBindWith err: %v", err)
 		response.ToFailResultResponse(pojo.ResultMsg_FormParseErr)
 		return
 	}
@@ -426,7 +426,7 @@ func (cb Combine) AddCombinePlan(c *gin.Context) {
 	if b {
 		plan, err := questionSvc.GetCombinePlanByPlanName(strings.Trim(*request.PlanName, " "))
 		if err != nil {
-			global.Logger.Errorf("questionSvc.GetCombinePlanByPlanName err: %v\n", err)
+			logger.Errorf("questionSvc.GetCombinePlanByPlanName err: %v\n", err)
 			response.ToFailResultResponse(pojo.ResultMsg_TryAgainLater)
 			return
 		}
@@ -452,7 +452,7 @@ func (cb Combine) EditCombinePlan(c *gin.Context) {
 
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		global.Logger.Errorf("strconv.Atoi(c.Param(\"id\")) err: %v", err)
+		logger.Errorf("strconv.Atoi(c.Param(\"id\")) err: %v", err)
 		response.ToFailResultResponse(pojo.ResultMsg_FormParseErr)
 		return
 	}
@@ -460,7 +460,7 @@ func (cb Combine) EditCombinePlan(c *gin.Context) {
 	var request questionService.AddCombinePlanRequest
 	err = c.ShouldBindWith(&request, binding.FormPost)
 	if err != nil {
-		global.Logger.Errorf("c.ShouldBindWith err: %v", err)
+		logger.Errorf("c.ShouldBindWith err: %v", err)
 		response.ToFailResultResponse(pojo.ResultMsg_FormParseErr)
 		return
 	}
@@ -469,7 +469,7 @@ func (cb Combine) EditCombinePlan(c *gin.Context) {
 	if b {
 		plan, err := questionSvc.GetCombinePlanByPlanName(strings.Trim(*request.PlanName, " "))
 		if err != nil {
-			global.Logger.Errorf("questionSvc.GetCombinePlanByPlanName err: %v\n", err)
+			logger.Errorf("questionSvc.GetCombinePlanByPlanName err: %v\n", err)
 			response.ToFailResultResponse(pojo.ResultMsg_TryAgainLater)
 			return
 		}
@@ -495,7 +495,7 @@ func (cb Combine) DeleteCombinePlan(c *gin.Context) {
 
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		global.Logger.Errorf("strconv.Atoi(c.Param(\"id\")) err: %v", err)
+		logger.Errorf("strconv.Atoi(c.Param(\"id\")) err: %v", err)
 		response.ToFailResultResponse(pojo.ResultMsg_FormParseErr)
 		return
 	}
@@ -513,7 +513,7 @@ func (cb Combine) BatchDeleteCombinePlan(c *gin.Context) {
 
 	body, err := ioutil.ReadAll(c.Request.Body)
 	if err != nil {
-		global.Logger.Errorf("ioutil.ReadAll err: %v", err)
+		logger.Errorf("ioutil.ReadAll err: %v", err)
 		response.ToFailResultResponse(pojo.ResultMsg_TryAgainLater)
 		return
 	}
@@ -521,7 +521,7 @@ func (cb Combine) BatchDeleteCombinePlan(c *gin.Context) {
 	ids := make([]int, 15)
 	err = json.Unmarshal(body, &ids)
 	if err != nil {
-		global.Logger.Errorf("json.Unmarshal err: %v", err)
+		logger.Errorf("json.Unmarshal err: %v", err)
 		response.ToFailResultResponse(pojo.ResultMsg_TryAgainLater)
 		return
 	}

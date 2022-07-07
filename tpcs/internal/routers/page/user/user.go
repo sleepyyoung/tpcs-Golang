@@ -4,9 +4,9 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"tpcs/global"
 	"tpcs/internal/pojo/model"
 	userService "tpcs/internal/service/user"
+	"tpcs/pkg/logger"
 )
 
 func UserHandler(c *gin.Context) {
@@ -17,7 +17,7 @@ func UserHandler(c *gin.Context) {
 
 	userByUsername, err := userSvc.GetUserByUsername(c.Param("username"))
 	if err != nil {
-		global.Logger.Errorf("userSvc.GetUserByUsername err: %v\n", err)
+		logger.Errorf("userSvc.GetUserByUsername err: %v\n", err)
 		return
 	}
 

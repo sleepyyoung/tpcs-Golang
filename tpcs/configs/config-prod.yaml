@@ -1,8 +1,9 @@
 App:
   URL: http://10.0.119.208/
-  LogSavePath: D:/tpcs/logs
-  LogFileName: app
-  LogFileExt: .log
+  LogSavePath: D:/Code/GitProject/tpcs-Golang/logs/
+  LogSaveName: log
+  LogFileExt: log
+  TimeFormat: 20060102
   UploadDir: D:/tpcs
   FileUploadPath: D:/tpcs/uploads
   MdImgUploadPath: D:/tpcs/files

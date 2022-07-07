@@ -1,10 +1,10 @@
 package question
 
 import (
-	"tpcs/global"
 	"tpcs/internal/pojo"
 	"tpcs/internal/pojo/model"
 	"tpcs/internal/service"
+	"tpcs/pkg/logger"
 )
 
 // QueryIdListByTypeIdAndDifficultyIdAndScore 组卷用，取id
@@ -39,7 +39,7 @@ func (svc *Service) AddCombinePlan(request AddCombinePlanRequest) pojo.Result {
 		Note:       request.Note,
 	})
 	if err != nil {
-		global.Logger.Errorf("questionSvc.AddCombinePlan err: %v", err)
+		logger.Errorf("questionSvc.AddCombinePlan err: %v", err)
 		return pojo.Result{Success: pojo.ResultSuccess_False, Msg: pojo.ResultMsg_TryAgainLater}
 	}
 	return pojo.Result{Success: pojo.ResultSuccess_True}
@@ -58,7 +58,7 @@ func (svc *Service) EditCombinePlan(id int, request AddCombinePlanRequest) pojo.
 		Note:       request.Note,
 	})
 	if err != nil {
-		global.Logger.Errorf("questionSvc.EditCombinePlan err: %v", err)
+		logger.Errorf("questionSvc.EditCombinePlan err: %v", err)
 		return pojo.Result{Success: pojo.ResultSuccess_False, Msg: pojo.ResultMsg_TryAgainLater}
 	}
 	return pojo.Result{Success: pojo.ResultSuccess_True}
@@ -68,7 +68,7 @@ func (svc *Service) EditCombinePlan(id int, request AddCombinePlanRequest) pojo.
 func (svc *Service) DeleteCombinePlan(id int) pojo.Result {
 	err := svc.dao.DeleteCombinePlan(id)
 	if err != nil {
-		global.Logger.Errorf("questionSvc.DeleteCombinePlan err: %v", err)
+		logger.Errorf("questionSvc.DeleteCombinePlan err: %v", err)
 		return pojo.Result{Success: pojo.ResultSuccess_False, Msg: pojo.ResultMsg_TryAgainLater}
 	}
 	return pojo.Result{Success: pojo.ResultSuccess_True}
@@ -78,7 +78,7 @@ func (svc *Service) DeleteCombinePlan(id int) pojo.Result {
 func (svc *Service) BatchDeleteCombinePlan(ids []int) pojo.Result {
 	err := svc.dao.BatchDeleteCombinePlan(ids)
 	if err != nil {
-		global.Logger.Errorf("批量删除组卷方案失败！原因：%v\n", err)
+		logger.Errorf("批量删除组卷方案失败！原因：%v\n", err)
 		return pojo.Result{Success: pojo.ResultSuccess_False, Msg: pojo.ResultMsg_TryAgainLater}
 	}
 	return pojo.Result{Success: pojo.ResultSuccess_True}

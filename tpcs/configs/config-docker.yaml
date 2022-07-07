@@ -1,0 +1,46 @@
+App:
+  URL: http://127.0.0.1/
+  LogSavePath: /tpcs/logs/
+  LogSaveName: log
+  LogFileExt: log
+  TimeFormat: 20060102
+  UploadDir: /tpcs
+  FileUploadPath: /tpcs/uploads
+  MdImgUploadPath: /tpcs/files
+  SessionNames:
+    - user
+    - upload_status
+Server:
+  RunMode: release
+  HttpPort: 8080
+  ReadTimeout: 60
+  WriteTimeout: 60
+Database:
+  DBType: mysql
+  Username: root
+  Password: 19834044876
+  Host: mysql:3306
+  DBName: tpcs_go
+  Charset: utf8
+  ParseTime: True
+  MaxIdleConns: 10
+  MaxOpenConns: 30
+Redis:
+  Addr: redis:6380
+  Password: 19834044876
+  DB: 0
+  Topic: register
+Email:
+  Host: smtp.qq.com
+  Port: 465
+  UserName: 1696589321@qq.com
+  Password: reivzpjdtrffcjdc
+  IsSSL: true
+  From: 1696589321@qq.com
+  To:
+    - lipeiyang1024@163.com
+JWT:
+  Key: philpy~!@#$%^&*()_+
+  Secret: philpy+_)(*&^%$#@!~
+  Issuer: tpcs
+  Expire: 300

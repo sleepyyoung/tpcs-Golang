@@ -10,6 +10,7 @@ import (
 	userService "tpcs/internal/service/user"
 	"tpcs/pkg/app"
 	"tpcs/pkg/email"
+	"tpcs/pkg/logger"
 )
 
 type Teacher struct{}
@@ -25,7 +26,7 @@ func (t Teacher) List(c *gin.Context) {
 	var listRequest service.ListRequest
 	err := c.ShouldBindQuery(&listRequest)
 	if err != nil {
-		global.Logger.Errorf("c.ShouldBindQuery err: %v", err)
+		logger.Errorf("c.ShouldBindQuery err: %v", err)
 		return
 	}
 
@@ -33,7 +34,7 @@ func (t Teacher) List(c *gin.Context) {
 	var teacherList []model.User
 	teacherList, count, err = userSvc.NotAdminUserList(&listRequest)
 	if err != nil {
-		global.Logger.Errorf("svc.NotAdminUserList err: %v", err)
+		logger.Errorf("svc.NotAdminUserList err: %v", err)
 		return
 	}
 
@@ -64,7 +65,7 @@ func (t Teacher) Freeze(c *gin.Context) {
 	var request userService.FreezeUserRequest
 	err := c.ShouldBindWith(&request, binding.Form)
 	if err != nil {
-		global.Logger.Errorf("c.ShouldBindWith err: %v", err)
+		logger.Errorf("c.ShouldBindWith err: %v", err)
 		response.ToFailResultResponse("请稍后重试！")
 		return
 	}
@@ -72,7 +73,7 @@ func (t Teacher) Freeze(c *gin.Context) {
 	status := 2
 	modifyUserSuccess, err := userSvc.ModifyUser(&model.User{Id: request.Userid, Status: &status})
 	if err != nil || !modifyUserSuccess {
-		global.Logger.Errorf("修改用户状态（待审核 -> 已冻结）失败，原因: %v", err)
+		logger.Errorf("修改用户状态（待审核 -> 已冻结）失败，原因: %v", err)
 		response.ToFailResultResponse("修改用户状态（待审核 -> 已冻结）失败！")
 		return
 	}
@@ -90,7 +91,7 @@ func (t Teacher) Freeze(c *gin.Context) {
 		fmt.Sprintf("您的TPCS账号 %v 已被冻结，解冻请联系管理员！原因：%v", *request.Username, *request.Reason),
 	)
 	if err != nil {
-		global.Logger.Errorf("用户已冻结的邮件发送失败，原因: %v", err)
+		logger.Errorf("用户已冻结的邮件发送失败，原因: %v", err)
 		response.ToFailResultResponse("用户已冻结，修改用户状态（待审核 -> 已冻结）成功，但是通知邮件发送失败！")
 		return
 	}
@@ -105,7 +106,7 @@ func (t Teacher) Thaw(c *gin.Context) {
 	var request userService.ThawUserRequest
 	err := c.ShouldBindWith(&request, binding.Form)
 	if err != nil {
-		global.Logger.Errorf("c.ShouldBindWith err: %v", err)
+		logger.Errorf("c.ShouldBindWith err: %v", err)
 		response.ToFailResultResponse("请稍后重试！")
 		return
 	}
@@ -113,7 +114,7 @@ func (t Teacher) Thaw(c *gin.Context) {
 	status := 0
 	modifyUserSuccess, err := userSvc.ModifyUser(&model.User{Id: request.Userid, Status: &status})
 	if err != nil || !modifyUserSuccess {
-		global.Logger.Errorf("修改用户状态（已冻结 -> 正常）失败，原因: %v", err)
+		logger.Errorf("修改用户状态（已冻结 -> 正常）失败，原因: %v", err)
 		response.ToFailResultResponse("修改用户状态（已冻结 -> 正常）失败！")
 		return
 	}
@@ -131,7 +132,7 @@ func (t Teacher) Thaw(c *gin.Context) {
 		fmt.Sprintf("您的TPCS账号 %v 已解冻！", *request.Username),
 	)
 	if err != nil {
-		global.Logger.Errorf("用户已解冻的邮件发送失败，原因: %v", err)
+		logger.Errorf("用户已解冻的邮件发送失败，原因: %v", err)
 		response.ToFailResultResponse("用户已解冻，修改用户状态（已冻结 -> 正常）成功，但是通知邮件发送失败！")
 		return
 	}
@@ -150,7 +151,7 @@ func (t Teacher) Audit(c *gin.Context) {
 	var request userService.AuditUserRequest
 	err := c.ShouldBindWith(&request, binding.Form)
 	if err != nil {
-		global.Logger.Errorf("c.ShouldBindWith err: %v", err)
+		logger.Errorf("c.ShouldBindWith err: %v", err)
 		response.ToFailResultResponse("请稍后重试！")
 		return
 	}
@@ -159,7 +160,7 @@ func (t Teacher) Audit(c *gin.Context) {
 		status := 0
 		modifyUserSuccess, err := userSvc.ModifyUser(&model.User{Id: request.Userid, Status: &status})
 		if err != nil {
-			global.Logger.Errorf("修改用户状态（待审核 -> 正常）失败，原因: %v", err)
+			logger.Errorf("修改用户状态（待审核 -> 正常）失败，原因: %v", err)
 			response.ToFailResultResponse("修改用户状态（待审核 -> 正常）失败！")
 			return
 		}
@@ -177,7 +178,7 @@ func (t Teacher) Audit(c *gin.Context) {
 				fmt.Sprintf("您近期注册的TPCS用户 %v 已通过审核，欢迎使用！", *request.Username),
 			)
 			if err != nil {
-				global.Logger.Errorf("用户通过审核的邮件发送失败，原因: %v", err)
+				logger.Errorf("用户通过审核的邮件发送失败，原因: %v", err)
 				response.ToFailResultResponse("用户已通过审核，修改用户状态（待审核 -> 正常）成功，但是通知邮件发送失败！")
 				return
 			}
@@ -188,7 +189,7 @@ func (t Teacher) Audit(c *gin.Context) {
 	} else {
 		isDelete, err := userSvc.DeleteUserById(*request.Userid)
 		if err != nil {
-			global.Logger.Errorf("删除未通过审核的用户信息失败，原因: %v", err)
+			logger.Errorf("删除未通过审核的用户信息失败，原因: %v", err)
 			response.ToFailResultResponse("删除未通过审核的用户信息失败！")
 			return
 		}
@@ -206,7 +207,7 @@ func (t Teacher) Audit(c *gin.Context) {
 				fmt.Sprintf("您近期注册的TPCS用户 %v 审核未通过，请重新注册，原因：<textarea>%v</textarea>", *request.Username, *request.Reason),
 			)
 			if err != nil {
-				global.Logger.Errorf("用户通过审核的邮件发送失败，原因: %v", err)
+				logger.Errorf("用户通过审核的邮件发送失败，原因: %v", err)
 				response.ToFailResultResponse("用户已通过审核，修改用户状态（待审核 -> 正常）成功，但是通知邮件发送失败！")
 				return
 			}

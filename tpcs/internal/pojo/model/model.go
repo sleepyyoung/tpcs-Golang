@@ -2,12 +2,18 @@ package model
 
 import (
 	"fmt"
-	"github.com/go-redis/redis"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
+	"time"
 	"tpcs/global"
 	"tpcs/pkg/setting"
 )
+
+type Model struct {
+	CreatedOn  *int `gorm:"column:CREATED_ON" json:"created_on"`
+	ModifiedOn *int `gorm:"column:MODIFIED_ON" json:"modified_on"`
+	DeletedOn  *int `gorm:"column:DELETED_ON" json:"deleted_on"`
+}
 
 func NewDBEngine(databaseSetting *setting.DatabaseSettingS) (*gorm.DB, error) {
 	s := "%s:%s@tcp(%s)/%s?charset=%s&parseTime=%t&loc=Local"
@@ -31,28 +37,70 @@ func NewDBEngine(databaseSetting *setting.DatabaseSettingS) (*gorm.DB, error) {
 	db.DB().SetMaxIdleConns(databaseSetting.MaxIdleConns)
 	db.DB().SetMaxOpenConns(databaseSetting.MaxOpenConns)
 
-	// 注册回调行为
-	db.SingularTable(true)
-	//db.Callback().Create().Replace("gorm:update_time_stamp", updateTimeStampForCreateCallback)
-	//db.Callback().Update().Replace("gorm:update_time_stamp", updateTimeStampForUpdateCallback)
-	//db.Callback().Delete().Replace("gorm:delete", deleteCallback)
-	db.DB().SetMaxIdleConns(databaseSetting.MaxIdleConns)
-	db.DB().SetMaxOpenConns(databaseSetting.MaxOpenConns)
+	db.Callback().Create().Replace("gorm:update_time_stamp", updateTimeStampForCreateCallback)
+	db.Callback().Update().Replace("gorm:update_time_stamp", updateTimeStampForUpdateCallback)
+	db.Callback().Delete().Replace("gorm:delete", deleteCallback)
 
 	return db, nil
 }
 
-func NewRedisClient(redisSetting *setting.RedisSettingS) (*redis.Client, error) {
-	rdb := redis.NewClient(
-		&redis.Options{
-			Addr:     redisSetting.Addr,
-			Password: redisSetting.Password,
-			DB:       redisSetting.DB,
-		},
-	)
-	_, err := rdb.Ping().Result()
-	if err != nil {
-		return nil, err
+// updateTimeStampForCreateCallback will set `CreatedOn`, `ModifiedOn` when creating
+func updateTimeStampForCreateCallback(scope *gorm.Scope) {
+	if !scope.HasError() {
+		nowTime := time.Now().Unix()
+		if createTimeField, ok := scope.FieldByName("CreatedOn"); ok {
+			if createTimeField.IsBlank {
+				createTimeField.Set(nowTime)
+			}
+		}
+
+		if modifyTimeField, ok := scope.FieldByName("ModifiedOn"); ok {
+			if modifyTimeField.IsBlank {
+				modifyTimeField.Set(nowTime)
+			}
+		}
 	}
-	return rdb, nil
+}
+
+// updateTimeStampForUpdateCallback will set `ModifyTime` when updating
+func updateTimeStampForUpdateCallback(scope *gorm.Scope) {
+	if _, ok := scope.Get("gorm:update_column"); !ok {
+		scope.SetColumn("ModifiedOn", time.Now().Unix())
+	}
+}
+
+func deleteCallback(scope *gorm.Scope) {
+	if !scope.HasError() {
+		var extraOption string
+		if str, ok := scope.Get("gorm:delete_option"); ok {
+			extraOption = fmt.Sprint(str)
+		}
+
+		deletedOnField, hasDeletedOnField := scope.FieldByName("DeletedOn")
+
+		if !scope.Search.Unscoped && hasDeletedOnField {
+			scope.Raw(fmt.Sprintf(
+				"UPDATE %v SET %v=%v%v%v",
+				scope.QuotedTableName(),
+				scope.Quote(deletedOnField.DBName),
+				scope.AddToVars(time.Now().Unix()),
+				addExtraSpaceIfExist(scope.CombinedConditionSql()),
+				addExtraSpaceIfExist(extraOption),
+			)).Exec()
+		} else {
+			scope.Raw(fmt.Sprintf(
+				"DELETE FROM %v%v%v",
+				scope.QuotedTableName(),
+				addExtraSpaceIfExist(scope.CombinedConditionSql()),
+				addExtraSpaceIfExist(extraOption),
+			)).Exec()
+		}
+	}
+}
+
+func addExtraSpaceIfExist(str string) string {
+	if str != "" {
+		return " " + str
+	}
+	return ""
 }

@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
-	"tpcs/global"
 	"tpcs/internal/pojo"
 	"tpcs/internal/pojo/model"
 	"tpcs/internal/service"
@@ -16,6 +15,8 @@ import (
 	userService "tpcs/internal/service/user"
 	"tpcs/pkg/app"
 	"tpcs/pkg/file"
+	"tpcs/pkg/logger"
+	"tpcs/pkg/upload"
 )
 
 type File struct{}
@@ -31,14 +32,14 @@ func (p File) Upload4MdImg(c *gin.Context) {
 
 	imageFile, err := c.FormFile("editormd-image-file")
 	if err != nil {
-		global.Logger.Errorf("c.FormFile() err: %v\n", err)
+		logger.Errorf("c.FormFile() err: %v\n", err)
 		response.ToFailResultResponse(pojo.ResultMsg_TryAgainLater)
 		return
 	}
 
 	url, err := fileSvc.Upload4MdImg(imageFile)
 	if err != nil {
-		global.Logger.Errorf("fileSvc.Upload4MdImg() err: %v\n", err)
+		logger.Errorf("fileSvc.Upload4MdImg() err: %v\n", err)
 		response.Ctx.JSON(
 			http.StatusRequestTimeout,
 			map[string]interface{}{
@@ -75,7 +76,7 @@ func (p File) List(c *gin.Context) {
 	var request service.ListRequest
 	err := c.ShouldBindQuery(&request)
 	if err != nil {
-		global.Logger.Errorf("c.ShouldBindWith err: %v", err)
+		logger.Errorf("c.ShouldBindWith err: %v", err)
 		response.ToResponse(pojo.Result{
 			Code:  0,
 			Msg:   pojo.ResultMsg_FormParseErr,
@@ -95,7 +96,7 @@ func (p File) List(c *gin.Context) {
 
 	fileList, count, err = fileSvc.FileList(*user.Id, &request)
 	if err != nil {
-		global.Logger.Errorf("svc.FileList err: %v", err)
+		logger.Errorf("svc.FileList err: %v", err)
 		response.ToResponse(pojo.Result{
 			Code:  0,
 			Msg:   pojo.ResultMsg_TryAgainLater,
@@ -108,7 +109,7 @@ func (p File) List(c *gin.Context) {
 	for _, f := range fileList {
 		u, err := userSvc.GetUserByUserId(*f.UserId)
 		if err != nil {
-			global.Logger.Errorf("svc.GetUserByUserId err: %v", err)
+			logger.Errorf("svc.GetUserByUserId err: %v", err)
 			response.ToResponse(pojo.Result{
 				Code:  0,
 				Msg:   pojo.ResultMsg_TryAgainLater,
@@ -139,7 +140,7 @@ func (p File) List(c *gin.Context) {
 
 // Upload 文件上传
 func (p File) Upload(c *gin.Context) {
-	file.Session = sessions.DefaultMany(c, "upload_status")
+	upload.Session = sessions.DefaultMany(c, "upload_status")
 	fileSvc := fileService.New(c.Request.Context())
 	response := app.NewResponse(c)
 	w := response.Ctx.Writer
@@ -152,13 +153,13 @@ func (p File) Upload(c *gin.Context) {
 
 	multipartForm, err := c.MultipartForm()
 	if err != nil {
-		global.Logger.Errorf("c.MultipartForm() err: %v\n", err)
+		logger.Errorf("c.MultipartForm() err: %v\n", err)
 		response.ToFailResultResponse(pojo.ResultMsg_TryAgainLater)
 		return
 	}
 
 	for index, fileHeader := range (multipartForm.File)["files"] {
-		err := fileSvc.Upload(c, index+1, fileHeader, *user.Id)
+		err := fileSvc.Upload(index+1, fileHeader, *user.Id)
 		if err != nil {
 			response.ToResponse(map[string]string{"result": "fail"})
 			return
@@ -173,13 +174,13 @@ func (p File) Upload(c *gin.Context) {
 func (p File) UploadStatus(c *gin.Context) {
 	defer func() {
 		if r := recover(); r != nil {
-			global.Logger.Errorf("从session中获取文件上传进度失败! : %v\n", r)
+			logger.Errorf("从session中获取文件上传进度失败! : %v\n", r)
 		}
 	}()
 
 	response := app.NewResponse(c)
 	session := sessions.DefaultMany(c, "upload_status")
-	uploadStatus := session.Get("upload_status").(file.UploadStatus)
+	uploadStatus := session.Get("upload_status").(upload.UploadStatus)
 	response.ToResponse(uploadStatus)
 	return
 }
@@ -192,7 +193,7 @@ func (p File) Download(c *gin.Context) {
 
 	fileId, err := strconv.Atoi(c.Param("fileId"))
 	if err != nil {
-		global.Logger.Errorf("strconv.Atoi(c.Param(\"fileId\")) err: %v\n", err)
+		logger.Errorf("strconv.Atoi(c.Param(\"fileId\")) err: %v\n", err)
 		response.Ctx.HTML(http.StatusOK, "404.tmpl", gin.H{
 			"message": pojo.ResultMsg_FormParseErr,
 		})
@@ -201,7 +202,7 @@ func (p File) Download(c *gin.Context) {
 
 	f, err := fileSvc.GetFileById(fileId)
 	if err != nil {
-		global.Logger.Errorf("svc.GetFileById err: %v\n", err)
+		logger.Errorf("svc.GetFileById err: %v\n", err)
 		response.Ctx.HTML(http.StatusOK, "404.tmpl", gin.H{
 			"message": pojo.ResultMsg_FileNotFound,
 		})
@@ -234,7 +235,7 @@ func (p File) Delete(c *gin.Context) {
 
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		global.Logger.Errorf("strconv.Atoi(c.Param(\"id\")) err: %v\n", err)
+		logger.Errorf("strconv.Atoi(c.Param(\"id\")) err: %v\n", err)
 		response.ToFailResultResponse(pojo.ResultMsg_TryAgainLater)
 		return
 	}
@@ -251,7 +252,7 @@ func (p File) BatchDelete(c *gin.Context) {
 
 	body, err := ioutil.ReadAll(c.Request.Body)
 	if err != nil {
-		global.Logger.Errorf("ioutil.ReadAll err: %v\n", err)
+		logger.Errorf("ioutil.ReadAll err: %v\n", err)
 		response.ToFailResultResponse(pojo.ResultMsg_TryAgainLater)
 		return
 	}
@@ -259,7 +260,7 @@ func (p File) BatchDelete(c *gin.Context) {
 	ids := make([]int, 15)
 	err = json.Unmarshal(body, &ids)
 	if err != nil {
-		global.Logger.Errorf("json.Unmarshal err: %v\n", err)
+		logger.Errorf("json.Unmarshal err: %v\n", err)
 		response.ToFailResultResponse(pojo.ResultMsg_TryAgainLater)
 		return
 	}

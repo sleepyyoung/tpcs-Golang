@@ -5,12 +5,12 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
-	"tpcs/global"
 	"tpcs/internal/pojo/model"
 	"tpcs/internal/service"
 	courseService "tpcs/internal/service/course"
 	questionService "tpcs/internal/service/question"
 	userService "tpcs/internal/service/user"
+	"tpcs/pkg/logger"
 )
 
 // QuestionListHandler 题目列表
@@ -26,19 +26,19 @@ func QuestionListHandler(c *gin.Context) {
 
 	questionTypeList, err := questionSvc.AllQuestionTypes()
 	if err != nil {
-		global.Logger.Errorf("questionSvc.AllQuestionTypes err: %v", err)
+		logger.Errorf("questionSvc.AllQuestionTypes err: %v", err)
 		return
 	}
 
 	questionDifficultyList, err := questionSvc.AllQuestionDifficulties()
 	if err != nil {
-		global.Logger.Errorf("questionSvc.AllQuestionDifficulties err: %v", err)
+		logger.Errorf("questionSvc.AllQuestionDifficulties err: %v", err)
 		return
 	}
 
 	courseList, _, err := courseSvc.CourseList(&service.ListRequest{Page: 0, Limit: 0})
 	if err != nil {
-		global.Logger.Errorf("questionSvc.CourseList err: %v", err)
+		logger.Errorf("questionSvc.CourseList err: %v", err)
 		return
 	}
 
@@ -57,19 +57,19 @@ func AddQuestionHandler(c *gin.Context) {
 
 	questionTypeList, err := questionSvc.AllQuestionTypes()
 	if err != nil {
-		global.Logger.Errorf("svc.AllQuestionTypes err: %v", err)
+		logger.Errorf("svc.AllQuestionTypes err: %v", err)
 		return
 	}
 
 	questionDifficultyList, err := questionSvc.AllQuestionDifficulties()
 	if err != nil {
-		global.Logger.Errorf("svc.AllQuestionDifficulties err: %v", err)
+		logger.Errorf("svc.AllQuestionDifficulties err: %v", err)
 		return
 	}
 
 	courseList, _, err := courseSvc.CourseList(&service.ListRequest{Page: 0, Limit: 0})
 	if err != nil {
-		global.Logger.Errorf("svc.CourseList err: %v", err)
+		logger.Errorf("svc.CourseList err: %v", err)
 		return
 	}
 

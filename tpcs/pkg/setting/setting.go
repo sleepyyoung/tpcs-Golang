@@ -10,9 +10,10 @@ type Setting struct {
 }
 
 const (
-	ENV_DEV  = "config-dev"
-	ENV_TEST = "config-test"
-	ENV_PROD = "config-prod"
+	ENV_DEV    = "config-dev"
+	ENV_DOCKER = "config-docker"
+	ENV_TEST   = "config-test"
+	ENV_PROD   = "config-prod"
 )
 
 func NewSetting(env string) (*Setting, error) {

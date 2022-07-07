@@ -2,12 +2,12 @@ package question
 
 import (
 	"github.com/gin-gonic/gin"
-	"tpcs/global"
 	"tpcs/internal/pojo"
 	"tpcs/internal/pojo/model"
 	"tpcs/internal/service"
 	questionService "tpcs/internal/service/question"
 	"tpcs/pkg/app"
+	"tpcs/pkg/logger"
 )
 
 type Type struct{}
@@ -24,7 +24,7 @@ func (qt Type) List(c *gin.Context) {
 	var listRequest service.ListRequest
 	err := c.ShouldBindQuery(&listRequest)
 	if err != nil {
-		global.Logger.Errorf("c.ShouldBindQuery err: %v", err)
+		logger.Errorf("c.ShouldBindQuery err: %v", err)
 		response.ToFailResultResponse(pojo.ResultMsg_FormParseErr)
 		return
 	}
@@ -33,7 +33,7 @@ func (qt Type) List(c *gin.Context) {
 	var questionTypeList []model.QuestionType
 	questionTypeList, count, err = svc.QuestionTypeList(&listRequest)
 	if err != nil {
-		global.Logger.Errorf("svc.QuestionTypeList err: %v", err)
+		logger.Errorf("svc.QuestionTypeList err: %v", err)
 		response.ToFailResultResponse(pojo.ResultMsg_TryAgainLater)
 		return
 	}

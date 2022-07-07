@@ -5,10 +5,10 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"tpcs/global"
 	"tpcs/internal/pojo"
 	"tpcs/internal/pojo/model"
 	userService "tpcs/internal/service/user"
+	"tpcs/pkg/logger"
 )
 
 func UserPageInterceptor() gin.HandlerFunc {
@@ -23,7 +23,7 @@ func UserPageInterceptor() gin.HandlerFunc {
 		} else {
 			user, err := userSvc.GetUserByUsernameAndPassword(*userI.(model.User).Username, *userI.(model.User).Password)
 			if err != nil {
-				global.Logger.Errorf("userSvc.GetUserByUsernameAndPassword err: %v\n", err)
+				logger.Errorf("userSvc.GetUserByUsernameAndPassword err: %v\n", err)
 				c.Redirect(http.StatusFound, "/login")
 				c.Abort()
 			}
@@ -63,7 +63,7 @@ func TeacherPageInterceptor() gin.HandlerFunc {
 		} else {
 			user, err := userSvc.GetUserByUsernameAndPassword(*userI.(model.User).Username, *userI.(model.User).Password)
 			if err != nil {
-				global.Logger.Errorf("userSvc.GetUserByUsernameAndPassword err: %v\n", err)
+				logger.Errorf("userSvc.GetUserByUsernameAndPassword err: %v\n", err)
 				c.Redirect(http.StatusFound, "/login")
 				c.Abort()
 			}
@@ -107,7 +107,7 @@ func AdminPageInterceptor() gin.HandlerFunc {
 		} else {
 			user, err := userSvc.GetUserByUsernameAndPassword(*userI.(model.User).Username, *userI.(model.User).Password)
 			if err != nil {
-				global.Logger.Errorf("userSvc.GetUserByUsernameAndPassword err: %v\n", err)
+				logger.Errorf("userSvc.GetUserByUsernameAndPassword err: %v\n", err)
 				c.Redirect(http.StatusFound, "/login")
 				c.Abort()
 			}
@@ -151,7 +151,7 @@ func UserApiInterceptor() gin.HandlerFunc {
 		} else {
 			user, err := userSvc.GetUserByUsernameAndPassword(*userI.(model.User).Username, *userI.(model.User).Password)
 			if err != nil {
-				global.Logger.Errorf("userSvc.GetUserByUsernameAndPassword err: %v\n", err)
+				logger.Errorf("userSvc.GetUserByUsernameAndPassword err: %v\n", err)
 				c.JSON(http.StatusOK, pojo.Result{Success: pojo.ResultSuccess_False, Msg: pojo.ResultMsg_InsufficientPermissions})
 				c.Abort()
 			}
@@ -186,7 +186,7 @@ func TeacherApiInterceptor() gin.HandlerFunc {
 		} else {
 			user, err := userSvc.GetUserByUsernameAndPassword(*userI.(model.User).Username, *userI.(model.User).Password)
 			if err != nil {
-				global.Logger.Errorf("userSvc.GetUserByUsernameAndPassword err: %v\n", err)
+				logger.Errorf("userSvc.GetUserByUsernameAndPassword err: %v\n", err)
 				c.JSON(http.StatusOK, pojo.Result{Success: pojo.ResultSuccess_False, Msg: pojo.ResultMsg_InsufficientPermissions})
 				c.Abort()
 			}
@@ -224,7 +224,7 @@ func AdminApiInterceptor() gin.HandlerFunc {
 		} else {
 			user, err := userSvc.GetUserByUsernameAndPassword(*userI.(model.User).Username, *userI.(model.User).Password)
 			if err != nil {
-				global.Logger.Errorf("userSvc.GetUserByUsernameAndPassword err: %v\n", err)
+				logger.Errorf("userSvc.GetUserByUsernameAndPassword err: %v\n", err)
 				c.JSON(http.StatusOK, pojo.Result{Success: pojo.ResultSuccess_False, Msg: pojo.ResultMsg_InsufficientPermissions})
 				c.Abort()
 			}

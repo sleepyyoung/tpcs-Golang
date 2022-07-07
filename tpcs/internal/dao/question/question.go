@@ -3,6 +3,7 @@ package question
 import (
 	"tpcs/global"
 	"tpcs/internal/pojo/model"
+	"tpcs/pkg/logger"
 )
 
 // GetQuestionCountByCourseIdAndQuestionTypeAndScoreAndDifficulty 通过课程id、题型、分值、难度获取题目数量
@@ -111,7 +112,7 @@ func (d *Dao) AddQuestion(question model.AddQuestion) error {
 	db := global.DBEngine
 	tx := db.Begin()
 	if err := tx.Error; err != nil {
-		global.Logger.Errorf("事务开启异常: %v\n", err)
+		logger.Errorf("事务开启异常: %v\n", err)
 		return err
 	}
 
@@ -216,7 +217,7 @@ func (d *Dao) ModifyQuestion(id int, question model.ModifyQuestion) error {
 	db := global.DBEngine
 	tx := db.Begin()
 	if err := tx.Error; err != nil {
-		global.Logger.Errorf("事务开启异常: %v\n", err)
+		logger.Errorf("事务开启异常: %v\n", err)
 		return err
 	}
 
@@ -236,7 +237,7 @@ func (d *Dao) RemoveQuestion(id int) error {
 	db := global.DBEngine
 	tx := db.Begin()
 	if err := tx.Error; err != nil {
-		global.Logger.Errorf("事务开启异常: %v\n", err)
+		logger.Errorf("事务开启异常: %v\n", err)
 		return err
 	}
 
@@ -256,7 +257,7 @@ func (d *Dao) BatchRemoveQuestion(ids []int) error {
 	db := global.DBEngine
 	tx := db.Begin()
 	if err := tx.Error; err != nil {
-		global.Logger.Errorf("事务开启异常: %v\n", err)
+		logger.Errorf("事务开启异常: %v\n", err)
 		return err
 	}
 

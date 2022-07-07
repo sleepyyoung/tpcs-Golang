@@ -4,9 +4,9 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"tpcs/global"
 	"tpcs/internal/pojo/model"
 	userService "tpcs/internal/service/user"
+	"tpcs/pkg/logger"
 )
 
 func MainHandler(c *gin.Context) {
@@ -19,7 +19,7 @@ func MainHandler(c *gin.Context) {
 	ginH["username"] = user.Username
 	isAdminUser, err := userSvc.IsAdminByUsernameAndPassword(*user.Username, *user.Password)
 	if err != nil {
-		global.Logger.Errorf("svc.IsAdminUser err: %v", err)
+		logger.Errorf("svc.IsAdminUser err: %v", err)
 		return
 	}
 	if isAdminUser {
